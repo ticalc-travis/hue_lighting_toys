@@ -25,20 +25,15 @@ def get_lights(bridge, args):
 
 def run_show(bridge, args, lights):
     while True:
-        # Shift current colors down one light
-        for new, old in [lights[i:i+2] for i in range(0, len(lights) - 1)]:
-            print('%s = %s' % (new.light_id, old.light_id))
-            os = bridge.get_light(old.light_id)['state']
-            bridge.set_light(new.light_id,
-                             {'hue': os['hue'], 'sat': os['sat'], 'bri': os['bri']},
+        new_h = random.randint(*args.hue_range)
+        new_s = random.randint(*args.sat_range)
+        new_b = random.randint(*args.bri_range)
+        for L in lights:
+            ls = bridge.get_light(L.light_id)['state']
+            save_h, save_s, save_b = ls['hue'], ls['sat'], ls['bri']
+            bridge.set_light(L.light_id, {'hue': new_h, 'sat': new_s, 'bri': new_b},
                              transitiontime=0)
-        # Set new incoming color on first light
-        h = random.randint(*args.hue_range)
-        s = random.randint(*args.sat_range)
-        b = random.randint(*args.bri_range)
-        print(lights[-1].light_id)
-        bridge.set_light(lights[-1].light_id, {'hue': h, 'sat': s, 'bri': b},
-                         transitiontime=0)
+            new_h, new_s, new_b = save_h, save_s, save_b
         time.sleep(args.cycle_time / 10)
 
 if __name__ == '__main__':
