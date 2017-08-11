@@ -137,3 +137,4 @@ if __name__ == '__main__':
         run_show(bridge, args, lights)
     except KeyboardInterrupt:
         print()                 # Terminate quietly on ^C
+        sys.exit(99)
