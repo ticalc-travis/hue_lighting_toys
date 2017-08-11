@@ -14,10 +14,6 @@ def go():
         else:
             digits = '{}'.format(min)
         opts = []
-        if len(digits) == 1:
-            opts += ['-s', '-1']
-        else:
-            opts += ['-p']
         print('\r{}:{:02}    '.format(hr, min), end='', flush=True)
         os.spawnv(os.P_WAIT, './coded_digits.py',
                   ['./coded_digits.py', digits] + opts + sys.argv[1:])
