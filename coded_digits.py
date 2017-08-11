@@ -70,8 +70,15 @@ def group_digits(digits, num_lights):
 def run_show(bridge, args, lights):
     digit_groups = group_digits(args.digits, len(lights))
     digit_cmds = DIGITS[args.scheme]
+
+    have_multiple_groups = len(digit_groups) > 1
+    use_padding = args.padded
+    if use_padding is None:
+        use_padding = have_multiple_groups
+
     for digit_group in digit_groups:
-        if args.switch_time > 0:
+        if args.switch_time >= 0 and (have_multiple_groups or
+                                      args.force_switch):
             bridge.set_light([L.light_id for L in lights],
                              digit_cmds[None], transitiontime=0)
             time.sleep(args.switch_time / 10)
@@ -79,7 +86,7 @@ def run_show(bridge, args, lights):
             cmd = digit_cmds.get(digit, digit_cmds[None])
             bridge.set_light(light.light_id, cmd, transitiontime=0)
         time.sleep(args.cycle_time / 10)
-    if args.padded:
+    if use_padding:
         bridge.set_light([L.light_id for L in lights],
                          digit_cmds[None], transitiontime=0)
         time.sleep(args.cycle_time / 10)
@@ -113,11 +120,18 @@ if __name__ == '__main__':
     parser.add_argument(
         '-s', '--switch-time',
         dest='switch_time', type=int, metavar='DECISECONDS', default=2,
-        help='display the "blank" color on all lights for %(metavar)s tenths of a second between digits (default: %(default)s. 0 makes it as short as possible; -1 disables it entirely.')
+        help='if there are more digits to transmit than lights, display the "blank" color on all lights for %(metavar)s tenths of a second before each digit flash (default: %(default)s . 0 makes it as short as possible; -1 disables it entirely.')
     parser.add_argument(
-        '-p', '--pad',
-        dest='padded', action='store_true',
-        help='reset all lights to the "blank" color when the sequence finishes')
+        '-fs', '--force-switch-time', dest='force_switch',
+        action='store_true',
+        help='always use a switch time after the digit flash, even if there are enough lights to display all digits at once')
+    parser.add_argument(
+        '-p', '--pad', dest='padded', action='store_const', const=True,
+        help='always reset all lights to the "blank" color when the sequence finishes, instead of only when there are more digits than lights to transmit')
+    parser.add_argument(
+        '-np', '--no-pad', dest='padded',
+        action='store_const', const=False,
+        help='never reset lights to the "blank" color when the sequence finishes')
     parser.add_argument(
         '-c', '--scheme',
         dest='scheme', type=str, choices=DIGITS.keys(),
