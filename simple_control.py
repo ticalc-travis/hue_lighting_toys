@@ -5,7 +5,7 @@ import curses
 import phue
 
 def get_bridge():
-    return phue.Bridge('192.168.1.156')
+    return phue.Bridge()
 
 def main(stdscr):
     bridge = get_bridge()
