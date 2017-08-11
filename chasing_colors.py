@@ -23,6 +23,10 @@ def get_lights(bridge, args):
         lights = bridge.get_light_objects()
     return lights
 
+def turn_on_lights(bridge, lights):
+    for L in lights:
+        bridge.set_light(L.light_id, 'on', True)
+
 def run_show(bridge, args, lights):
     while True:
         new_h = random.randint(*args.hue_range)
@@ -84,6 +88,7 @@ if __name__ == '__main__':
     if not lights:
         print("Error: No lights available", file=sys.stderr)
         sys.exit(3)
+    turn_on_lights(bridge, lights)
     try:
         run_show(bridge, args, lights)
     except KeyboardInterrupt:
