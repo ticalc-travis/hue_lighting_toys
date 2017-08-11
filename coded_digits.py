@@ -14,7 +14,7 @@ DIGITS = {
     'dim': {
         '0': {'on': True, 'ct': 250, 'bri': 1},
         '1': {'on': True, 'hue': 46014, 'sat': 255, 'bri': 1},
-        '2': {'on': True, 'hue': 7621, 'sat': 254, 'bri': 1},
+        '2': {'on': True, 'ct': 500, 'bri': 1},
         '3': {'on': True, 'hue': 24155, 'sat': 254, 'bri': 1},
         '4': {'on': True, 'hue': 10434, 'sat': 254, 'bri': 32},
         '5': {'on': True, 'hue': 0, 'sat': 255, 'bri': 1},
@@ -27,15 +27,15 @@ DIGITS = {
         None: {'on': False},
     },
     'bright': {
-        '0': {'on': True, 'ct': 250, 'bri': 128},
+        '0': {'on': True, 'ct': 250, 'bri': 92},
         '1': {'on': True, 'hue': 46014, 'sat': 255, 'bri': 64},
-        '2': {'on': True, 'hue': 7621, 'sat': 200, 'bri': 64},
+        '2': {'on': True, 'ct': 500, 'bri': 64},
         '3': {'on': True, 'hue': 24155, 'sat': 254, 'bri': 128},
-        '4': {'on': True, 'hue': 10434, 'sat': 254, 'bri': 254},
-        '5': {'on': True, 'hue': 0, 'sat': 255, 'bri': 128},
-        '6': {'on': True, 'hue': 3901, 'sat': 255, 'bri': 254},
-        '7': {'on': True, 'hue': 48913, 'sat': 218, 'bri': 128},
-        '8': {'on': True, 'hue': 39280, 'sat': 236, 'bri': 254},
+        '4': {'on': True, 'hue': 10434, 'sat': 254, 'bri': 192},
+        '5': {'on': True, 'hue': 0, 'sat': 255, 'bri': 92},
+        '6': {'on': True, 'hue': 3901, 'sat': 255, 'bri': 128},
+        '7': {'on': True, 'hue': 48913, 'sat': 218, 'bri': 64},
+        '8': {'on': True, 'hue': 39280, 'sat': 236, 'bri': 128},
         '9': {'on': True, 'hue': 58368, 'sat': 254, 'bri': 128},
         # Default encoding for unrecognized characters; also used for
         # “strobe” transitions between characters
