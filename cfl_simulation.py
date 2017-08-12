@@ -97,11 +97,12 @@ if __name__ == '__main__':
     for L in lights:
         t = threading.Thread(
             target=run_show,
-            args=(bridge, bridge_lock, args, L.light_id))
+            args=(bridge, bridge_lock, args, L.light_id),
+            daemon=True)
         threads.append(t)
         t.start()
     try:
         for t in threads:
             t.join()
     except KeyboardInterrupt:
-        print('Terminated')                 # Terminate quietly on ^C
+        print()                 # Terminate quietly on ^C
