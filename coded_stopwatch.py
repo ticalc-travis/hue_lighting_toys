@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import signal
 import sys
 import time
 
@@ -22,5 +23,4 @@ if __name__ == '__main__':
     try:
         go()
     except KeyboardInterrupt:
-        print()
-
+        sys.exit(signal.SIGINT + 128)    # Terminate quietly on ^C

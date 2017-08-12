@@ -2,6 +2,7 @@
 
 import argparse
 import random
+import signal
 import sys
 import threading
 import time
@@ -105,4 +106,4 @@ if __name__ == '__main__':
         for t in threads:
             t.join()
     except KeyboardInterrupt:
-        print()                 # Terminate quietly on ^C
+        sys.exit(signal.SIGINT + 128)    # Terminate quietly on ^C

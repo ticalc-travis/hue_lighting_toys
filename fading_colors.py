@@ -2,6 +2,7 @@
 
 import argparse
 import random
+import signal
 import sys
 import time
 
@@ -106,4 +107,4 @@ if __name__ == '__main__':
     try:
         run_show(bridge, args, lights)
     except KeyboardInterrupt:
-        print()                 # Terminate quietly on ^C
+        sys.exit(signal.SIGINT + 128)    # Terminate quietly on ^C
