@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
-# !TODO! This script only supports the first light specified
-
 import argparse
 import random
 import sys
+import threading
 import time
 
 import phue                     # https://github.com/studioimaginaire/phue
@@ -29,7 +28,7 @@ def turn_on_lights(bridge, lights):
     for L in lights:
         bridge.set_light(L.light_id, 'on', True)
 
-def run_show(bridge, args, lights):
+def run_show(bridge, bridge_lock, args, light_id):
     randint = random.randint
 
     stages = []
@@ -58,9 +57,9 @@ def run_show(bridge, args, lights):
         stages.append({'bri': 254,
                        'transitiontime': randint(800, 1600)})
 
-    L = lights[0]               # Only one light supported for now
     for stage in stages:
-        bridge.set_light(L.light_id, stage)
+        with bridge_lock:
+            bridge.set_light(light_id, stage)
         time.sleep(stage.get('transitiontime', 40)/10 + .1)
 
 if __name__ == '__main__':
@@ -87,12 +86,22 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     bridge = get_bridge(args)
+    bridge_lock = threading.Lock()
     lights = get_lights(bridge, args)
     if not lights:
         print("Error: No lights available", file=sys.stderr)
         sys.exit(3)
     turn_on_lights(bridge, lights)
+
+    threads = []
+    for L in lights:
+        t = threading.Thread(
+            target=run_show,
+            args=(bridge, bridge_lock, args, L.light_id))
+        threads.append(t)
+        t.start()
     try:
-        run_show(bridge, args, lights)
+        for t in threads:
+            t.join()
     except KeyboardInterrupt:
-        print()                 # Terminate quietly on ^C
+        print('Terminated')                 # Terminate quietly on ^C
