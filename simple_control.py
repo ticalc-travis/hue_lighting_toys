@@ -3,9 +3,17 @@
 import curses
 
 import phue
+from hue_helper import kelvin_to_xy_2
 
 def get_bridge():
     return phue.Bridge()
+
+def my_incr_colortemp(light, incr):
+    try:
+        light.my_colortemp_k += incr
+    except AttributeError:
+        light.my_colortemp_k = light.colortemp_k + incr
+    light.xy = kelvin_to_xy_2(light.my_colortemp_k)
 
 def main(stdscr):
     bridge = get_bridge()
@@ -27,8 +35,12 @@ def main(stdscr):
         stdscr.addstr('%s  Bri:  %3d   Hue:   %5d   Sat: %3d\n' % (
             'On ' if curr_light.on else 'Off',
             curr_light.brightness, curr_light.hue, curr_light.saturation))
-        stdscr.addstr('     Temp: %3d   TempK:  %4d\n' % (
-            curr_light.colortemp, curr_light.colortemp_k))
+        try:
+            ext_tempk_str = '   ExtTempK: %4d' % curr_light.my_colortemp_k
+        except AttributeError:
+            ext_tempk_str = ''
+        stdscr.addstr('     Temp: %3d   TempK:  %4d%s\n' % (
+            curr_light.colortemp, curr_light.colortemp_k, ext_tempk_str))
         stdscr.addstr('\n\n' if curr_light.reachable else
                       '\n --- Unreachable light ---\n')
 
@@ -59,10 +71,14 @@ def main(stdscr):
         elif c == ord('.') or c == ord('b'):
             curr_light.brightness += incr
 
-        elif c == ord('t') or c == ord('K'):
+        elif c == ord('t'):
             curr_light.colortemp += incr
-        elif c == ord('T') or c == ord('k'):
+        elif c == ord('T'):
             curr_light.colortemp -= incr
+        elif c == ord('k'):
+            my_incr_colortemp(curr_light, incr)
+        elif c == ord('K'):
+            my_incr_colortemp(curr_light, -incr)
 
         elif c == ord('h'):
             curr_light.hue += incr
