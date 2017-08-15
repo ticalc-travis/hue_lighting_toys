@@ -19,3 +19,9 @@ def kelvin_to_xy_2(k):
     x = (3*u) / (2*u - 8*v + 4)
     y = (2*v) / (2*u - 8*v + 4)
     return [x,y]
+
+def tungsten_cct(brightness):
+    """Return an approximate tungesten color tempearture in Kelvin for an
+incandescent light dimmed to the given brightness level.
+    """
+    return 5.63925392181 * brightness + 1423.98106079
