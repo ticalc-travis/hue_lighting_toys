@@ -15,7 +15,7 @@ DIGITS = {
     'dim': {
         '0': {'on': True, 'ct': 250, 'bri': 1},
         '1': {'on': True, 'hue': 46014, 'sat': 255, 'bri': 1},
-        '2': {'on': True, 'ct': 500, 'bri': 1},
+        '2': {'on': True, 'hue': 7500, 'sat': 180, 'bri': 1},
         '3': {'on': True, 'hue': 24155, 'sat': 254, 'bri': 1},
         '4': {'on': True, 'hue': 10434, 'sat': 254, 'bri': 32},
         '5': {'on': True, 'hue': 0, 'sat': 255, 'bri': 1},
@@ -30,7 +30,7 @@ DIGITS = {
     'bright': {
         '0': {'on': True, 'ct': 250, 'bri': 92},
         '1': {'on': True, 'hue': 46014, 'sat': 255, 'bri': 64},
-        '2': {'on': True, 'ct': 500, 'bri': 64},
+        '2': {'on': True, 'hue': 7500, 'sat': 180, 'bri': 64},
         '3': {'on': True, 'hue': 24155, 'sat': 254, 'bri': 128},
         '4': {'on': True, 'hue': 10434, 'sat': 254, 'bri': 192},
         '5': {'on': True, 'hue': 0, 'sat': 255, 'bri': 92},
