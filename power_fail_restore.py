@@ -87,14 +87,21 @@ def do_monitor(bridge, args, lights):
         state = get_light_state(bridge, lights, state)
         time.sleep(args.interval)
 
-        for L in lights:
-            ls = bridge.get_light(L.light_id)['state']
-            if not is_in_default_state(ls):
-                break
+        if args.individual:
+            for L in lights:
+                ls = bridge.get_light(L.light_id)['state']
+                if is_in_default_state(ls):
+                    print('Restoring light %d' % L.light_id)
+                    set_light_state(bridge, [L], state)
         else:
-            # Restore state if all monitored light appear to have been reset
-            print('All lights in default state, restoring original state')
-            set_light_state(bridge, lights, state)
+            for L in lights:
+                ls = bridge.get_light(L.light_id)['state']
+                if not is_in_default_state(ls):
+                    break
+            else:
+                # Restore state if all monitored light appear to have been reset
+                print('All lights in default state, restoring original state')
+                set_light_state(bridge, lights, state)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -121,6 +128,10 @@ if __name__ == '__main__':
         '-t', '--monitor-time',
         dest='interval', type=int, default=60,
         help='interval to poll for light state in seconds')
+    parser.add_argument(
+        '-i', '--individual-mode',
+        dest='individual', action='store_true',
+        help='restore lights individually when reset, rather than restoring only all lights as a group when they all are in initial power-up state')
 
     args = parser.parse_args()
     bridge = get_bridge(args)
