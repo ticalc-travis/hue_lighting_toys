@@ -118,12 +118,19 @@ def run_with_quit_handler(program):
     except KeyboardInterrupt:
         sys.exit(signal.SIGINT + 128)    # Terminate quietly on ^C
 
-
-if __name__ == '__main__':
+def default_run(prog_class):
+    """Create an instance of prog_class, displaying command argument errors
+    if they occur, and supply a return code for this condition or keyboard
+    interrupts.
+    """
     try:
-        p = BaseProgram()
+        p = prog_class()
     except ProgramArgumentError as e:
         print('Error: %s' % e, file=sys.stderr)
         sys.exit(2)
     else:
         run_with_quit_handler(p)
+
+
+if __name__ == '__main__':
+    default_run(BaseProgram)

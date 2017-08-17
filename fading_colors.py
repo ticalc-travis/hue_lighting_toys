@@ -7,7 +7,7 @@ import time
 
 import phue                     # https://github.com/studioimaginaire/phue
 
-from base import (BaseProgram, ProgramArgumentError, run_with_quit_handler)
+from base import (BaseProgram, default_run)
 
 
 class FadingColorsProgram(BaseProgram):
@@ -81,10 +81,4 @@ class FadingColorsProgram(BaseProgram):
 
 
 if __name__ == '__main__':
-    try:
-        p = FadingColorsProgram()
-    except ProgramArgumentError as e:
-        print('Error: %s' % e, file=sys.stderr)
-        sys.exit(2)
-    else:
-        run_with_quit_handler(p)
+    default_run(FadingColorsProgram)
