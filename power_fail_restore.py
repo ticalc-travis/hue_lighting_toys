@@ -40,7 +40,8 @@ def get_light_state(bridge, lights, state=None):
                 print('Light %d in default state, not saving state' % L.light_id)
         else:
             if L.light_id not in state:
-                print('Light %d is unreachable; recording last known state')
+                print('Light %d is unreachable; recording last known state' %
+                      L.light_id)
                 state[L.light_id] = ls
             else:
                 print('Light %d is unreachable; temporarily skipping new state save' %
