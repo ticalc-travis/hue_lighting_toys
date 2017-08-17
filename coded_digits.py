@@ -10,7 +10,7 @@ import time
 import phue                     # https://github.com/studioimaginaire/phue
 
 from base import (BaseProgram, default_run)
-from fading_colors import FadingColorsProgram
+from chasing_colors import ChasingColorsProgram
 
 
 # The light parameters used to encode each character/digit
@@ -49,17 +49,17 @@ DIGITS = {
 }
 
 
-class CodedDigitsProgram(FadingColorsProgram):
-
-    usage_description = 'Blink out a series of digits encoded using colors.'
+class CodedDigitsProgram(ChasingColorsProgram):
 
     schemes = DIGITS
 
     default_scheme = DIGITS_DEFAULT
 
-    def _get_arg_parser(self):
-        parent = BaseProgram._get_arg_parser(self)
-        parser = argparse.ArgumentParser(parents=[parent], add_help=False)
+    def get_description(self):
+        return 'Blink out a series of digits encoded using colors.'
+
+    def _add_opts(self, parser):
+        BaseProgram._add_opts(self, parser)
 
         self._add_cycle_time_opt(parser, default=10)
 
@@ -88,8 +88,6 @@ class CodedDigitsProgram(FadingColorsProgram):
             'digits',
             help='the sequence of digits to flash',
             type=str)
-
-        return parser
 
     def group_digits(self, digits, num_lights):
         size_with_pad = math.ceil(len(digits) / num_lights) * num_lights

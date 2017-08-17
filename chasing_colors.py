@@ -13,16 +13,19 @@ from fading_colors import FadingColorsProgram
 
 class ChasingColorsProgram(FadingColorsProgram):
 
-    usage_description = 'Produce a Philips Hue lighting random color chasing effect.'
+    def get_description(self):
+        return 'Produce a Philips Hue lighting random color chasing effect.'
 
-    def _get_arg_parser(self):
-        parent = BaseProgram._get_arg_parser(self)
-        parser = argparse.ArgumentParser(parents=[parent], add_help=False)
+    def get_usage_epilog(self):
+        return '\n\n'.join(
+            [self.usage_light_order_msg, self.usage_no_lights_msg,
+             self.usage_first_run_msg])
+
+    def _add_opts(self, parser):
+        BaseProgram._add_opts(self, parser)
 
         self._add_cycle_time_opt(parser, default=10)
         self._add_range_parse_opts(parser)
-
-        return parser
 
     def run(self):
         self.turn_on_lights()

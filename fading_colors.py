@@ -12,7 +12,8 @@ from base import (BaseProgram, default_run)
 
 class FadingColorsProgram(BaseProgram):
 
-    usage_description = "Produce a Philips Hue lighting random color fade effect."
+    def get_description(self):
+        return 'Produce a Philips Hue lighting random color fade effect.'
 
     def _add_range_parse_opts(self, parser):
         """Append hue/saturation/brightness range options to parser"""
@@ -40,9 +41,8 @@ class FadingColorsProgram(BaseProgram):
             dest='cycle_time', type=int, metavar='DECISECONDS',
             default=default)
 
-    def _get_arg_parser(self):
-        parent = BaseProgram._get_arg_parser(self)
-        parser = argparse.ArgumentParser(parents=[parent], add_help=False)
+    def _add_opts(self, parser):
+        BaseProgram._add_opts(self, parser)
 
         self._add_cycle_time_opt(parser)
 
@@ -60,8 +60,6 @@ class FadingColorsProgram(BaseProgram):
             dest='group_bri', action='store_true')
 
         self._add_range_parse_opts(parser)
-
-        return parser
 
     def run(self):
         self.turn_on_lights()

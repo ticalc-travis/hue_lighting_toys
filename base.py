@@ -7,18 +7,6 @@ import sys
 import phue                     # https://github.com/studioimaginaire/phue
 
 
-USAGE_NO_LIGHTS_MSG = """If no lights are specified, all lights found on the bridge will be
-used in the effect.
-
-"""
-
-USAGE_FIRST_RUN_MSG = """The first time this script is run on a device, it may be necessary to
-press the button on the bridge before running the script so that it
-can be registered to access the bridge and lighting system.
-
-"""
-
-
 class ProgramArgumentError(Exception):
     pass
 
@@ -29,9 +17,14 @@ class BaseProgram():
     lights to use
     """
 
-    usage_description = "This is a test program."
+    usage_first_run_msg = '''The first time this script is run on a device, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.'''
 
-    usage_epilog = USAGE_NO_LIGHTS_MSG + USAGE_FIRST_RUN_MSG
+    usage_light_order_msg = '''Lights will be sequenced in the order specified.'''
+
+    usage_no_lights_msg = '''If no lights are specified, all lights found on the bridge will be
+used in the effect.'''
 
     def __init__(self, raw_arguments=None):
         """Parse raw arguments and initialize connection to Hue bridge"""
@@ -42,21 +35,17 @@ class BaseProgram():
         if not self.lights:
             raise ProgramArgumentError('No lights available')
 
-    def _get_arg_parser(self):
-        """Create a pertinent argument parser and return it"""
-        parser = argparse.ArgumentParser(
-            description=self.usage_description,
-            epilog=self.usage_epilog)
-        parser.add_argument(
-            '-ln', '--light-number',
-            help='use light(s) numbered %(metavar)s',
-            dest='lights', action='append', type=int, metavar='LIGHT-NUM',
-            nargs='+')
-        parser.add_argument(
-            '-l', '--light-name',
-            help='use light(s) named %(metavar)s',
-            dest='lights', action='append', type=str,
-            metavar='LIGHT-NAME', nargs='+')
+    def get_description(self):
+        """Return program description"""
+        return 'This is a test program.'
+
+    def get_usage_epilog(self):
+        """Construct and return program epilogue for usage message"""
+        return '\n\n'.join(
+            [self.usage_no_lights_msg, self.usage_first_run_msg])
+
+    def _add_bridge_opts(self, parser):
+        """Add generic bridge arguments to argument parser"""
         parser.add_argument(
             '-b', '--bridge',
             help='Hue bridge IP or hostname',
@@ -69,6 +58,32 @@ class BaseProgram():
             '-bc', '--bridge-config',
             help='path of config file for bridge connection parameters',
             dest='bridge_config')
+
+    def _add_light_opts(self, parser):
+        """Add generic light-listing arguments to argument parser"""
+        parser.add_argument(
+            '-ln', '--light-number',
+            help='use light(s) numbered %(metavar)s',
+            dest='lights', action='append', type=int, metavar='LIGHT-NUM',
+            nargs='+')
+        parser.add_argument(
+            '-l', '--light-name',
+            help='use light(s) named %(metavar)s',
+            dest='lights', action='append', type=str,
+            metavar='LIGHT-NAME', nargs='+')
+
+    def _add_opts(self, parser):
+        """Add program's command arguments to argument parser"""
+        self._add_bridge_opts(parser)
+        self._add_light_opts(parser)
+
+    def _get_arg_parser(self):
+        """Create a pertinent argument parser and return it"""
+        parser = argparse.ArgumentParser(
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            description=self.get_description(),
+            epilog=self.get_usage_epilog())
+        self._add_opts(parser)
         return parser
 
     def _get_bridge(self):
