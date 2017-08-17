@@ -14,9 +14,8 @@ class FadingColorsProgram(BaseProgram):
 
     usage_description = "Produce a Philips Hue lighting random color fade effect."
 
-    def _get_range_parser(self):
-        """Return a parser with options for hue/saturation/brightness ranges"""
-        parser = argparse.ArgumentParser(add_help=False)
+    def _add_range_parse_opts(self, parser):
+        """Append hue/saturation/brightness range options to parser"""
         parser.add_argument(
             '-hr', '--hue-range',
             help='restrict the generated hue range (0 to 65535) from L to H',
@@ -32,18 +31,20 @@ class FadingColorsProgram(BaseProgram):
             help='restrict the generated saturation range (1 to 254) from L to H',
             dest='bri_range', nargs=2, type=int, metavar=('L', 'H'),
             default=[1, 254])
-        return parser
+
+    def _add_cycle_time_opts(self, parser):
+        """Append cycle time option to parser"""
+        parser.add_argument(
+            '-t', '--cycle-time',
+            help='cycle time in tenths of a second (default: %(default)s)',
+            dest='cycle_time', type=int, metavar='DECISECONDS', default=100)
 
     def _get_arg_parser(self):
         parent = BaseProgram._get_arg_parser(self)
-        parent2 = self._get_range_parser()
-        parser = argparse.ArgumentParser(parents=[parent, parent2],
-                                         add_help=False)
-        parser.add_argument(
-            '-t', '--cycle-time',
-            help='''use a speed of %(metavar)s tenths of a second per color cycle
-(default: %(default)s)')''',
-            dest='cycle_time', type=int, metavar='DECISECONDS', default=100)
+        parser = argparse.ArgumentParser(parents=[parent], add_help=False)
+
+        self._add_cycle_time_opts(parser)
+
         parser.add_argument(
             '-gh', '--group-hue',
             help='match the same hue among all lights',
@@ -56,6 +57,9 @@ class FadingColorsProgram(BaseProgram):
             '-gb', '--group-brightness',
             help='match the same brightness among all lights',
             dest='group_bri', action='store_true')
+
+        self._add_range_parse_opts(parser)
+
         return parser
 
     def run(self):
