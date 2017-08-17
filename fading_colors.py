@@ -32,18 +32,19 @@ class FadingColorsProgram(BaseProgram):
             dest='bri_range', nargs=2, type=int, metavar=('L', 'H'),
             default=[1, 254])
 
-    def _add_cycle_time_opts(self, parser):
+    def _add_cycle_time_opt(self, parser, default=100):
         """Append cycle time option to parser"""
         parser.add_argument(
             '-t', '--cycle-time',
             help='cycle time in tenths of a second (default: %(default)s)',
-            dest='cycle_time', type=int, metavar='DECISECONDS', default=100)
+            dest='cycle_time', type=int, metavar='DECISECONDS',
+            default=default)
 
     def _get_arg_parser(self):
         parent = BaseProgram._get_arg_parser(self)
         parser = argparse.ArgumentParser(parents=[parent], add_help=False)
 
-        self._add_cycle_time_opts(parser)
+        self._add_cycle_time_opt(parser)
 
         parser.add_argument(
             '-gh', '--group-hue',
