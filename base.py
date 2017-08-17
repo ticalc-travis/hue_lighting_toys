@@ -111,7 +111,7 @@ class BaseProgram():
 
 def run_with_quit_handler(program):
     """Run a program that catches KeyboardInterrupt and then terminates with
-    the appropriate signal on *nix
+    the appropriate return code on *nix
     """
     try:
         program.run()
