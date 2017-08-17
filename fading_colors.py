@@ -63,6 +63,8 @@ class FadingColorsProgram(BaseProgram):
         return parser
 
     def run(self):
+        self.turn_on_lights()
+
         while True:
             h = random.randint(*self.opts.hue_range)
             s = random.randint(*self.opts.sat_range)
