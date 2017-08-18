@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""Base classes and utilities for programs dealing with Philips Hue smart
+lights
+"""
+
 import argparse
 import signal
 import sys
@@ -8,6 +12,9 @@ import phue                     # https://github.com/studioimaginaire/phue
 
 
 class ProgramArgumentError(Exception):
+    """Exception signaling incorrect command-line arguments that prevent
+    program execution
+    """
     pass
 
 
@@ -16,6 +23,8 @@ class BaseProgram():
     and parses some basic command-line arguments such as a list of
     lights to use
     """
+
+    description = '''A short test program for Philips Hue lights'''
 
     usage_first_run_msg = '''The first time this script is run on a device, it may be necessary to
 press the button on the bridge before running the script so that it can
@@ -34,11 +43,6 @@ used in the effect.'''
         self.lights = self.get_lights()
         if not self.lights:
             raise ProgramArgumentError('No lights available')
-
-    @staticmethod
-    def get_description():
-        """Return program description"""
-        return 'This is a test program.'
 
     def get_usage_epilog(self):
         """Construct and return program epilogue for usage message"""
@@ -82,7 +86,7 @@ used in the effect.'''
         """Set up the command argument parser"""
         self.opt_parser = argparse.ArgumentParser(
             formatter_class=argparse.RawDescriptionHelpFormatter,
-            description=self.get_description(),
+            description=self.description,
             epilog=self.get_usage_epilog())
         self.add_opts()
 

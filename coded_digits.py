@@ -7,8 +7,10 @@ from base import (BaseProgram, default_run)
 from chasing_colors import ChasingColorsProgram
 
 
-# The light parameters used to encode each character/digit
+## Light parameters used to encode each character/digit ##
+
 DIGITS_DEFAULT = 'bright'
+
 DIGITS = {
     'dim': {
         '0': {'on': True, 'ct': 250, 'bri': 1},
@@ -45,14 +47,17 @@ DIGITS = {
 
 class CodedDigitsProgram(ChasingColorsProgram):
 
+    description = '''Blink out a series of digits encoded using colors.'''
+
     schemes = DIGITS
 
     default_scheme = DIGITS_DEFAULT
 
-    def get_description(self):
-        return 'Blink out a series of digits encoded using colors.'
-
     def add_main_opts(self):
+        """Add all program options to command parser except for the digits
+        parameter
+        """
+
         BaseProgram.add_opts(self)
 
         self.add_cycle_time_opt(default=10)
@@ -81,7 +86,6 @@ class CodedDigitsProgram(ChasingColorsProgram):
 
     def add_opts(self):
         self.add_main_opts()
-
         self.opt_parser.add_argument(
             'digits',
             help='the sequence of digits to flash',
@@ -89,6 +93,9 @@ class CodedDigitsProgram(ChasingColorsProgram):
 
     @staticmethod
     def group_digits(digits, num_lights):
+        """Group a string of digits into a sequence of digit strings, each the
+        same length as num_lights, space-padded if necessary
+        """
         size_with_pad = math.ceil(len(digits) / num_lights) * num_lights
         padded_digits = '{:>{}}'.format(digits, size_with_pad)
         digit_groups = [padded_digits[i:i+num_lights]
@@ -96,6 +103,7 @@ class CodedDigitsProgram(ChasingColorsProgram):
         return digit_groups
 
     def flash_digits(self, digits):
+        """Flash the lights in the code designated by the digit string “digits”."""
         digit_groups = self.group_digits(digits, len(self.lights))
         digit_cmds = self.schemes[self.opts.scheme]
         have_multiple_groups = len(digit_groups) > 1
@@ -119,6 +127,7 @@ class CodedDigitsProgram(ChasingColorsProgram):
             time.sleep(self.opts.cycle_time / 10)
 
     def run(self):
+        """Call self.flash_digits with digit string given on command line"""
         self.flash_digits(self.opts.digits)
 
 
