@@ -63,25 +63,30 @@ class CodedDigitsProgram(ChasingColorsProgram):
 
         self.opt_parser.add_argument(
             '-s', '--switch-time',
-            help='If there are more digits to transmit than lights, display the "blank" color on all lights for %(metavar)s tenths of a second before each digit flash (default: %(default)s . 0 makes it as short as possible; -1 disables it entirely.',
-            dest='switch_time', type=int, metavar='DECISECONDS', default=2)
+            dest='switch_time', type=int, metavar='DECISECONDS', default=2,
+            help='''If there are more digits to transmit than lights, display the "blank"
+color on all lights for %(metavar)s tenths of a second before each digit
+flash (default: %(default)s . 0 makes it as short as possible; -1
+disables it entirely.''')
         self.opt_parser.add_argument(
-            '-fs', '--force-switch-time', dest='force_switch',
-            help='always use a switch time after the digit flash, even if there are enough lights to display all digits at once',
-            action='store_true')
+            '-fs', '--force-switch-time',
+            dest='force_switch', action='store_true',
+            help='''always use a switch time after the digit flash, even if there are
+enough lights to display all digits at once''')
         self.opt_parser.add_argument(
             '-p', '--pad',
-            help='always reset all lights to the "blank" color when the sequence finishes, instead of only when there are more digits than lights to transmit',
-            dest='padded', action='store_const', const=True)
+            dest='padded', action='store_const', const=True,
+            help='''always reset all lights to the "blank" color when the sequence
+finishes, instead of only when there are more digits than lights to
+transmit''')
         self.opt_parser.add_argument(
-            '-np', '--no-pad', dest='padded',
-            help='never reset lights to the "blank" color when the sequence finishes',
-            action='store_const', const=False)
+            '-np', '--no-pad',
+            dest='padded', action='store_const', const=False,
+            help='never reset lights to the "blank" color when the sequence finishes')
         self.opt_parser.add_argument(
             '-c', '--scheme',
-            help='use the chosen color scheme',
-            dest='scheme', type=str, choices=DIGITS.keys(),
-            default=DIGITS_DEFAULT)
+            dest='scheme', type=str, choices=DIGITS.keys(), default=DIGITS_DEFAULT,
+            help='use the chosen color scheme')
 
     def add_opts(self):
         self.add_main_opts()

@@ -13,19 +13,19 @@ class FadingColorsProgram(BaseProgram):
         """Append hue/saturation/brightness range options to parser"""
         self.opt_parser.add_argument(
             '-hr', '--hue-range',
-            help='restrict the generated hue range (0 to 65535) from L to H',
             dest='hue_range', nargs=2, type=int, metavar=('L', 'H'),
-            default=[0, 65535])
+            default=[0, 65535],
+            help='restrict the generated hue range (0 to 65535) from L to H')
         self.opt_parser.add_argument(
             '-sr', '--saturation-range',
-            help='restrict the generated saturation range (1 to 254) from L to H',
             dest='sat_range', nargs=2, type=int, metavar=('L', 'H'),
-            default=[1, 254])
+            default=[1, 254],
+            help='restrict the generated saturation range (1 to 254) from L to H')
         self.opt_parser.add_argument(
             '-br', '--brightness-range',
-            help='restrict the generated saturation range (1 to 254) from L to H',
             dest='bri_range', nargs=2, type=int, metavar=('L', 'H'),
-            default=[1, 254])
+            default=[1, 254],
+            help='restrict the generated saturation range (1 to 254) from L to H')
 
     def add_cycle_time_opt(self, default=100):
         """Append cycle time option to parser"""
@@ -42,16 +42,16 @@ class FadingColorsProgram(BaseProgram):
 
         self.opt_parser.add_argument(
             '-gh', '--group-hue',
-            help='match the same hue among all lights',
-            dest='group_hue', action='store_true')
+            dest='group_hue', action='store_true',
+            help='match the same hue among all lights')
         self.opt_parser.add_argument(
             '-gs', '--group-saturation',
-            help='match the same saturation among all lights',
-            dest='group_sat', action='store_true')
+            dest='group_sat', action='store_true',
+            help='match the same saturation among all lights')
         self.opt_parser.add_argument(
             '-gb', '--group-brightness',
-            help='match the same brightness among all lights',
-            dest='group_bri', action='store_true')
+            dest='group_bri', action='store_true',
+            help='match the same brightness among all lights')
 
         self.add_range_parse_opts()
 

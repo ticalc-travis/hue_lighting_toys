@@ -57,29 +57,29 @@ used in the effect.'''
         """Add generic bridge arguments to argument parser"""
         self.opt_parser.add_argument(
             '-b', '--bridge',
-            help='Hue bridge IP or hostname',
-            dest='bridge_address')
+            dest='bridge_address',
+            help='Hue bridge IP or hostname')
         self.opt_parser.add_argument(
             '-bu', '--bridge-username',
-            help='Hue bridge username',
-            dest='bridge_username')
+            dest='bridge_username',
+            help='Hue bridge username')
         self.opt_parser.add_argument(
             '-bc', '--bridge-config',
-            help='path of config file for bridge connection parameters',
-            dest='bridge_config')
+            dest='bridge_config',
+            help='path of config file for bridge connection parameters')
 
     def add_light_opts(self):
         """Add generic light-listing arguments to argument parser"""
         self.opt_parser.add_argument(
             '-ln', '--light-number',
-            help='use light(s) numbered %(metavar)s',
             dest='lights', action='append', type=int, metavar='LIGHT-NUM',
-            nargs='+')
+            nargs='+',
+            help='use light(s) numbered %(metavar)s')
         self.opt_parser.add_argument(
             '-l', '--light-name',
-            help='use light(s) named %(metavar)s',
             dest='lights', action='append', type=str,
-            metavar='LIGHT-NAME', nargs='+')
+            metavar='LIGHT-NAME', nargs='+',
+            help='use light(s) named %(metavar)s')
 
     def add_opts(self):
         """Add program's command arguments to argument parser"""
