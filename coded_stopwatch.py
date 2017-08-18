@@ -2,22 +2,31 @@
 
 import time
 
-def go():
-    start = time.time()
-    while True:
-        et = int(time.time() - start)
-        hr, min = et // 3600, (et // 60) % 60
-        if hr:
-            digits = '{}{:02}'.format(hr, min)
-        else:
-            digits = '{}'.format(min)
-        opts = []
-        print('\r{}:{:02}    '.format(hr, min), end='', flush=True)
-        os.spawnv(os.P_WAIT, './coded_digits.py',
-                  ['./coded_digits.py', digits] + opts + sys.argv[1:])
+from base import default_run
+from coded_digits import CodedDigitsProgram
+
+
+class CodedStopwatchProgram(CodedDigitsProgram):
+
+    def get_description(self):
+        return 'Blink out a series of color-coded digits representing elapsed time.'
+
+    def _add_opts(self, parser):
+        self._add_main_opts(parser)
+
+    def run(self):
+        start = time.time()
+        while True:
+            et = int(time.time() - start)
+            hr, min = et // 3600, (et // 60) % 60
+            if hr:
+                digits = '{}{:02}'.format(hr, min)
+            else:
+                digits = '{}'.format(min)
+            print('\r{}:{:02}    '.format(hr, min), end='', flush=True)
+
+            CodedDigitsProgram.flash_digits(self, digits)
+
 
 if __name__ == '__main__':
-    try:
-        go()
-    except KeyboardInterrupt:
-        sys.exit(signal.SIGINT + 128)    # Terminate quietly on ^C
+    default_run(CodedStopwatchProgram)

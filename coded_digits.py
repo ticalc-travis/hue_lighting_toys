@@ -52,7 +52,7 @@ class CodedDigitsProgram(ChasingColorsProgram):
     def get_description(self):
         return 'Blink out a series of digits encoded using colors.'
 
-    def _add_opts(self, parser):
+    def _add_main_opts(self, parser):
         BaseProgram._add_opts(self, parser)
 
         self._add_cycle_time_opt(parser, default=10)
@@ -78,6 +78,10 @@ class CodedDigitsProgram(ChasingColorsProgram):
             help='use the chosen color scheme',
             dest='scheme', type=str, choices=DIGITS.keys(),
             default=DIGITS_DEFAULT)
+
+    def _add_opts(self, parser):
+        self._add_main_opts(parser)
+
         parser.add_argument(
             'digits',
             help='the sequence of digits to flash',
@@ -90,9 +94,8 @@ class CodedDigitsProgram(ChasingColorsProgram):
                         for i in range(0, size_with_pad, num_lights)]
         return digit_groups
 
-    def run(self):
-        digit_groups = self.group_digits(self.opts.digits,
-                                         len(self.lights))
+    def flash_digits(self, digits):
+        digit_groups = self.group_digits(digits, len(self.lights))
         digit_cmds = self.schemes[self.opts.scheme]
         have_multiple_groups = len(digit_groups) > 1
         use_padding = self.opts.padded
@@ -113,6 +116,10 @@ class CodedDigitsProgram(ChasingColorsProgram):
             self.bridge.set_light([L.light_id for L in self.lights],
                                   digit_cmds[None], transitiontime=0)
             time.sleep(self.opts.cycle_time / 10)
+
+    def run(self):
+        self.flash_digits(self.opts.digits)
+
 
 if __name__ == '__main__':
     default_run(CodedDigitsProgram)
