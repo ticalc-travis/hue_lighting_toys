@@ -98,27 +98,27 @@ used in the effect.'''
         """
         if self.opts.lights:
             lights = []
-            for ll in self.opts.lights:
-                for li in ll:
-                    try:
-                        lights.append(self.bridge[li])
-                    except KeyError:
-                        print("Warning: No such light: %s" %
-                              repr(li), file=sys.stderr)
+            for light in [light for sublist in self.opts.lights
+                          for light in sublist]:
+                try:
+                    lights.append(self.bridge[light])
+                except KeyError:
+                    print("Warning: No such light: %s" %
+                          repr(light), file=sys.stderr)
         else:
             lights = self.bridge.get_light_objects()
         return lights
 
     def turn_on_lights(self):
         """Turn on all lights to be used"""
-        for L in self.lights:
-            self.bridge.set_light(L.light_id, 'on', True)
+        for light in self.lights:
+            self.bridge.set_light(light.light_id, 'on', True)
 
     def run(self):
         """Start the program"""
         print('The following lights were specified:')
-        for L in self.lights:
-            print(L.name)
+        for light in self.lights:
+            print(light.name)
         print('\nThe lights will now be turned on.')
         self.turn_on_lights()
         print('\nDone!')
@@ -139,12 +139,12 @@ def default_run(prog_class):
     interrupts.
     """
     try:
-        p = prog_class()
+        prog = prog_class()
     except ProgramArgumentError as e:
         print('Error: %s' % e, file=sys.stderr)
         sys.exit(2)
     else:
-        run_with_quit_handler(p)
+        run_with_quit_handler(prog)
 
 
 if __name__ == '__main__':

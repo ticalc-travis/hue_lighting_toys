@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import time
+from time import time
 
 from base import default_run
 from coded_digits import CodedDigitsProgram
@@ -15,15 +15,15 @@ class CodedStopwatchProgram(CodedDigitsProgram):
         self.add_main_opts()
 
     def run(self):
-        start = time.time()
+        start = time()
         while True:
-            et = int(time.time() - start)
-            hr, min = et // 3600, (et // 60) % 60
-            if hr:
-                digits = '{}{:02}'.format(hr, min)
+            elapsed_secs = int(time() - start)
+            hrs, mins = elapsed_secs // 3600, (elapsed_secs // 60) % 60
+            if hrs:
+                digits = '{}{:02}'.format(hrs, mins)
             else:
-                digits = '{}'.format(min)
-            print('\r{}:{:02}    '.format(hr, min), end='', flush=True)
+                digits = '{}'.format(mins)
+            print('\r{}:{:02}    '.format(hrs, mins), end='', flush=True)
 
             CodedDigitsProgram.flash_digits(self, digits)
 

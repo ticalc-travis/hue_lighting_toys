@@ -61,19 +61,19 @@ class FadingColorsProgram(BaseProgram):
         self.turn_on_lights()
 
         while True:
-            h = random.randint(*self.opts.hue_range)
-            s = random.randint(*self.opts.sat_range)
-            b = random.randint(*self.opts.bri_range)
-            for L in self.lights:
+            hue = random.randint(*self.opts.hue_range)
+            sat = random.randint(*self.opts.sat_range)
+            bri = random.randint(*self.opts.bri_range)
+            for light in self.lights:
                 self.bridge.set_light(
-                    L.light_id, {'hue': h, 'sat': s, 'bri': b},
+                    light.light_id, {'hue': hue, 'sat': sat, 'bri': bri},
                     transitiontime=self.opts.cycle_time)
                 if not self.opts.group_hue:
-                    h = random.randint(*self.opts.hue_range)
+                    hue = random.randint(*self.opts.hue_range)
                 if not self.opts.group_sat:
-                    s = random.randint(*self.opts.sat_range)
+                    sat = random.randint(*self.opts.sat_range)
                 if not self.opts.group_bri:
-                    b = random.randint(*self.opts.bri_range)
+                    bri = random.randint(*self.opts.bri_range)
             time.sleep(self.opts.cycle_time / 10)
 
 
