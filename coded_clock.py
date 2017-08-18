@@ -11,8 +11,8 @@ class CodedClockProgram(CodedDigitsProgram):
     def get_description(self):
         return 'Blink out a series of color-coded digits representing the time of day.'
 
-    def _add_opts(self, parser):
-        self._add_main_opts(parser)
+    def add_opts(self, parser):
+        self.add_main_opts(parser)
 
     def run(self):
         while True:

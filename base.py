@@ -28,10 +28,10 @@ used in the effect.'''
 
     def __init__(self, raw_arguments=None):
         """Parse raw arguments and initialize connection to Hue bridge"""
-        arg_parser = self._get_arg_parser()
+        arg_parser = self.get_arg_parser()
         self.opts = arg_parser.parse_args(raw_arguments)
-        self.bridge = self._get_bridge()
-        self.lights = self._get_lights()
+        self.bridge = self.get_bridge()
+        self.lights = self.get_lights()
         if not self.lights:
             raise ProgramArgumentError('No lights available')
 
@@ -44,7 +44,7 @@ used in the effect.'''
         return '\n\n'.join(
             [self.usage_no_lights_msg, self.usage_first_run_msg])
 
-    def _add_bridge_opts(self, parser):
+    def add_bridge_opts(self, parser):
         """Add generic bridge arguments to argument parser"""
         parser.add_argument(
             '-b', '--bridge',
@@ -59,7 +59,7 @@ used in the effect.'''
             help='path of config file for bridge connection parameters',
             dest='bridge_config')
 
-    def _add_light_opts(self, parser):
+    def add_light_opts(self, parser):
         """Add generic light-listing arguments to argument parser"""
         parser.add_argument(
             '-ln', '--light-number',
@@ -72,27 +72,27 @@ used in the effect.'''
             dest='lights', action='append', type=str,
             metavar='LIGHT-NAME', nargs='+')
 
-    def _add_opts(self, parser):
+    def add_opts(self, parser):
         """Add program's command arguments to argument parser"""
-        self._add_bridge_opts(parser)
-        self._add_light_opts(parser)
+        self.add_bridge_opts(parser)
+        self.add_light_opts(parser)
 
-    def _get_arg_parser(self):
+    def get_arg_parser(self):
         """Create a pertinent argument parser and return it"""
         parser = argparse.ArgumentParser(
             formatter_class=argparse.RawDescriptionHelpFormatter,
             description=self.get_description(),
             epilog=self.get_usage_epilog())
-        self._add_opts(parser)
+        self.add_opts(parser)
         return parser
 
-    def _get_bridge(self):
+    def get_bridge(self):
         """Establish and return a phue Bridge object to use"""
         return phue.Bridge(ip=self.opts.bridge_address,
                            username=self.opts.bridge_username,
                            config_file_path=self.opts.bridge_config)
 
-    def _get_lights(self):
+    def get_lights(self):
         """Find and return a list of light objects representing the lights
         specified by the user, in the order specified
         """

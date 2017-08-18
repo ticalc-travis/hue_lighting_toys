@@ -52,10 +52,10 @@ class CodedDigitsProgram(ChasingColorsProgram):
     def get_description(self):
         return 'Blink out a series of digits encoded using colors.'
 
-    def _add_main_opts(self, parser):
-        BaseProgram._add_opts(self, parser)
+    def add_main_opts(self, parser):
+        BaseProgram.add_opts(self, parser)
 
-        self._add_cycle_time_opt(parser, default=10)
+        self.add_cycle_time_opt(parser, default=10)
 
         parser.add_argument(
             '-s', '--switch-time',
@@ -79,8 +79,8 @@ class CodedDigitsProgram(ChasingColorsProgram):
             dest='scheme', type=str, choices=DIGITS.keys(),
             default=DIGITS_DEFAULT)
 
-    def _add_opts(self, parser):
-        self._add_main_opts(parser)
+    def add_opts(self, parser):
+        self.add_main_opts(parser)
 
         parser.add_argument(
             'digits',
