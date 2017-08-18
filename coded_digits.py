@@ -1,13 +1,7 @@
 #!/usr/bin/env python3
 
-import argparse
 import math
-import random
-import signal
-import sys
 import time
-
-import phue                     # https://github.com/studioimaginaire/phue
 
 from base import (BaseProgram, default_run)
 from chasing_colors import ChasingColorsProgram

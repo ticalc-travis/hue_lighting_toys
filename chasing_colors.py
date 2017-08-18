@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 
-import argparse
 import random
-import sys
 import time
-
-import phue                     # https://github.com/studioimaginaire/phue
 
 from base import (BaseProgram, default_run)
 from fading_colors import FadingColorsProgram
