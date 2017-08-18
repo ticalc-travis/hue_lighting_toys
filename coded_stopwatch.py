@@ -7,9 +7,8 @@ from coded_digits import CodedDigitsProgram
 
 
 class CodedStopwatchProgram(CodedDigitsProgram):
-
-    description = '''Blink out a series of color-coded digits representing elapsed
-time.'''
+    """Blink out a series of color-coded digits representing elapsed time.
+    """
 
     def add_opts(self):
         self.add_main_opts()

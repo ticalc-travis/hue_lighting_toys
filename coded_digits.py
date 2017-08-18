@@ -46,8 +46,7 @@ DIGITS = {
 
 
 class CodedDigitsProgram(ChasingColorsProgram):
-
-    description = '''Blink out a series of digits encoded using colors.'''
+    """Blink out a series of digits encoded using colors."""
 
     schemes = DIGITS
 

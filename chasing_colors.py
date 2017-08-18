@@ -8,8 +8,7 @@ from fading_colors import FadingColorsProgram
 
 
 class ChasingColorsProgram(FadingColorsProgram):
-
-    description = '''Produce a Philips Hue lighting random color chasing effect'''
+    """Produce a Philips Hue lighting random color chasing effect"""
 
     def get_usage_epilog(self):
         return '\n\n'.join(

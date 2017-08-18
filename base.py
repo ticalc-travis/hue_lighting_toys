@@ -7,6 +7,7 @@ lights
 import argparse
 import signal
 import sys
+import textwrap
 
 import phue                     # https://github.com/studioimaginaire/phue
 
@@ -19,12 +20,10 @@ class ProgramArgumentError(Exception):
 
 
 class BaseProgram():
-    """Skeleton class for a program that connects to a Philips Hue bridge
-    and parses some basic command-line arguments such as a list of
-    lights to use
+    """A sample CLI program for the Philips Hue system that takes
+    command-line arguments and connects to the given bridge and operates
+    on the specified lights
     """
-
-    description = '''A short test program for Philips Hue lights'''
 
     usage_first_run_msg = '''The first time this script is run on a device, it may be necessary to
 press the button on the bridge before running the script so that it can
@@ -39,10 +38,15 @@ used in the effect.'''
         """Parse raw arguments and initialize connection to Hue bridge"""
         self.init_arg_parser()
         self.opts = self.opt_parser.parse_args(raw_arguments)
+
         self.bridge = self.get_bridge()
         self.lights = self.get_lights()
         if not self.lights:
             raise ProgramArgumentError('No lights available')
+
+    def get_description(self):
+        """Get formatted program description"""
+        return textwrap.fill(self.__doc__)
 
     def get_usage_epilog(self):
         """Construct and return program epilogue for usage message"""
@@ -86,7 +90,7 @@ used in the effect.'''
         """Set up the command argument parser"""
         self.opt_parser = argparse.ArgumentParser(
             formatter_class=argparse.RawDescriptionHelpFormatter,
-            description=self.description,
+            description=self.get_description(),
             epilog=self.get_usage_epilog())
         self.add_opts()
 

@@ -7,8 +7,7 @@ from base import (BaseProgram, default_run)
 
 
 class FadingColorsProgram(BaseProgram):
-
-    description = '''Produce a Philips Hue lighting random color fade effect.'''
+    """Produce a Philips Hue lighting random color fade effect."""
 
     def add_range_parse_opts(self):
         """Append hue/saturation/brightness range options to parser"""

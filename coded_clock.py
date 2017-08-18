@@ -7,9 +7,9 @@ from coded_digits import CodedDigitsProgram
 
 
 class CodedClockProgram(CodedDigitsProgram):
-
-    description = '''Blink out a series of color-coded digits representing the time of
-day.'''
+    """Blink out a series of color-coded digits representing the time of
+    day.
+    """
 
     def add_opts(self):
         self.add_main_opts()
