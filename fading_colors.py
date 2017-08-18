@@ -11,51 +11,51 @@ class FadingColorsProgram(BaseProgram):
     def get_description(self):
         return 'Produce a Philips Hue lighting random color fade effect.'
 
-    def add_range_parse_opts(self, parser):
+    def add_range_parse_opts(self):
         """Append hue/saturation/brightness range options to parser"""
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-hr', '--hue-range',
             help='restrict the generated hue range (0 to 65535) from L to H',
             dest='hue_range', nargs=2, type=int, metavar=('L', 'H'),
             default=[0, 65535])
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-sr', '--saturation-range',
             help='restrict the generated saturation range (1 to 254) from L to H',
             dest='sat_range', nargs=2, type=int, metavar=('L', 'H'),
             default=[1, 254])
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-br', '--brightness-range',
             help='restrict the generated saturation range (1 to 254) from L to H',
             dest='bri_range', nargs=2, type=int, metavar=('L', 'H'),
             default=[1, 254])
 
-    def add_cycle_time_opt(self, parser, default=100):
+    def add_cycle_time_opt(self, default=100):
         """Append cycle time option to parser"""
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-t', '--cycle-time',
             help='cycle time in tenths of a second (default: %(default)s)',
             dest='cycle_time', type=int, metavar='DECISECONDS',
             default=default)
 
-    def add_opts(self, parser):
-        BaseProgram.add_opts(self, parser)
+    def add_opts(self):
+        BaseProgram.add_opts(self)
 
-        self.add_cycle_time_opt(parser)
+        self.add_cycle_time_opt()
 
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-gh', '--group-hue',
             help='match the same hue among all lights',
             dest='group_hue', action='store_true')
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-gs', '--group-saturation',
             help='match the same saturation among all lights',
             dest='group_sat', action='store_true')
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-gb', '--group-brightness',
             help='match the same brightness among all lights',
             dest='group_bri', action='store_true')
 
-        self.add_range_parse_opts(parser)
+        self.add_range_parse_opts()
 
     def run(self):
         self.turn_on_lights()

@@ -17,11 +17,11 @@ class ChasingColorsProgram(FadingColorsProgram):
             [self.usage_light_order_msg, self.usage_no_lights_msg,
              self.usage_first_run_msg])
 
-    def add_opts(self, parser):
-        BaseProgram.add_opts(self, parser)
+    def add_opts(self):
+        BaseProgram.add_opts(self)
 
-        self.add_cycle_time_opt(parser, default=10)
-        self.add_range_parse_opts(parser)
+        self.add_cycle_time_opt(default=10)
+        self.add_range_parse_opts()
 
     def run(self):
         self.turn_on_lights()

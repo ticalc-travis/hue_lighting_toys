@@ -28,14 +28,15 @@ used in the effect.'''
 
     def __init__(self, raw_arguments=None):
         """Parse raw arguments and initialize connection to Hue bridge"""
-        arg_parser = self.get_arg_parser()
-        self.opts = arg_parser.parse_args(raw_arguments)
+        self.init_arg_parser()
+        self.opts = self.opt_parser.parse_args(raw_arguments)
         self.bridge = self.get_bridge()
         self.lights = self.get_lights()
         if not self.lights:
             raise ProgramArgumentError('No lights available')
 
-    def get_description(self):
+    @staticmethod
+    def get_description():
         """Return program description"""
         return 'This is a test program.'
 
@@ -44,47 +45,46 @@ used in the effect.'''
         return '\n\n'.join(
             [self.usage_no_lights_msg, self.usage_first_run_msg])
 
-    def add_bridge_opts(self, parser):
+    def add_bridge_opts(self):
         """Add generic bridge arguments to argument parser"""
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-b', '--bridge',
             help='Hue bridge IP or hostname',
             dest='bridge_address')
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-bu', '--bridge-username',
             help='Hue bridge username',
             dest='bridge_username')
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-bc', '--bridge-config',
             help='path of config file for bridge connection parameters',
             dest='bridge_config')
 
-    def add_light_opts(self, parser):
+    def add_light_opts(self):
         """Add generic light-listing arguments to argument parser"""
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-ln', '--light-number',
             help='use light(s) numbered %(metavar)s',
             dest='lights', action='append', type=int, metavar='LIGHT-NUM',
             nargs='+')
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-l', '--light-name',
             help='use light(s) named %(metavar)s',
             dest='lights', action='append', type=str,
             metavar='LIGHT-NAME', nargs='+')
 
-    def add_opts(self, parser):
+    def add_opts(self):
         """Add program's command arguments to argument parser"""
-        self.add_bridge_opts(parser)
-        self.add_light_opts(parser)
+        self.add_bridge_opts()
+        self.add_light_opts()
 
-    def get_arg_parser(self):
-        """Create a pertinent argument parser and return it"""
-        parser = argparse.ArgumentParser(
+    def init_arg_parser(self):
+        """Set up the command argument parser"""
+        self.opt_parser = argparse.ArgumentParser(
             formatter_class=argparse.RawDescriptionHelpFormatter,
             description=self.get_description(),
             epilog=self.get_usage_epilog())
-        self.add_opts(parser)
-        return parser
+        self.add_opts()
 
     def get_bridge(self):
         """Establish and return a phue Bridge object to use"""

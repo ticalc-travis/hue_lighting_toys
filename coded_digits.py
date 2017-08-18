@@ -52,42 +52,43 @@ class CodedDigitsProgram(ChasingColorsProgram):
     def get_description(self):
         return 'Blink out a series of digits encoded using colors.'
 
-    def add_main_opts(self, parser):
-        BaseProgram.add_opts(self, parser)
+    def add_main_opts(self):
+        BaseProgram.add_opts(self)
 
-        self.add_cycle_time_opt(parser, default=10)
+        self.add_cycle_time_opt(default=10)
 
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-s', '--switch-time',
             help='If there are more digits to transmit than lights, display the "blank" color on all lights for %(metavar)s tenths of a second before each digit flash (default: %(default)s . 0 makes it as short as possible; -1 disables it entirely.',
             dest='switch_time', type=int, metavar='DECISECONDS', default=2)
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-fs', '--force-switch-time', dest='force_switch',
             help='always use a switch time after the digit flash, even if there are enough lights to display all digits at once',
             action='store_true')
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-p', '--pad',
             help='always reset all lights to the "blank" color when the sequence finishes, instead of only when there are more digits than lights to transmit',
             dest='padded', action='store_const', const=True)
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-np', '--no-pad', dest='padded',
             help='never reset lights to the "blank" color when the sequence finishes',
             action='store_const', const=False)
-        parser.add_argument(
+        self.opt_parser.add_argument(
             '-c', '--scheme',
             help='use the chosen color scheme',
             dest='scheme', type=str, choices=DIGITS.keys(),
             default=DIGITS_DEFAULT)
 
-    def add_opts(self, parser):
-        self.add_main_opts(parser)
+    def add_opts(self):
+        self.add_main_opts()
 
-        parser.add_argument(
+        self.opt_parser.add_argument(
             'digits',
             help='the sequence of digits to flash',
             type=str)
 
-    def group_digits(self, digits, num_lights):
+    @staticmethod
+    def group_digits(digits, num_lights):
         size_with_pad = math.ceil(len(digits) / num_lights) * num_lights
         padded_digits = '{:>{}}'.format(digits, size_with_pad)
         digit_groups = [padded_digits[i:i+num_lights]
