@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-"""Base classes and utilities for programs dealing with Philips Hue smart
-lights
+"""Base classes and helper functions for programs dealing with Philips
+Hue smart lights
 """
 
 import argparse
@@ -10,6 +10,77 @@ import sys
 import textwrap
 
 import phue                     # https://github.com/studioimaginaire/phue
+
+
+def kelvin_to_xy(kelvin):
+    """Return an approximate CIE [x,y] color value for the given kelvin
+    color temperature. Should work reasonably from 1000K to 15,000K.
+    """
+
+    # Formula from Wikipedia
+    # https://en.wikipedia.org/wiki/Planckian_locus
+    #
+    # This actually uses the formula given for CIE 1960 UCS, then
+    # converts the result to CIE 1931, used by the Philips Hue
+    # lights. This provides a lower limit than the formula they give for
+    # doing the approximation directly in CIE 1931, which is only
+    # accurate down to 1667K.
+
+    # Calculate CIE 1960 coordinates
+    u = ((.860117757 + 1.54118254e-4 * kelvin + 1.28641212e-7 * kelvin**2)
+         / (1 + 8.42420235e-4 * kelvin + 7.08145163e-7 * kelvin**2))
+    v = ((.317398726 + 4.22806245e-5 * kelvin + 4.20481691e-8 * kelvin**2)
+         / (1 - 2.89741816e-5 * kelvin + 1.61456053e-7 * kelvin**2))
+
+    # Convert to CIE 1931
+    x = (3*u) / (2*u - 8*v + 4)
+    y = (2*v) / (2*u - 8*v + 4)
+
+    return [x,y]
+
+
+def tungsten_cct(brightness):
+    """Return an approximate tungesten color tempearture in Kelvin for an
+    incandescent light dimmed to match the given Hue brightness level
+    from 1-254.
+    """
+    return 5.63925392181 * brightness + 1423.98106079
+
+
+def normalize_light_state(state):
+    """Return a canonocalized copy of a light state dictionary (e.g., from
+    phue.Bridge.get_light()) so that it can be safely passed to
+    phue.Bridge.set_light()'s parameter list to restore the light to its
+    original state.
+
+    Experimentally, it seems that this may not really be necessary, but
+    just in case.…
+    """
+    new_state = state.copy()
+
+    if not state['on']:
+        [new_state.pop(k) for k in ('alert', 'bri', 'ct', 'effect', 'hue',
+                                    'sat', 'xy')]
+    elif state['colormode'] == 'hs':
+        [new_state.pop(k) for k in ('ct', 'xy')]
+    elif state['colormode'] == 'ct':
+        [new_state.pop(k) for k in ('hue', 'sat', 'xy')]
+    elif state['colormode'] == 'xy':
+        [new_state.pop(k) for k in ('ct', 'hue', 'sat')]
+
+    [new_state.pop(k) for k in ('colormode', 'reachable')]
+    return new_state
+
+
+def light_state_is_default(state):
+    """Return whether the given light state dictionary contains parameters
+    that match the Hue lamps' power-on defaults.
+    """
+    return (state['reachable']
+            and state['on']
+            and state['colormode'] == 'ct'
+            and state['bri'] == 254
+            and state['ct'] == 366)
 
 
 class ProgramArgumentError(Exception):
@@ -121,6 +192,55 @@ used in the effect.'''
         """Turn on all lights to be used"""
         for light in self.lights:
             self.bridge.set_light(light.light_id, 'on', True)
+
+    def collect_light_states(self, light_objs, state=None,
+                             include_default_state=True):
+        """Collect a state dict for each item in given sequence of Light
+        objects. If include_default_state, this will include the state
+        of lights that are currently in the default power-on
+        state. 'state' is a state dict returned by a previous
+        invocation; it can be passed to update the existing data, i.e.,
+        in cases where the state of some lights was previously collected
+        but could not be obtained this time around (they were
+        unreachable, in default state with include_default_state=False,
+        etc.), the existing data will be left alone.
+        """
+        if state is None:
+            state = {}
+
+        for light in light_objs:
+            light_state = self.bridge.get_light(light.light_id)['state']
+            if light_state['reachable']:
+                if (not light_state_is_default(light_state)
+                        or include_default_state):
+                    state[light.light_id] = light_state
+                else:
+                    print('Light %d in default state, not saving state'
+                          % light.light_id)
+            else:
+                if light.light_id not in light_state:
+                    print('Light %d is unreachable; recording last known state'
+                          % light.light_id)
+                    state[light.light_id] = light_state
+                else:
+                    print('Light %d is unreachable; temporarily skipping new state save'
+                          % light.light_id)
+        return state
+
+    def restore_light_states(self, light_objs, state):
+        """Set the state of all lights in the sequence of Light objects to that
+        specified in the state dict (such as that returned by
+        self.collect_light_states)
+        """
+        for light in light_objs:
+            try:
+                light_state = state[light.light_id]
+            except KeyError:
+                print("Could not restore state of light %d because this"
+                      " light's state was not known" % light.light_id)
+            else:
+                self.bridge.set_light(light.light_id,
+                                      normalize_light_state(light_state))
 
     def run(self):
         """Start the program"""
