@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-import argparse
-import signal
-import sys
 import time
 
 from base import BaseProgram, default_run, light_state_is_default
@@ -32,7 +29,7 @@ all lights as a group when they all are in initial power-up state''')
 
         while True:
             states = self.collect_light_states(
-                self.lights, states, include_default_state = False)
+                self.lights, states, include_default_state=False)
             time.sleep(self.opts.monitor_time)
 
             if self.opts.individual:
