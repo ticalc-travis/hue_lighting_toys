@@ -118,16 +118,16 @@ transmit''')
         for digit_group in digit_groups:
             if self.opts.switch_time >= 0 and (have_multiple_groups or
                                                self.opts.force_switch):
-                self.bridge.set_light([L.light_id for L in self.lights],
-                                      digit_cmds[None], transitiontime=0)
+                self.bridge.set_light(self.lights, digit_cmds[None],
+                                      transitiontime=0)
                 time.sleep(self.opts.switch_time / 10)
             for digit, light in zip(digit_group, self.lights):
                 cmd = digit_cmds.get(digit, digit_cmds[None])
-                self.bridge.set_light(light.light_id, cmd, transitiontime=0)
+                self.bridge.set_light(light, cmd, transitiontime=0)
             time.sleep(self.opts.cycle_time / 10)
         if use_padding:
-            self.bridge.set_light([L.light_id for L in self.lights],
-                                  digit_cmds[None], transitiontime=0)
+            self.bridge.set_light(self.lights, digit_cmds[None],
+                                  transitiontime=0)
             time.sleep(self.opts.cycle_time / 10)
 
     def run(self):

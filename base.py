@@ -172,7 +172,7 @@ used in the effect.'''
                            config_file_path=self.opts.bridge_config)
 
     def get_lights(self):
-        """Find and return a list of light objects representing the lights
+        """Find and return a list of light IDs representing the lights
         specified by the user, in the order specified
         """
         if self.opts.lights:
@@ -180,23 +180,24 @@ used in the effect.'''
             for light in [light for sublist in self.opts.lights
                           for light in sublist]:
                 try:
-                    lights.append(self.bridge[light])
+                    self.bridge[light]
                 except KeyError:
                     print("Warning: No such light: %s" %
                           repr(light), file=sys.stderr)
+                else:
+                    lights.append(light)
         else:
-            lights = self.bridge.get_light_objects()
+            lights = [o.light_id for o in self.bridge.get_light_objects()]
         return lights
 
     def turn_on_lights(self):
         """Turn on all lights to be used"""
-        for light in self.lights:
-            self.bridge.set_light(light.light_id, 'on', True)
+        self.bridge.set_light(self.lights, 'on', True)
 
-    def collect_light_states(self, light_objs, state=None,
+    def collect_light_states(self, light_ids, state=None,
                              include_default_state=True):
-        """Collect a state dict for each item in given sequence of Light
-        objects. If include_default_state, this will include the state
+        """Collect a state dict for each light in given sequence of light
+        IDs/names. If include_default_state, this will include the state
         of lights that are currently in the default power-on
         state. 'state' is a state dict returned by a previous
         invocation; it can be passed to update the existing data, i.e.,
@@ -208,45 +209,45 @@ used in the effect.'''
         if state is None:
             state = {}
 
-        for light in light_objs:
-            light_state = self.bridge.get_light(light.light_id)['state']
+        for light in light_ids:
+            light_state = self.bridge.get_light(light)['state']
             if light_state['reachable']:
                 if (not light_state_is_default(light_state)
                         or include_default_state):
-                    state[light.light_id] = light_state
+                    state[light] = light_state
                 else:
                     print('Light %d in default state, not saving state'
-                          % light.light_id)
+                          % light)
             else:
-                if light.light_id not in state:
+                if light not in state:
                     print('Light %d is unreachable; recording last known state'
-                          % light.light_id)
-                    state[light.light_id] = light_state
+                          % light)
+                    state[light] = light_state
                 else:
                     print('Light %d is unreachable; temporarily skipping new state save'
-                          % light.light_id)
+                          % light)
         return state
 
-    def restore_light_states(self, light_objs, state):
-        """Set the state of all lights in the sequence of Light objects to that
-        specified in the state dict (such as that returned by
+    def restore_light_states(self, light_ids, state):
+        """Set the state of all lights represented in the sequence of light IDs
+        to that specified in the state dict (such as that returned by
         self.collect_light_states)
         """
-        for light in light_objs:
+        for light in light_ids:
             try:
-                light_state = state[light.light_id]
+                light_state = state[light]
             except KeyError:
                 print("Could not restore state of light %d because this"
-                      " light's state was not known" % light.light_id)
+                      " light's state was not known" % light)
             else:
-                self.bridge.set_light(light.light_id,
+                self.bridge.set_light(light,
                                       normalize_light_state(light_state))
 
     def run(self):
         """Start the program"""
         print('The following lights were specified:')
         for light in self.lights:
-            print(light.name)
+            print(self.bridge[light].name)
         print('\nThe lights will now be turned on.')
         self.turn_on_lights()
         print('\nDone!')

@@ -53,7 +53,7 @@ class CFLSimulationProgram(BaseProgram):
         threads = []
         for light in self.lights:
             thread = threading.Thread(
-                target=self.simulate, args=(light.light_id,), daemon=True)
+                target=self.simulate, args=(light,), daemon=True)
             threads.append(thread)
             thread.start()
 

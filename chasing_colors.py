@@ -29,14 +29,14 @@ class ChasingColorsProgram(FadingColorsProgram):
             new_sat = random.randint(*self.opts.sat_range)
             new_bri = random.randint(*self.opts.bri_range)
             for light in self.lights:
-                light_state = self.bridge.get_light(light.light_id)['state']
+                light_state = self.bridge.get_light(light)['state']
                 save_hue = light_state['hue']
                 save_sat = light_state['sat']
                 save_bri = light_state['bri']
                 self.bridge.set_light(
-                    light.light_id, {'hue': new_hue,
-                                     'sat': new_sat,
-                                     'bri': new_bri},
+                    light, {'hue': new_hue,
+                            'sat': new_sat,
+                            'bri': new_bri},
                     transitiontime=0)
                 new_hue, new_sat, new_bri = save_hue, save_sat, save_bri
             time.sleep(self.opts.cycle_time / 10)

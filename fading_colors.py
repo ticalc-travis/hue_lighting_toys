@@ -64,7 +64,7 @@ class FadingColorsProgram(BaseProgram):
             bri = random.randint(*self.opts.bri_range)
             for light in self.lights:
                 self.bridge.set_light(
-                    light.light_id, {'hue': hue, 'sat': sat, 'bri': bri},
+                    light, {'hue': hue, 'sat': sat, 'bri': bri},
                     transitiontime=self.opts.cycle_time)
                 if not self.opts.group_hue:
                     hue = random.randint(*self.opts.hue_range)
