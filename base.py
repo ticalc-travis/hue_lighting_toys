@@ -218,7 +218,7 @@ used in the effect.'''
                     print('Light %d in default state, not saving state'
                           % light.light_id)
             else:
-                if light.light_id not in light_state:
+                if light.light_id not in state:
                     print('Light %d is unreachable; recording last known state'
                           % light.light_id)
                     state[light.light_id] = light_state
