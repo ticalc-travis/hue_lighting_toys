@@ -2,7 +2,7 @@
 
 import time
 
-from base import BaseProgram, default_run, light_state_is_default
+from base import BaseProgram, default_run
 
 
 class PowerLossRestoreProgram(BaseProgram):
@@ -35,7 +35,7 @@ all lights as a group when they all are in initial power-up state''')
             if self.opts.individual:
                 for light in self.lights:
                     if self.light_is_in_default_state(light):
-                        self.log.info('Restoring light %d' % light)
+                        self.log.info('Restoring light %d', light)
                         self.restore_light_states([light], states)
             else:
                 for light in self.lights:

@@ -40,7 +40,7 @@ def kelvin_to_xy(kelvin):
     x = (3*u) / (2*u - 8*v + 4)
     y = (2*v) / (2*u - 8*v + 4)
 
-    return [x,y]
+    return [x, y]
 
 
 def tungsten_cct(brightness):
@@ -63,16 +63,21 @@ def normalize_light_state(state):
     new_state = state.copy()
 
     if not state['on']:
-        [new_state.pop(k) for k in ('alert', 'bri', 'ct', 'effect', 'hue',
-                                    'sat', 'xy')]
+        for k in ('alert', 'bri', 'ct', 'effect', 'hue', 'sat', 'xy'):
+            new_state.pop(k)
     elif state['colormode'] == 'hs':
-        [new_state.pop(k) for k in ('ct', 'xy')]
+        for k in ('ct', 'xy'):
+            new_state.pop(k)
     elif state['colormode'] == 'ct':
-        [new_state.pop(k) for k in ('hue', 'sat', 'xy')]
+        for k in ('hue', 'sat', 'xy'):
+            new_state.pop(k)
     elif state['colormode'] == 'xy':
-        [new_state.pop(k) for k in ('ct', 'hue', 'sat')]
+        for k in ('ct', 'hue', 'sat'):
+            new_state.pop(k)
 
-    [new_state.pop(k) for k in ('colormode', 'reachable')]
+    for k in ('colormode', 'reachable'):
+        new_state.pop(k)
+
     return new_state
 
 
@@ -238,16 +243,16 @@ used in the effect.'''
                         or include_default_state):
                     state[light] = light_state
                 else:
-                    self.log.info('Light %d in default state, not saving state'
-                          % light)
+                    self.log.info('Light %d in default state, not saving state',
+                                  light)
             else:
                 if light not in state:
-                    self.log.info('Light %d is unreachable; recording last known state'
-                          % light)
+                    self.log.info('Light %d is unreachable; recording last known state',
+                                  light)
                     state[light] = light_state
                 else:
-                    self.log.info('Light %d is unreachable; temporarily skipping new state save'
-                          % light)
+                    self.log.info('Light %d is unreachable; temporarily skipping new state save',
+                                  light)
         return state
 
     def restore_light_states(self, light_ids, state):
@@ -260,7 +265,7 @@ used in the effect.'''
                 light_state = state[light]
             except KeyError:
                 self.log.info("Could not restore state of light %d because this"
-                             " light's state was not known" % light)
+                              " light's state was not known", light)
             else:
                 self.bridge.set_light(light,
                                       normalize_light_state(light_state))
