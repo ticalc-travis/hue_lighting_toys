@@ -133,10 +133,12 @@ class ExtendedBridge(Bridge):
                                 light)
         return state
 
-    def restore_light_states(self, light_ids, state):
+    def restore_light_states(self, light_ids, state,
+                             transitiontime=4):
         """Set the state of all lights represented in the sequence of light IDs
         to that specified in the state dict (such as that returned by
-        self.collect_light_states)
+        self.collect_light_states). transitiontime is the light state
+        transition time in deciseconds to send to the Hue API.
         """
         for light in light_ids:
             try:
@@ -145,7 +147,8 @@ class ExtendedBridge(Bridge):
                 logger.info("Could not restore state of light %d because this"
                             " light's state was not known", light)
             else:
-                self.set_light(light, normalize_light_state(light_state))
+                self.set_light(light, normalize_light_state(light_state),
+                               transitiontime=transitiontime)
 
     def light_is_in_default_state(self, light_id):
         """Return whether the given light with ID or name light_id is currently

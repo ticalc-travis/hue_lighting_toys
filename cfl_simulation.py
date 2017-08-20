@@ -16,6 +16,16 @@ class CFLSimulationProgram(BaseProgram):
         BaseProgram.__init__(self, raw_arguments)
         self.bridge_lock = threading.Lock()
 
+    def add_keep_state_opt(self):
+        """Make default option to *not* restore state since the primary purpose
+        of the program is to mimic the power-on and subsequent
+        stabilization of another light source
+        """
+        self.opt_parser.add_argument(
+            '--restore-light-state',
+            dest='keep_light_state', action='store_false',
+            help='return lights to their original state on exit')
+
     def simulate(self, light_id):
         """Run the simulation for one light given by light_id"""
         stages = [{'on': True, 'transitiontime': 0}]
@@ -49,7 +59,7 @@ class CFLSimulationProgram(BaseProgram):
                 self.bridge.set_light(light_id, stage)
             time.sleep(stage.get('transitiontime', 40) / 10 + .1)
 
-    def run(self):
+    def main(self):
         threads = []
         for light in self.lights:
             thread = threading.Thread(

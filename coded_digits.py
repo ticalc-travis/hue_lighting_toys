@@ -130,7 +130,7 @@ transmit''')
                                   transitiontime=0)
             time.sleep(self.opts.cycle_time / 10)
 
-    def run(self):
+    def main(self):
         """Call self.flash_digits with digit string given on command line"""
         self.flash_digits(self.opts.digits)
 

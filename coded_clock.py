@@ -14,7 +14,7 @@ class CodedClockProgram(CodedDigitsProgram):
     def add_opts(self):
         self.add_main_opts()
 
-    def run(self):
+    def main(self):
         while True:
             digits = time.strftime('%H%M')
             CodedDigitsProgram.flash_digits(self, digits)

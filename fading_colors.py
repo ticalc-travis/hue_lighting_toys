@@ -55,7 +55,7 @@ class FadingColorsProgram(BaseProgram):
 
         self.add_range_parse_opts()
 
-    def run(self):
+    def main(self):
         self.turn_on_lights()
 
         while True:

@@ -9,6 +9,7 @@ import logging
 import signal
 import sys
 import textwrap
+from time import sleep
 
 from phue_helper import ExtendedBridge
 
@@ -48,14 +49,9 @@ used in the effect.'''
             raise ProgramArgumentError('No lights available')
 
         # Set up verbose output if specified
-        try:
-            verbose = self.opts.verbose
-        except AttributeError:
-            pass
-        else:
-            if verbose:
-                logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
-            self.log = logging.getLogger(__name__)
+        if getattr(self.opts, 'verbose', False):
+            logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
+        self.log = logging.getLogger(__name__)
 
     def get_description(self):
         """Get formatted program description"""
@@ -101,11 +97,19 @@ used in the effect.'''
             dest='verbose', action='store_true',
             help='output extra info/debugging log messages')
 
+    def add_keep_state_opt(self):
+        """Add option to disable light state restoration at exit"""
+        self.opt_parser.add_argument(
+            '--keep-light-state',
+            dest='keep_light_state', action='store_true',
+            help='do not return lights to their original state on exit')
+
     def add_opts(self):
         """Add program's command arguments to argument parser"""
         self.add_verbose_opt()
         self.add_bridge_opts()
         self.add_light_opts()
+        self.add_keep_state_opt()
 
     def init_arg_parser(self):
         """Set up the command argument parser"""
@@ -144,14 +148,44 @@ used in the effect.'''
         """Turn on all lights to be used"""
         self.bridge.set_light(self.lights, 'on', True)
 
-    def run(self):
-        """Start the program"""
+    def turn_off_lights(self):
+        """Turn off all lights to be used"""
+        self.bridge.set_light(self.lights, 'on', False)
+
+    def main(self):
+        """Perform the main program procedure"""
         print('The following lights were specified:')
         for light in self.lights:
             print(self.bridge[light].name)
         print('\nThe lights will now be turned on.')
         self.turn_on_lights()
-        print('\nDone!')
+        sleep(5)
+        print('\nThe lights will now be turned off.')
+        self.turn_off_lights()
+        sleep(5)
+        print('\nHave a nice day!')
+
+    def run(self):
+        """Initialize, run the main program procedure, and clean up. Here, save
+        the light state before starting, then restore it before
+        termination if it should be done.
+        """
+
+        # Do not assume self.opts has skip_light_restore, as this method
+        # may be called by subclasses that did not install it as a
+        # command option. If it isn't an option, don't restore, but let
+        # the child class handle things.
+        skip_restore = getattr(self.opts, 'keep_light_state', True)
+
+        if not skip_restore:
+            light_state = self.bridge.collect_light_states(self.lights)
+
+        try:
+            self.main()
+        finally:
+            if not skip_restore:
+                self.bridge.restore_light_states(self.lights, light_state,
+                                                 transitiontime=0)
 
 
 def run_with_quit_handler(program):

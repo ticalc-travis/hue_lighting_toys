@@ -13,7 +13,7 @@ class CodedStopwatchProgram(CodedDigitsProgram):
     def add_opts(self):
         self.add_main_opts()
 
-    def run(self):
+    def main(self):
         start = time()
         while True:
             elapsed_secs = int(time() - start)
