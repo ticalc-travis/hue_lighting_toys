@@ -5,11 +5,15 @@ Hue smart lights
 """
 
 import argparse
+import logging
 import signal
 import sys
 import textwrap
 
 import phue                     # https://github.com/studioimaginaire/phue
+
+
+LOG_FORMAT = '%(asctime)s: %(message)s'
 
 
 def kelvin_to_xy(kelvin):
@@ -115,6 +119,16 @@ used in the effect.'''
         if not self.lights:
             raise ProgramArgumentError('No lights available')
 
+        # Set up verbose output if specified
+        try:
+            verbose = self.opts.verbose
+        except AttributeError:
+            pass
+        else:
+            if verbose:
+                logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
+            self.log = logging.getLogger(__name__)
+
     def get_description(self):
         """Get formatted program description"""
         return textwrap.fill(self.__doc__)
@@ -152,8 +166,16 @@ used in the effect.'''
             metavar='LIGHT-NAME', nargs='+',
             help='use light(s) named %(metavar)s')
 
+    def add_verbose_opt(self):
+        """Add generic verbosity option"""
+        self.opt_parser.add_argument(
+            '-v', '--verbose',
+            dest='verbose', action='store_true',
+            help='output extra info/debugging log messages')
+
     def add_opts(self):
         """Add program's command arguments to argument parser"""
+        self.add_verbose_opt()
         self.add_bridge_opts()
         self.add_light_opts()
 
@@ -216,15 +238,15 @@ used in the effect.'''
                         or include_default_state):
                     state[light] = light_state
                 else:
-                    print('Light %d in default state, not saving state'
+                    self.log.info('Light %d in default state, not saving state'
                           % light)
             else:
                 if light not in state:
-                    print('Light %d is unreachable; recording last known state'
+                    self.log.info('Light %d is unreachable; recording last known state'
                           % light)
                     state[light] = light_state
                 else:
-                    print('Light %d is unreachable; temporarily skipping new state save'
+                    self.log.info('Light %d is unreachable; temporarily skipping new state save'
                           % light)
         return state
 
@@ -237,8 +259,8 @@ used in the effect.'''
             try:
                 light_state = state[light]
             except KeyError:
-                print("Could not restore state of light %d because this"
-                      " light's state was not known" % light)
+                self.log.info("Could not restore state of light %d because this"
+                             " light's state was not known" % light)
             else:
                 self.bridge.set_light(light,
                                       normalize_light_state(light_state))

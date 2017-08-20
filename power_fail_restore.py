@@ -35,7 +35,7 @@ all lights as a group when they all are in initial power-up state''')
             if self.opts.individual:
                 for light in self.lights:
                     if self.light_is_in_default_state(light):
-                        print('Restoring light %d' % light)
+                        self.log.info('Restoring light %d' % light)
                         self.restore_light_states([light], states)
             else:
                 for light in self.lights:
@@ -44,7 +44,7 @@ all lights as a group when they all are in initial power-up state''')
                 else:
                     # Restore state if all monitored lights appear to
                     # have been reset
-                    print('All lights in default state, restoring original state')
+                    self.log.info('All lights in default state, restoring original state')
                     self.restore_light_states(self.lights, states)
 
 
