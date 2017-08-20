@@ -80,14 +80,14 @@ used in the effect.'''
     def add_light_opts(self):
         """Add generic light-listing arguments to argument parser"""
         self.opt_parser.add_argument(
-            '-ln', '--light-number',
+            '-l', '--light-id',
             dest='lights', action='append', type=int, metavar='LIGHT-NUM',
             nargs='+',
-            help='use light(s) numbered %(metavar)s')
+            help='use light(s) with ID number %(metavar)s')
         self.opt_parser.add_argument(
-            '-l', '--light-name',
-            dest='lights', action='append', type=str,
-            metavar='LIGHT-NAME', nargs='+',
+            '-ln', '--light-name',
+            dest='lights', action='append', type=str, metavar='LIGHT-NAME',
+            nargs='+',
             help='use light(s) named %(metavar)s')
 
     def add_verbose_opt(self):
