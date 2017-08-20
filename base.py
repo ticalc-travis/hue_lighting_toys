@@ -243,6 +243,13 @@ used in the effect.'''
                 self.bridge.set_light(light,
                                       normalize_light_state(light_state))
 
+    def light_is_in_default_state(self, light_id):
+        """Return whether the given light with ID or name light_id is currently
+        on, reachable, and at its default power-on state.
+        """
+        state = self.bridge.get_light(light_id)['state']
+        return light_state_is_default(state)
+
     def run(self):
         """Start the program"""
         print('The following lights were specified:')

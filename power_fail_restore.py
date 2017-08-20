@@ -34,14 +34,12 @@ all lights as a group when they all are in initial power-up state''')
 
             if self.opts.individual:
                 for light in self.lights:
-                    light_state = self.bridge.get_light(light)['state']
-                    if light_state_is_default(light_state):
+                    if self.light_is_in_default_state(light):
                         print('Restoring light %d' % light)
                         self.restore_light_states([light], states)
             else:
                 for light in self.lights:
-                    light_state = self.bridge.get_light(light)['state']
-                    if not light_state_is_default(light_state):
+                    if not self.light_is_in_default_state(light):
                         break
                 else:
                     # Restore state if all monitored lights appear to
