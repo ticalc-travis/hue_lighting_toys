@@ -49,7 +49,7 @@ class CFLSimulationProgram(BaseProgram):
                            'transitiontime': randint(600, 1200)})
         else:
             stages.append({'bri': randint(1, 40),
-                           'ct': 286,
+                           'ct': randint(286, 315),
                            'transitiontime': 0})
             stages.append({'bri': 254,
                            'transitiontime': randint(800, 1600)})
