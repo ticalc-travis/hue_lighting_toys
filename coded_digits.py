@@ -115,16 +115,29 @@ transmit''')
         if use_padding is None:
             use_padding = have_multiple_groups
 
+        last_digit_group = ''
         for digit_group in digit_groups:
-            if self.opts.switch_time >= 0 and (have_multiple_groups or
-                                               self.opts.force_switch):
+
+            # Unless it's disabled with switch time of -1, do a brief
+            # transition blink between digit groups if there's more than
+            # one “page” of digits to blink or the blink was forced with
+            # the switch_time command option, *and* the last digit group
+            # flashed exactly matches the new one to flash
+            if ((have_multiple_groups or self.opts.force_switch) and
+                    self.opts.switch_time >= 0 and
+                    digit_group == last_digit_group):
                 self.bridge.set_light(self.lights, digit_cmds[None],
                                       transitiontime=0)
                 time.sleep(self.opts.switch_time / 10)
+
+            # Now flash the actual digits
             for digit, light in zip(digit_group, self.lights):
                 cmd = digit_cmds.get(digit, digit_cmds[None])
                 self.bridge.set_light(light, cmd, transitiontime=0)
+            last_digit_group = digit_group
             time.sleep(self.opts.cycle_time / 10)
+
+        # Now, handle the final pad flash if this is turned on
         if use_padding:
             self.bridge.set_light(self.lights, digit_cmds[None],
                                   transitiontime=0)
