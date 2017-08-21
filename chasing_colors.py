@@ -5,7 +5,6 @@ import time
 
 from base import (BaseProgram, default_run)
 from fading_colors import FadingColorsProgram
-from phue_helper import normalize_light_state
 
 
 class ChasingColorsProgram(FadingColorsProgram):
@@ -54,9 +53,9 @@ class ChasingColorsProgram(FadingColorsProgram):
                                                      ranges[attr]['hi'])
             for light in self.lights:
                 orig_state = light_state[light]
-                self.bridge.set_light(light,
-                                      normalize_light_state(new_state),
-                                      transitiontime=0)
+                self.bridge.set_light(
+                    light, self.bridge.normalize_light_state(new_state),
+                    transitiontime=0)
                 light_state[light] = new_state
                 new_state = orig_state
             num_cycles += 1

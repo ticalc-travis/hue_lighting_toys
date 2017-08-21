@@ -45,53 +45,15 @@ def tungsten_cct(brightness):
     return 5.63925392181 * brightness + 1423.98106079
 
 
-def normalize_light_state(state):
-    """Return a canonocalized copy of a light state dictionary (e.g., from
-    phue.Bridge.get_light()) so that it can be safely passed to
-    phue.Bridge.set_light()'s parameter list to restore the light to its
-    original state.
-
-    Experimentally, it seems that this may not really be necessary, but
-    just in case.…
-    """
-    new_state = state.copy()
-
-    if 'on' in state and not state['on']:
-        for k in ('alert', 'bri', 'ct', 'effect', 'hue', 'sat', 'xy'):
-            new_state.pop(k, None)
-    elif 'colormode' in state:
-        if state['colormode'] == 'hs':
-            for k in ('ct', 'xy'):
-                new_state.pop(k, None)
-        elif state['colormode'] == 'ct':
-            for k in ('hue', 'sat', 'xy'):
-                new_state.pop(k, None)
-        elif state['colormode'] == 'xy':
-            for k in ('ct', 'hue', 'sat'):
-                new_state.pop(k, None)
-
-    for k in ('colormode', 'reachable'):
-        new_state.pop(k, None)
-
-    return new_state
-
-
-def light_state_is_default(state):
-    """Return whether the given light state dictionary contains parameters
-    that match the Hue lamps' power-on defaults.
-    """
-    return (state['reachable']
-            and state['on']
-            and state['colormode'] == 'ct'
-            and state['bri'] == 254
-            and state['ct'] == 366)
-
-
 class BridgeError(Exception):
+    """Base exception for Hue bridge errors"""
     pass
 
 
 class BridgeInternalError(BridgeError):
+    """Exception for Hue bridge internal error (usually caused by bridge
+    being temporarily too busy with requests
+    """
     pass
 
 
@@ -108,6 +70,48 @@ class ExtendedBridge(Bridge):
             return False
         else:
             return True
+
+    @staticmethod
+    def normalize_light_state(state):
+        """Return a canonocalized copy of a light state dictionary (e.g., from
+        phue.Bridge.get_light()) so that it can be safely passed to
+        phue.Bridge.set_light()'s parameter list to restore the light to its
+        original state.
+
+        Experimentally, it seems that this may not really be necessary, but
+        just in case.…
+        """
+        new_state = state.copy()
+
+        if 'on' in state and not state['on']:
+            for k in ('alert', 'bri', 'ct', 'effect', 'hue', 'sat', 'xy'):
+                new_state.pop(k, None)
+        elif 'colormode' in state:
+            if state['colormode'] == 'hs':
+                for k in ('ct', 'xy'):
+                    new_state.pop(k, None)
+            elif state['colormode'] == 'ct':
+                for k in ('hue', 'sat', 'xy'):
+                    new_state.pop(k, None)
+            elif state['colormode'] == 'xy':
+                for k in ('ct', 'hue', 'sat'):
+                    new_state.pop(k, None)
+
+        for k in ('colormode', 'reachable'):
+            new_state.pop(k, None)
+
+        return new_state
+
+    @staticmethod
+    def light_state_is_default(state):
+        """Return whether the given light state dictionary contains parameters
+        that match the Hue lamps' power-on defaults.
+        """
+        return (state['reachable']
+                and state['on']
+                and state['colormode'] == 'ct'
+                and state['bri'] == 254
+                and state['ct'] == 366)
 
     def collect_light_states(self, light_ids, state=None,
                              include_default_state=True):
@@ -127,7 +131,7 @@ class ExtendedBridge(Bridge):
         for light in light_ids:
             light_state = self.get_light(light)['state']
             if light_state['reachable']:
-                if (not light_state_is_default(light_state)
+                if (not self.light_state_is_default(light_state)
                         or include_default_state):
                     state[light] = light_state
                 else:
@@ -158,7 +162,7 @@ class ExtendedBridge(Bridge):
                             " light's state was not known", light)
             else:
                 results = self.set_light(
-                    light, normalize_light_state(light_state),
+                    light, self.normalize_light_state(light_state),
                     transitiontime=transitiontime)
                 for result in results[0]:
                     if ('error' in result and
@@ -178,16 +182,16 @@ class ExtendedBridge(Bridge):
             try:
                 self.restore_light_states(light_ids, state, transitiontime)
             except BridgeInternalError:
-                logger.warn('Bridge command failure; retrying…')
+                logger.warning('Bridge command failure; retrying…')
                 sleep(retry_wait)
             else:
                 break
         else:
-            logger.warn('Retry limit exceeded; giving up')
+            logger.warning('Retry limit exceeded; giving up')
 
     def light_is_in_default_state(self, light_id):
         """Return whether the given light with ID or name light_id is currently
         on, reachable, and at its default power-on state.
         """
         state = self.get_light(light_id)['state']
-        return light_state_is_default(state)
+        return self.light_state_is_default(state)

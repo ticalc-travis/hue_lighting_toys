@@ -11,7 +11,7 @@ import sys
 import textwrap
 from time import sleep
 
-from phue_helper import ExtendedBridge, BridgeInternalError
+from phue_helper import ExtendedBridge
 
 LOG_FORMAT = '%(asctime)s: %(message)s'
 
