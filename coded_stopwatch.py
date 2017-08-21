@@ -22,7 +22,9 @@ class CodedStopwatchProgram(CodedDigitsProgram):
                 digits = '{}{:02}'.format(hrs, mins)
             else:
                 digits = '{}'.format(mins)
-            print('\r{}:{:02}    '.format(hrs, mins), end='', flush=True)
+            if self.opts.verbose:
+                print('\r{}:{:02}    '.format(hrs, mins), end='',
+                      flush=True)
 
             CodedDigitsProgram.flash_digits(self, digits)
 
