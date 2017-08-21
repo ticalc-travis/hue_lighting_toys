@@ -5,6 +5,7 @@ import time
 
 from base import (BaseProgram, default_run)
 from fading_colors import FadingColorsProgram
+from phue_helper import normalize_light_state
 
 
 class ChasingColorsProgram(FadingColorsProgram):
@@ -24,21 +25,22 @@ class ChasingColorsProgram(FadingColorsProgram):
     def main(self):
         self.turn_on_lights()
 
+        # Get light states from bridge once and then keep track of them
+        # ourself thereafter to reduce bridge requests and avoid weird
+        # effects due to network/state update delays
+        light_state = self.bridge.collect_light_states(self.lights)
+
         while True:
-            new_hue = random.randint(*self.opts.hue_range)
-            new_sat = random.randint(*self.opts.sat_range)
-            new_bri = random.randint(*self.opts.bri_range)
+            new_state = {'hue': random.randint(*self.opts.hue_range),
+                         'sat': random.randint(*self.opts.sat_range),
+                         'bri': random.randint(*self.opts.bri_range)}
             for light in self.lights:
-                light_state = self.bridge.get_light(light)['state']
-                save_hue = light_state['hue']
-                save_sat = light_state['sat']
-                save_bri = light_state['bri']
-                self.bridge.set_light(
-                    light, {'hue': new_hue,
-                            'sat': new_sat,
-                            'bri': new_bri},
-                    transitiontime=0)
-                new_hue, new_sat, new_bri = save_hue, save_sat, save_bri
+                orig_state = light_state[light]
+                self.bridge.set_light(light,
+                                      normalize_light_state(new_state),
+                                      transitiontime=0)
+                light_state[light] = new_state
+                new_state = orig_state
             time.sleep(self.opts.cycle_time / 10)
 
 

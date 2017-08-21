@@ -11,7 +11,7 @@ import sys
 import textwrap
 from time import sleep
 
-from phue_helper import ExtendedBridge
+from phue_helper import ExtendedBridge, BridgeInternalError
 
 LOG_FORMAT = '%(asctime)s: %(message)s'
 
@@ -38,8 +38,15 @@ be registered to access the bridge and lighting system.'''
     usage_no_lights_msg = '''If no lights are specified, all lights found on the bridge will be
 used in the effect.'''
 
-    def __init__(self, raw_arguments=None):
-        """Parse raw arguments and initialize connection to Hue bridge"""
+    def __init__(self, raw_arguments=None, bridge_retries=10,
+                 bridge_retry_wait=1):
+        """Parse raw arguments and initialize connection to Hue bridge
+
+        Args:
+        raw_arguments: List of CLI args to arg parser
+        bridge_retries: Max number of retries if bridge command fails
+        bridge_retry_wait: Seconds to wait between bridge retries
+        """
         self.init_arg_parser()
         self.opts = self.opt_parser.parse_args(raw_arguments)
 
@@ -47,6 +54,8 @@ used in the effect.'''
         self.lights = self.get_lights()
         if not self.lights:
             raise ProgramArgumentError('No lights available')
+        self.bridge_retries = bridge_retries
+        self.bridge_retry_wait = bridge_retry_wait
 
         # Set up verbose output if specified
         if getattr(self.opts, 'verbose', False):
@@ -184,8 +193,9 @@ used in the effect.'''
             self.main()
         finally:
             if not skip_restore:
-                self.bridge.restore_light_states(self.lights, light_state,
-                                                 transitiontime=0)
+                self.bridge.restore_light_states_retry(
+                    self.bridge_retries, self.bridge_retry_wait,
+                    self.lights, light_state, transitiontime=0)
 
 
 def run_with_quit_handler(program):

@@ -3,6 +3,7 @@ from https://github.com/studioimaginaire/phue
 """
 
 import logging
+from time import sleep
 
 from phue import Bridge       # https://github.com/studioimaginaire/phue
 
@@ -55,21 +56,22 @@ def normalize_light_state(state):
     """
     new_state = state.copy()
 
-    if not state['on']:
+    if 'on' in state and not state['on']:
         for k in ('alert', 'bri', 'ct', 'effect', 'hue', 'sat', 'xy'):
-            new_state.pop(k)
-    elif state['colormode'] == 'hs':
-        for k in ('ct', 'xy'):
-            new_state.pop(k)
-    elif state['colormode'] == 'ct':
-        for k in ('hue', 'sat', 'xy'):
-            new_state.pop(k)
-    elif state['colormode'] == 'xy':
-        for k in ('ct', 'hue', 'sat'):
-            new_state.pop(k)
+            new_state.pop(k, None)
+    elif 'colormode' in state:
+        if state['colormode'] == 'hs':
+            for k in ('ct', 'xy'):
+                new_state.pop(k, None)
+        elif state['colormode'] == 'ct':
+            for k in ('hue', 'sat', 'xy'):
+                new_state.pop(k, None)
+        elif state['colormode'] == 'xy':
+            for k in ('ct', 'hue', 'sat'):
+                new_state.pop(k, None)
 
     for k in ('colormode', 'reachable'):
-        new_state.pop(k)
+        new_state.pop(k, None)
 
     return new_state
 
@@ -83,6 +85,14 @@ def light_state_is_default(state):
             and state['colormode'] == 'ct'
             and state['bri'] == 254
             and state['ct'] == 366)
+
+
+class BridgeError(Exception):
+    pass
+
+
+class BridgeInternalError(BridgeError):
+    pass
 
 
 class ExtendedBridge(Bridge):
@@ -147,8 +157,33 @@ class ExtendedBridge(Bridge):
                 logger.info("Could not restore state of light %d because this"
                             " light's state was not known", light)
             else:
-                self.set_light(light, normalize_light_state(light_state),
-                               transitiontime=transitiontime)
+                results = self.set_light(
+                    light, normalize_light_state(light_state),
+                    transitiontime=transitiontime)
+                for result in results[0]:
+                    if ('error' in result and
+                            result['error']['type'] == 901):
+                        raise BridgeInternalError
+
+    def restore_light_states_retry(
+            self, max_retries, retry_wait, light_ids, state,
+            transitiontime=4):
+        """Try to call restore_light_states; if bridge returns a temporary
+        error, try again up to max_retries times, waiting retry_wait
+        seconds between each try
+        """
+
+        # Make at least one attempt (retries + 1)
+        for _ in range(max(max_retries + 1, 1)):
+            try:
+                self.restore_light_states(light_ids, state, transitiontime)
+            except BridgeInternalError:
+                logger.warn('Bridge command failure; retrying…')
+                sleep(retry_wait)
+            else:
+                break
+        else:
+            logger.warn('Retry limit exceeded; giving up')
 
     def light_is_in_default_state(self, light_id):
         """Return whether the given light with ID or name light_id is currently
