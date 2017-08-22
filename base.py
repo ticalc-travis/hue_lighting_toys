@@ -74,15 +74,15 @@ used in the effect.'''
     def add_bridge_opts(self):
         """Add generic bridge arguments to argument parser"""
         self.opt_parser.add_argument(
-            '-b', '--bridge',
+            '-B', '--bridge',
             dest='bridge_address',
             help='Hue bridge IP or hostname')
         self.opt_parser.add_argument(
-            '-bu', '--bridge-username',
+            '-Bu', '--bridge-username',
             dest='bridge_username',
             help='Hue bridge username')
         self.opt_parser.add_argument(
-            '-bc', '--bridge-config',
+            '-Bc', '--bridge-config',
             dest='bridge_config',
             help='path of config file for bridge connection parameters')
 
