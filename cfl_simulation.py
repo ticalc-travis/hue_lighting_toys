@@ -22,7 +22,7 @@ class CFLSimulationProgram(BaseProgram):
         stabilization of another light source
         """
         self.opt_parser.add_argument(
-            '--restore-light-state',
+            '--restore-lights',
             dest='keep_light_state', action='store_false',
             help='return lights to their original state on exit')
 

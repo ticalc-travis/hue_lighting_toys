@@ -102,7 +102,7 @@ used in the effect.'''
     def add_keep_state_opt(self):
         """Add option to disable light state restoration at exit"""
         self.opt_parser.add_argument(
-            '--keep-light-state',
+            '--no-restore-lights',
             dest='keep_light_state', action='store_true',
             help='do not return lights to their original state on exit')
 
