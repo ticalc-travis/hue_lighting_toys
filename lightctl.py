@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import sys
-
 from base import (BaseProgram, default_run)
 
 
@@ -60,6 +58,7 @@ class LightCLIControlProgram(BaseProgram):
             help='use a transition time of %(metavar)s tenths of a second')
 
     def validate_opts(self):
+        """Check arguments for validity and exit with appropriate error on failure"""
         if self.opts.ct is not None and self.opts.ct <= 0:
             self.opt_parser.error('Color temperature must be at least 1 mired')
 
