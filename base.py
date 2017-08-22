@@ -16,13 +16,6 @@ from phue_helper import ExtendedBridge
 LOG_FORMAT = '%(asctime)s: %(message)s'
 
 
-class ProgramArgumentError(Exception):
-    """Exception signaling incorrect command-line arguments that prevent
-    program execution
-    """
-    pass
-
-
 class BaseProgram():
     """A sample CLI program for the Philips Hue system that takes
     command-line arguments and connects to the given bridge and operates
@@ -53,7 +46,7 @@ used in the effect.'''
         self.bridge = self.get_bridge()
         self.lights = self.get_lights()
         if not self.lights:
-            raise ProgramArgumentError('No lights available')
+            self.opt_parser.error('no lights available')
         self.bridge_retries = bridge_retries
         self.bridge_retry_wait = bridge_retry_wait
 
@@ -196,27 +189,16 @@ used in the effect.'''
                     self.lights, light_state, transitiontime=0)
 
 
-def run_with_quit_handler(program):
-    """Run a program that catches KeyboardInterrupt and then terminates with
-    the appropriate return code on *nix
-    """
-    try:
-        program.run()
-    except KeyboardInterrupt:
-        sys.exit(signal.SIGINT + 128)    # Terminate quietly on ^C
-
 def default_run(prog_class):
     """Create an instance of prog_class, displaying command argument errors
     if they occur, and supply a return code for this condition or keyboard
     interrupts.
     """
+    prog = prog_class()
     try:
-        prog = prog_class()
-    except ProgramArgumentError as e:
-        print('Error: %s' % e, file=sys.stderr)
-        sys.exit(2)
-    else:
-        run_with_quit_handler(prog)
+        prog.run()
+    except KeyboardInterrupt:
+        sys.exit(signal.SIGINT + 128)    # Terminate quietly on ^C
 
 
 if __name__ == '__main__':
