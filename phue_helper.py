@@ -86,12 +86,22 @@ class ExtendedBridge(Bridge):
           supported 153–500 mired (2000–≈6536 Kelvin) will cause the
           light's colormode to be subsequently reported as 'xy' instead
           of 'ct'.)
+
+        - An 'incan' parameter that accepts an int from 1 to 254 is
+          supported. It sets the 'bri' parameter to this value, then
+          sets the light to a color that simulates the appearance of an
+          incandescent lamp dimmed to about that brightness level. This
+          parameter conflicts with and should not be used together with
+          'bri', 'ct', 'xy', 'hue', or 'sat'.
         """
         if isinstance(parameter, dict):
             params = parameter
         else:
             params = {parameter: value}
 
+        if 'incan' in params:
+            params['bri'] = params['incan']
+            params['ctk'] = tungsten_cct(params.pop('incan'))
         if 'ct' in params:
             if params['ct'] < 153 or params['ct'] > 500:
                 params['ctk'] = int(1e6 / params.pop('ct'))

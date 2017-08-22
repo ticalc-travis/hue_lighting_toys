@@ -52,6 +52,12 @@ class LightCLIControlProgram(BaseProgram):
             help='set color temperature in Kelvin')
 
         self.opt_parser.add_argument(
+            '-i', '--incandescent',
+            dest='incan', type=int, metavar='BRI',
+            help='''set brightness to %(metavar)s and set lamp color to simulate an
+                 incandescent bulb dimmed to that brightness level''')
+
+        self.opt_parser.add_argument(
             '-t', '--transition-time',
             dest='transitiontime', type=int, metavar='DECISECONDS',
             help='use a transition time of %(metavar)s tenths of a second')
@@ -66,7 +72,7 @@ class LightCLIControlProgram(BaseProgram):
         cmd = {}
 
         for param in ('on', 'bri', 'hue', 'sat', 'xy', 'ct', 'ctk',
-                      'transitiontime'):
+                      'incan', 'transitiontime'):
             value = getattr(self.opts, param)
             if value is not None:
                 cmd[param] = value
