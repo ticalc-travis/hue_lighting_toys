@@ -111,8 +111,8 @@ class ExtendedBridge(Bridge):
             else:
                 params['xy'] = kelvin_to_xy(params.pop('ctk'))
 
-        Bridge.set_light(self, light_id, params, value=None,
-                         transitiontime=transitiontime)
+        return Bridge.set_light(self, light_id, params, value=None,
+                                transitiontime=transitiontime)
 
     @staticmethod
     def normalize_light_state(state):
