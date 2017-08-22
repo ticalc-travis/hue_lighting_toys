@@ -8,11 +8,8 @@ from base import (BaseProgram, default_run)
 class LightCLIControlProgram(BaseProgram):
     """Command-line utility to control Hue lights"""
 
-    def add_keep_state_opt(self):
-        """Do nothing (the “keep state” option does not apply to this program,
-        so it shouldn't be present, and no state restoration should be
-        done)
-        """
+    def add_light_state_opt(self):
+        # Light state restoration does not apply to this program
         return
 
     def add_opts(self):

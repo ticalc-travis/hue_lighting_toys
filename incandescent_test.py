@@ -13,15 +13,8 @@ MIN_BRIDGE_CMD_INTERVAL = .3
 class IncandescentFadeProgram(BaseProgram):
     """Simulate an incandescent dimmer fade"""
 
-    def add_keep_state_opt(self):
-        """Make default option to *not* restore state since the primary purpose
-        of the program is to mimic the power-on and subsequent
-        stabilization of another light source
-        """
-        self.opt_parser.add_argument(
-            '--restore-lights',
-            dest='keep_light_state', action='store_false',
-            help='return lights to their original state on exit')
+    def add_light_state_opt(self):
+        self.add_restore_opt()
 
     def add_opts(self):
         BaseProgram.add_opts(self)

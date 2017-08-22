@@ -11,11 +11,8 @@ class PowerLossRestoreProgram(BaseProgram):
     power interruption
     """
 
-    def add_keep_state_opt(self):
-        """Do nothing (the “keep state” option does not apply to this program,
-        so it shouldn't be present, and no state restoration should be
-        done)
-        """
+    def add_light_state_opt(self):
+        # Light state restoration does not apply to this program
         return
 
     def add_opts(self):

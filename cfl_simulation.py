@@ -16,15 +16,8 @@ class CFLSimulationProgram(BaseProgram):
         BaseProgram.__init__(self, raw_arguments)
         self.bridge_lock = threading.Lock()
 
-    def add_keep_state_opt(self):
-        """Make default option to *not* restore state since the primary purpose
-        of the program is to mimic the power-on and subsequent
-        stabilization of another light source
-        """
-        self.opt_parser.add_argument(
-            '--restore-lights',
-            dest='keep_light_state', action='store_false',
-            help='return lights to their original state on exit')
+    def add_light_state_opt(self):
+        self.add_restore_opt()
 
     def simulate(self, light_id):
         """Run the simulation for one light given by light_id"""
