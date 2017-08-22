@@ -48,7 +48,7 @@ class LightCLIControlProgram(BaseProgram):
             help='set color temperature in mireds/mireks')
         self.opt_parser.add_argument(
             '-k', '--kelvin',
-            dest='ctk', type=int,
+            dest='ctk', type=int, metavar='KELVIN',
             help='set color temperature in Kelvin')
 
         self.opt_parser.add_argument(
