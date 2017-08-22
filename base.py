@@ -22,7 +22,7 @@ class BaseProgram():
     on the specified lights
     """
 
-    usage_first_run_msg = '''The first time this script is run on a device, it may be necessary to
+    usage_first_run_msg = '''The first time this script is run on a system, it may be necessary to
 press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.'''
 
