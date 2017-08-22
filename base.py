@@ -142,13 +142,11 @@ used in the effect.'''
             lights = []
             for light in [light for sublist in self.opts.lights
                           for light in sublist]:
-                try:
-                    self.bridge[light]
-                except KeyError:
-                    print("Warning: No such light: %s" %
-                          repr(light), file=sys.stderr)
-                else:
+                if light in self.bridge:
                     lights.append(light)
+                else:
+                    print("%s: warning: no such light: %s" %
+                          (sys.argv[0], repr(light)), file=sys.stderr)
         else:
             lights = [o.light_id for o in self.bridge.get_light_objects()]
         return lights
