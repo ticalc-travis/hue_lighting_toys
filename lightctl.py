@@ -45,17 +45,27 @@ class LightCLIControlProgram(BaseProgram):
         self.opt_parser.add_argument(
             '-c', '--ct', '--color-temp',
             dest='ct', type=int, metavar='MIREDS',
-            help='set color temperature in mireds/mireks (153 to 500)')
+            help='set color temperature in mireds/mireks')
+        self.opt_parser.add_argument(
+            '-k', '--kelvin',
+            dest='ctk', type=int,
+            help='set color temperature in Kelvin')
 
         self.opt_parser.add_argument(
             '-t', '--transition-time',
             dest='transitiontime', type=int, metavar='DECISECONDS',
             help='use a transition time of %(metavar)s tenths of a second')
 
+    def validate_opts(self):
+        if self.opts.ct is not None and self.opts.ct <= 0:
+            self.opt_parser.error('Color temperature must be at least 1 mired')
+
     def main(self):
+        self.validate_opts()
+
         cmd = {}
 
-        for param in ('on', 'bri', 'hue', 'sat', 'xy', 'ct',
+        for param in ('on', 'bri', 'hue', 'sat', 'xy', 'ct', 'ctk',
                       'transitiontime'):
             value = getattr(self.opts, param)
             if value is not None:

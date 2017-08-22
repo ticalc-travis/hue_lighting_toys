@@ -71,6 +71,39 @@ class ExtendedBridge(Bridge):
         else:
             return True
 
+    def set_light(self, light_id, parameter, value=None,
+                  transitiontime=None):
+        """Extended version of self.set_light with the following enhancements:
+
+        - A 'ctk' parameter that accepts a color temperature in Kelvin
+          is supported.
+
+        - The range of 'ct' and 'ctk' is extended. 'ct' values from 40
+          to 250 or 'ctk' values from 1000 to 25,000 will work. Values
+          outside this range may work reasonably for some applications
+          but may not necessarily yield accurate colors. (Note: As a
+          side effect, setting a value outside the Hue API's officially
+          supported 153–500 mired (2000–≈6536 Kelvin) will cause the
+          light's colormode to be subsequently reported as 'xy' instead
+          of 'ct'.)
+        """
+        if isinstance(parameter, dict):
+            params = parameter
+        else:
+            params = {parameter: value}
+
+        if 'ct' in params:
+            if params['ct'] < 153 or params['ct'] > 500:
+                params['ctk'] = int(1e6 / params.pop('ct'))
+        if 'ctk' in params:
+            if params['ctk'] >= 2000 and params['ctk'] <= 6535:
+                params['ct'] = int(1e6 / params.pop('ctk'))
+            else:
+                params['xy'] = kelvin_to_xy(params.pop('ctk'))
+
+        Bridge.set_light(self, light_id, params, value=None,
+                         transitiontime=transitiontime)
+
     @staticmethod
     def normalize_light_state(state):
         """Return a canonocalized copy of a light state dictionary (e.g., from
