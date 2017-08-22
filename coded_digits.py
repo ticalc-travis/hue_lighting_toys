@@ -91,9 +91,8 @@ transmit''')
     def add_opts(self):
         self.add_main_opts()
         self.opt_parser.add_argument(
-            'digits',
-            help='the sequence of digits to flash',
-            type=str)
+            'digits', type=str,
+            help='the sequence of digits to flash')
 
     @staticmethod
     def group_digits(digits, num_lights):
