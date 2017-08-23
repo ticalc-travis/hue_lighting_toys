@@ -225,7 +225,7 @@ class ExtendedBridge(Bridge):
             try:
                 self.restore_light_states(light_ids, state, transitiontime)
             except BridgeInternalError:
-                logger.warning('Bridge command failure; retrying…')
+                logger.warning('Bridge command failure; retrying light state restore…')
                 sleep(retry_wait)
             else:
                 break
