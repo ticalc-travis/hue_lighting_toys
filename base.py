@@ -64,6 +64,55 @@ used in the effect.'''
         return '\n\n'.join(
             [self.usage_no_lights_msg, self.usage_first_run_msg])
 
+    @staticmethod
+    def int_within_range(min_limit, max_limit):
+        """Return a function that converts a string to an int, raising
+        argparse.ArgumentTypeError on failure or if the resulting value
+        is less than min_limit or more than max_limit. A min_limit of
+        None means no lower limit, and a max_limit of None means no
+        upper limit.
+        """
+        def int_range_validator(str_):
+            try:
+                int_ = int(str_)
+            except ValueError:
+                raise argparse.ArgumentTypeError(
+                    'invalid int value: %s' % str_)
+
+            err_msg = ''
+            if ((min_limit is not None and max_limit is not None)
+                    and (int_ < min_limit or int_ > max_limit)):
+                err_msg = 'from %d to %d' % (min_limit, max_limit)
+            elif min_limit is not None and int_ < min_limit:
+                err_msg = '%d or higher' % min_limit
+            elif max_limit is not None and int_ > max_limit:
+                err_msg = '%d or lower' % max_limit
+            if err_msg:
+                raise argparse.ArgumentTypeError(
+                    'value must be %s: %d' % (err_msg, int_))
+            return int_
+
+        return int_range_validator
+
+    @staticmethod
+    def positive_float():
+        """Return a function that converts a string to a float, raising
+        argparse.ArgumentTypeError on failure or if the resulting value
+        is not greater than zero.
+        """
+        def positive_float_validator(str_):
+            try:
+                float_ = float(str_)
+            except ValueError:
+                raise argparse.ArgumentTypeError(
+                    'invalid floating point value: %s' % str_)
+            if float_ <= 0:
+                raise argparse.ArgumentTypeError(
+                    'value must be greater than 0: %s' % float_)
+            return float_
+
+        return positive_float_validator
+
     def add_bridge_opts(self):
         """Add generic bridge arguments to argument parser"""
         self.opt_parser.add_argument(

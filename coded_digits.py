@@ -63,7 +63,8 @@ class CodedDigitsProgram(ChasingColorsProgram):
 
         self.opt_parser.add_argument(
             '-s', '--switch-time',
-            dest='switch_time', type=int, metavar='DECISECONDS', default=2,
+            dest='switch_time', type=self.int_within_range(-1, None),
+            metavar='DECISECONDS', default=2,
             help='''If there are more digits to transmit than lights, display the "blank"
 color on all lights for %(metavar)s tenths of a second before each digit
 flash (default: %(default)s . 0 makes it as short as possible; -1

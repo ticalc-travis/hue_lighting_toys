@@ -20,7 +20,8 @@ class PowerLossRestoreProgram(BaseProgram):
 
         self.opt_parser.add_argument(
             '-t', '--monitor-time',
-            dest='monitor_time', type=int, default=60,
+            dest='monitor_time', type=self.int_within_range(1, None),
+            default=60,
             help='interval to poll for light state in seconds (default: %(default)s)')
         self.opt_parser.add_argument(
             '-i', '--individual-mode',

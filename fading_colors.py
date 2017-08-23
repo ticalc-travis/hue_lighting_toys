@@ -13,27 +13,28 @@ class FadingColorsProgram(BaseProgram):
         """Append hue/saturation/brightness range options to parser"""
         self.opt_parser.add_argument(
             '-hr', '--hue-range',
-            dest='hue_range', nargs=2, type=int, metavar=('L', 'H'),
+            dest='hue_range', nargs=2,
+            type=self.int_within_range(0, 65535), metavar=('L', 'H'),
             default=[0, 65535],
             help='restrict the generated hue range (0 to 65535) from L to H')
         self.opt_parser.add_argument(
             '-sr', '--saturation-range',
-            dest='sat_range', nargs=2, type=int, metavar=('L', 'H'),
-            default=[1, 254],
+            dest='sat_range', nargs=2, type=self.int_within_range(1, 254),
+            metavar=('L', 'H'), default=[1, 254],
             help='restrict the generated saturation range (1 to 254) from L to H')
         self.opt_parser.add_argument(
             '-br', '--brightness-range',
-            dest='bri_range', nargs=2, type=int, metavar=('L', 'H'),
-            default=[1, 254],
+            dest='bri_range', nargs=2, type=self.int_within_range(1, 254),
+            metavar=('L', 'H'), default=[1, 254],
             help='restrict the generated saturation range (1 to 254) from L to H')
 
     def add_cycle_time_opt(self, default=100):
         """Append cycle time option to parser"""
         self.opt_parser.add_argument(
             '-t', '--cycle-time',
-            help='cycle time in tenths of a second (default: %(default)s)',
-            dest='cycle_time', type=int, metavar='DECISECONDS',
-            default=default)
+            dest='cycle_time', type=self.int_within_range(0, None),
+            metavar='DECISECONDS', default=default,
+            help='cycle time in tenths of a second (default: %(default)s)')
 
     def add_opts(self):
         BaseProgram.add_opts(self)

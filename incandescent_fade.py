@@ -20,18 +20,14 @@ class IncandescentFadeProgram(BaseProgram):
         BaseProgram.add_opts(self)
 
         self.opt_parser.add_argument(
-            'start_brightness', type=int,
+            'start_brightness', type=self.int_within_range(1, 254),
             help='the starting brightness level (1–254)')
         self.opt_parser.add_argument(
-            'final_brightness', type=int,
+            'final_brightness', type=self.int_within_range(1, 254),
             help='the ending brightness level (1–254)')
         self.opt_parser.add_argument(
-            'fade_time', type=float,
+            'fade_time', type=self.positive_float(),
             help='number of seconds to perform the fade')
-
-    def validate_opts(self):
-        if self.opts.fade_time <= 0:
-            self.opt_parser.error('fade_time must be greater than 0')
 
     def fade(self, start_bri, final_bri, fade_time):
         """Perform an incandescent-like dimmer fade from brightness level
@@ -64,7 +60,6 @@ class IncandescentFadeProgram(BaseProgram):
             sleep(max(MIN_BRIDGE_CMD_INTERVAL, time_to_next_step))
 
     def main(self):
-        self.validate_opts()
         self.fade(self.opts.start_brightness, self.opts.final_brightness,
                   self.opts.fade_time)
 
