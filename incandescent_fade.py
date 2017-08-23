@@ -40,7 +40,11 @@ class IncandescentFadeProgram(BaseProgram):
         """
         self.bridge.set_light(
             self.lights, {'on': True, 'incan': start_bri},
-            transitiontime=MIN_BRIDGE_CMD_INTERVAL)
+            transitiontime=0)
+        # Wait a short while, because apparently the last transition
+        # time can get overridden if a new command with a different
+        # transition time is sent too soon to the same light
+        sleep(MIN_BRIDGE_CMD_INTERVAL)
 
         num_steps = abs(start_bri - final_bri)
         step_time = fade_time / num_steps
