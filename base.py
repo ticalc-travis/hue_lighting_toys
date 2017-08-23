@@ -29,7 +29,7 @@ be registered to access the bridge and lighting system.'''
     usage_light_order_msg = '''Lights will be sequenced in the order specified.'''
 
     usage_no_lights_msg = '''If no lights are specified, all lights found on the bridge will be
-used in the effect.'''
+used.'''
 
     def __init__(self, raw_arguments=None, bridge_retries=10,
                  bridge_retry_wait=1):
