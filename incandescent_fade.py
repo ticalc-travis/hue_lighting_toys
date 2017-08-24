@@ -20,23 +20,32 @@ class IncandescentFadeProgram(BaseProgram):
         BaseProgram.add_opts(self)
 
         self.opt_parser.add_argument(
-            'start_brightness', type=self.int_within_range(1, 254),
-            help='the starting brightness level (1–254)')
+            'start_brightness', type=self.int_within_range(0, 254),
+            help='the starting brightness level (0–254); 0 is off')
         self.opt_parser.add_argument(
-            'final_brightness', type=self.int_within_range(1, 254),
-            help='the ending brightness level (1–254)')
+            'final_brightness', type=self.int_within_range(0, 254),
+            help='the ending brightness level (0–254); 0 is off')
         self.opt_parser.add_argument(
             'fade_time', type=self.positive_float(),
             help='number of seconds to perform the fade')
+
+    def _set_light_incan(self, level, transitiontime):
+        """Set lights to the given brightness of “incandescent bulb” color, or
+        turn them off if brightness level is 0.
+        """
+        if level:
+            cmd = {'on': True, 'incan': level}
+        else:
+            cmd = {'on': False}
+        self.bridge.set_light_optimized(self.lights, cmd,
+                                        transitiontime=transitiontime)
 
     def fade(self, start_bri, final_bri, fade_time):
         """Perform an incandescent-like dimmer fade from brightness level
         start_bri to final_bri (which may be lower or higher than
         start_bri) over a total period of fade_time seconds.
         """
-        self.bridge.set_light(
-            self.lights, {'on': True, 'incan': start_bri},
-            transitiontime=0)
+        self._set_light_incan(start_bri, 0)
         # Wait a short while, because apparently the last transition
         # time can get overridden if a new command with a different
         # transition time is sent too soon to the same light
@@ -51,9 +60,8 @@ class IncandescentFadeProgram(BaseProgram):
             bri = round(start_bri + copysign(elapsed_time / step_time,
                                              final_bri - start_bri))
             self.log.info('Setting brightness %d', bri)
-            self.bridge.set_light(
-                self.lights, 'incan', bri,
-                transitiontime=int(MIN_BRIDGE_CMD_INTERVAL * 10))
+            self._set_light_incan(
+                bri, transitiontime=int(MIN_BRIDGE_CMD_INTERVAL * 10))
             if elapsed_time >= fade_time:
                 break
             time_to_next_step = step_time - ((time() - start_time) % step_time)
