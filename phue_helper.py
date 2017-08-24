@@ -138,6 +138,29 @@ class ExtendedBridge(Bridge):
                                     transitiontime=transitiontime)
         return [[]]
 
+    def _set_light_optimize_params(self, light_id, params):
+        """Return a copy of set_light params dict with redundant items for the
+        given light_id removed
+        """
+        state = self._cached_light_state[light_id]
+        new_params = params.copy()
+        for param, value in params.items():
+            if param == 'on' and not value:
+                # Erase cached brightness if sending off command
+                # because the Hue system often forgets it later, and
+                # it then needs to be resent
+                self._cached_light_state[light_id].pop(
+                    'bri', None)
+            if param in state and value == state[param]:
+                # Never consider 'transitiontime'; it's not persistent
+                # and should always be sent
+                if param != 'transitiontime':
+                    new_params.pop(param)
+
+                logger.debug('Removed: %s', param)
+            self._cached_light_state[light_id][param] = value
+        return new_params
+
     def set_light_optimized(self, light_id, parameter, value=None,
                             transitiontime=None, clear_cache=False):
         """Same as self.set_light, but remember the light states and avoid
@@ -166,14 +189,9 @@ class ExtendedBridge(Bridge):
                 converted_light = int(self.get_light_id_by_name(light))
             else:
                 converted_light = light
-            state = self._cached_light_state[converted_light]
 
-            this_lights_params = params.copy()
-            for parm, value in params.items():
-                if parm in state and value == state[parm]:
-                    this_lights_params.pop(parm)
-                    logger.debug('Removed: %s', parm)
-                self._cached_light_state[converted_light][parm] = value
+            this_lights_params = self._set_light_optimize_params(
+                converted_light, params)
             logger.debug('Output parms for light %s: %s',
                          light, this_lights_params)
             next_result = self.set_light(light, this_lights_params,
