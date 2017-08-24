@@ -29,36 +29,17 @@ class ChasingColorsProgram(FadingColorsProgram):
         # effects due to network/state update delays
         light_state = self.bridge.collect_light_states(self.lights)
 
-        # Watch for optimization opportunities to reduce Zigbee commands
-        # the bridge has to send
-        ranges = {
-            'hue': {'lo': self.opts.hue_range[0],
-                    'hi': self.opts.hue_range[1]},
-            'sat': {'lo': self.opts.sat_range[0],
-                    'hi': self.opts.sat_range[1]},
-            'bri': {'lo': self.opts.bri_range[0],
-                    'hi': self.opts.bri_range[1]},
-        }
-        for attr in ranges:
-            ranges[attr]['static'] = (
-                ranges[attr]['lo'] == ranges[attr]['hi'])
-        num_cycles = 0
-
         while True:
-            new_state = {}
-            for attr in ranges:
-                if (num_cycles < len(self.lights)
-                        or not ranges[attr]['static']):
-                    new_state[attr] = random.randint(ranges[attr]['lo'],
-                                                     ranges[attr]['hi'])
+            new_state = {'hue': random.randint(*self.opts.hue_range),
+                         'sat': random.randint(*self.opts.sat_range),
+                         'bri': random.randint(*self.opts.bri_range)}
             for light in self.lights:
                 orig_state = light_state[light]
-                self.bridge.set_light(
+                self.bridge.set_light_optimized(
                     light, self.bridge.normalize_light_state(new_state),
                     transitiontime=0)
                 light_state[light] = new_state
                 new_state = orig_state
-            num_cycles += 1
             time.sleep(self.opts.cycle_time / 10)
 
 

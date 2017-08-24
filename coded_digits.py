@@ -126,21 +126,22 @@ transmit''')
             if ((have_multiple_groups or self.opts.force_switch) and
                     self.opts.switch_time >= 0 and
                     digit_group == last_digit_group):
-                self.bridge.set_light(self.lights, digit_cmds[None],
-                                      transitiontime=0)
+                self.bridge.set_light_optimized(
+                    self.lights, digit_cmds[None], transitiontime=0)
                 time.sleep(self.opts.switch_time / 10)
 
             # Now flash the actual digits
             for digit, light in zip(digit_group, self.lights):
                 cmd = digit_cmds.get(digit, digit_cmds[None])
-                self.bridge.set_light(light, cmd, transitiontime=0)
+                self.bridge.set_light_optimized(
+                    light, cmd, transitiontime=0)
             last_digit_group = digit_group
             time.sleep(self.opts.cycle_time / 10)
 
         # Now, handle the final pad flash if this is turned on
         if use_padding:
-            self.bridge.set_light(self.lights, digit_cmds[None],
-                                  transitiontime=0)
+            self.bridge.set_light_optimized(
+                self.lights, digit_cmds[None], transitiontime=0)
             time.sleep(self.opts.cycle_time / 10)
 
     def main(self):
