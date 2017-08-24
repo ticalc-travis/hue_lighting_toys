@@ -52,12 +52,16 @@ outside this range are allowed and will be simulated if necessary.'''
 
         self.opt_parser.add_argument(
             '-n', '--on',
-            dest='on', action='store_const', const=True,
+            dest='on', action='store_const', const=(True, False),
             help='turn lights on')
         self.opt_parser.add_argument(
             '-f', '--off',
-            dest='on', action='store_const', const=False,
+            dest='on', action='store_const', const=(False, False),
             help='turn lights off')
+        self.opt_parser.add_argument(
+            '-o', '--toggle',
+            dest='on', action='store_const', const=(True, True),
+            help='toggle lights on or off')
         self.opt_parser.add_argument(
             '-b', '--brightness',
             dest='bri', type=self.relative_int(1, 254),
@@ -114,6 +118,8 @@ outside this range are allowed and will be simulated if necessary.'''
         elif param == 'ctk':
             new_value = int(1e6 / state['ct']) + value
             new_value = max(min(new_value, 6535), 2000)
+        elif param == 'on':
+            new_value = not state['on']
         return new_value
 
     def main(self):
