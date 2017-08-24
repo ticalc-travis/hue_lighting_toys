@@ -51,8 +51,11 @@ used.'''
         self.bridge_retry_wait = bridge_retry_wait
 
         # Set up verbose output if specified
-        if getattr(self.opts, 'verbose', False):
+        verbose = getattr(self.opts, 'verbose', 0)
+        if verbose == 1:
             logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
+        if verbose == 2:
+            logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG)
         self.log = logging.getLogger(__name__)
 
     def get_description(self):
@@ -145,8 +148,9 @@ used.'''
         """Add generic verbosity option"""
         self.opt_parser.add_argument(
             '-v', '--verbose',
-            dest='verbose', action='store_true',
-            help='output extra info/debugging log messages')
+            dest='verbose', action='count',
+            help='''output extra informational messages (and debug messages if specified
+                 more than once)''')
 
     def add_restore_opt(self):
         """Add option to restore lights; default action will be not to restore"""
