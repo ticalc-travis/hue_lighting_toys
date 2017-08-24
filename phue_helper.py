@@ -2,10 +2,12 @@
 from https://github.com/studioimaginaire/phue
 """
 
+from collections import defaultdict
 import logging
 from time import sleep
 
-from phue import Bridge       # https://github.com/studioimaginaire/phue
+# https://github.com/studioimaginaire/phue
+from phue import Bridge, is_string
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,9 @@ class ExtendedBridge(Bridge):
     """A phue Bridge object with some extra enhancements and bug
     workarounds
     """
+    def __init__(self, *args, **kwargs):
+        Bridge.__init__(self, *args, **kwargs)
+        self._cached_light_state = defaultdict(dict)
 
     def __contains__(self, key):
         """Make syntax like "light_id in bridge" work properly"""
@@ -70,6 +75,25 @@ class ExtendedBridge(Bridge):
             return False
         else:
             return True
+
+    @staticmethod
+    def _set_light_convert_args(light_id, parameter, value=None):
+        """Canonicalize light_id (which may be a str or int representing a
+        single light or a sequence of light IDs) into a sequence and
+        parameter/value (which may be either an individual string and
+        value, respectively, or a dict stored in parameter) into a dict,
+        then return the resulting light_id sequence and parameter dict.
+        """
+        if isinstance(parameter, dict):
+            params = parameter
+        else:
+            params = {parameter: value}
+
+        light_id_seq = light_id
+        if isinstance(light_id, int) or is_string(light_id):
+            light_id_seq = [light_id]
+
+        return (light_id_seq, params)
 
     def set_light(self, light_id, parameter, value=None,
                   transitiontime=None):
@@ -94,10 +118,8 @@ class ExtendedBridge(Bridge):
           parameter conflicts with and should not be used together with
           'bri', 'ct', 'xy', 'hue', or 'sat'.
         """
-        if isinstance(parameter, dict):
-            params = parameter
-        else:
-            params = {parameter: value}
+        light_ids, params = self._set_light_convert_args(
+            light_id, parameter, value)
 
         if 'incan' in params:
             params['bri'] = params['incan']
@@ -111,8 +133,57 @@ class ExtendedBridge(Bridge):
             else:
                 params['xy'] = kelvin_to_xy(params.pop('ctk'))
 
-        return Bridge.set_light(self, light_id, params, value=None,
-                                transitiontime=transitiontime)
+        if params:
+            return Bridge.set_light(self, light_ids, params, value=None,
+                                    transitiontime=transitiontime)
+        return [[]]
+
+    def set_light_optimized(self, light_id, parameter, value=None,
+                            transitiontime=None, clear_cache=False):
+        """Same as self.set_light, but remember the light states and avoid
+        sending redundant commands to the bridge that would set a light
+        attribute to the same as it already is. This can be used to
+        reduce load on the bridge and Zigbee network and improve
+        responsiveness in the case of sending frequent commands.
+
+        If, between calls to this method, self.set_light is called
+        directly, or anything else changes a light's state, the light
+        may not be updated correctly. If there is a chance that this has
+        happened, clear_cache=True should be passed to reset the
+        memorized light states and ensure that the full command is sent
+        to the light.
+        """
+        light_ids, params = self._set_light_convert_args(
+            light_id, parameter, value)
+        result = []
+        logger.debug('Input parms: %s', params)
+
+        if clear_cache:
+            self._cached_light_state.clear()
+
+        for light in light_ids:
+            if is_string(light):
+                converted_light = int(self.get_light_id_by_name(light))
+            else:
+                converted_light = light
+            state = self._cached_light_state[converted_light]
+
+            this_lights_params = params.copy()
+            for parm, value in params.items():
+                if parm in state and value == state[parm]:
+                    this_lights_params.pop(parm)
+                    logger.debug('Removed: %s', parm)
+                self._cached_light_state[converted_light][parm] = value
+            logger.debug('Output parms for light %s: %s',
+                         light, this_lights_params)
+            next_result = self.set_light(light, this_lights_params,
+                                         transitiontime=transitiontime)[0]
+                #                                                      ^^^
+                # We always call for one light at a time, so the return
+                # list should only contain one item
+            result.append(next_result)
+
+        return result
 
     @staticmethod
     def normalize_light_state(state):
