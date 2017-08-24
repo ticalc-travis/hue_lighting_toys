@@ -77,12 +77,29 @@ class ExtendedBridge(Bridge):
             return True
 
     @staticmethod
-    def _set_light_convert_args(light_id, parameter, value=None):
+    def _set_light_translate_extensions(params_dict):
+        """Transform in place any extended light parameters in params_dict into
+        those the superclass set_light() call can understand.
+        """
+        if 'incan' in params_dict:
+            params_dict['bri'] = params_dict['incan']
+            params_dict['ctk'] = tungsten_cct(params_dict.pop('incan'))
+        if 'ct' in params_dict:
+            if params_dict['ct'] < 153 or params_dict['ct'] > 500:
+                params_dict['ctk'] = int(1e6 / params_dict.pop('ct'))
+        if 'ctk' in params_dict:
+            if params_dict['ctk'] >= 2000 and params_dict['ctk'] <= 6535:
+                params_dict['ct'] = int(1e6 / params_dict.pop('ctk'))
+            else:
+                params_dict['xy'] = kelvin_to_xy(params_dict.pop('ctk'))
+
+    def _set_light_convert_args(self, light_id, parameter, value=None):
         """Canonicalize light_id (which may be a str or int representing a
         single light or a sequence of light IDs) into a sequence and
         parameter/value (which may be either an individual string and
-        value, respectively, or a dict stored in parameter) into a dict,
-        then return the resulting light_id sequence and parameter dict.
+        value, respectively, or a dict stored in parameter) into a
+        dict. Translate extended light parameters, then return the
+        resulting light_id sequence and parameter dict.
         """
         if isinstance(parameter, dict):
             params = parameter
@@ -92,6 +109,8 @@ class ExtendedBridge(Bridge):
         light_id_seq = light_id
         if isinstance(light_id, int) or is_string(light_id):
             light_id_seq = [light_id]
+
+        self._set_light_translate_extensions(params)
 
         return (light_id_seq, params)
 
@@ -121,18 +140,6 @@ class ExtendedBridge(Bridge):
         light_ids, params = self._set_light_convert_args(
             light_id, parameter, value)
 
-        if 'incan' in params:
-            params['bri'] = params['incan']
-            params['ctk'] = tungsten_cct(params.pop('incan'))
-        if 'ct' in params:
-            if params['ct'] < 153 or params['ct'] > 500:
-                params['ctk'] = int(1e6 / params.pop('ct'))
-        if 'ctk' in params:
-            if params['ctk'] >= 2000 and params['ctk'] <= 6535:
-                params['ct'] = int(1e6 / params.pop('ctk'))
-            else:
-                params['xy'] = kelvin_to_xy(params.pop('ctk'))
-
         if params:
             return Bridge.set_light(self, light_ids, params, value=None,
                                     transitiontime=transitiontime)
@@ -145,12 +152,24 @@ class ExtendedBridge(Bridge):
         state = self._cached_light_state[light_id]
         new_params = params.copy()
         for param, value in params.items():
+
+            # Remove some cached parameters if a parameter they're
+            # dependent on changes
             if param == 'on' and not value:
                 # Erase cached brightness if sending off command
                 # because the Hue system often forgets it later, and
                 # it then needs to be resent
-                self._cached_light_state[light_id].pop(
-                    'bri', None)
+                state.pop('bri', None)
+            elif param in ('hue', 'sat'):
+                for p in ('xy', 'ct'):
+                    state.pop(p, None)
+            elif param == 'xy':
+                for p in ('hue', 'sat', 'ct'):
+                    state.pop(p, None)
+            elif param == 'ct':
+                for p in ('hue', 'sat', 'xy'):
+                    state.pop(p, None)
+
             if param in state and value == state[param]:
                 # Never consider 'transitiontime'; it's not persistent
                 # and should always be sent
