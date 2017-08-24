@@ -13,7 +13,7 @@ from time import sleep
 
 from phue_helper import ExtendedBridge
 
-LOG_FORMAT = '%(asctime)s: %(message)s'
+LOG_FORMAT = '%(asctime)s [%(module)s] %(message)s'
 
 
 class BaseProgram():
