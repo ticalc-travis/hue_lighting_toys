@@ -126,10 +126,7 @@ class ExtendedBridge(Bridge):
         """
         new_state = state.copy()
 
-        if 'on' in state and not state['on']:
-            for k in ('alert', 'bri', 'ct', 'effect', 'hue', 'sat', 'xy'):
-                new_state.pop(k, None)
-        elif 'colormode' in state:
+        if 'colormode' in state:
             if state['colormode'] == 'hs':
                 for k in ('ct', 'xy'):
                     new_state.pop(k, None)
