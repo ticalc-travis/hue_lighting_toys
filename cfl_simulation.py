@@ -12,8 +12,9 @@ class CFLSimulationProgram(BaseProgram):
     power-on warm-up behaviors
     """
 
-    def __init__(self, raw_arguments=None):
-        BaseProgram.__init__(self, raw_arguments)
+    def __init__(self, *args, **kwargs):
+        BaseProgram.__init__(self, *args, **kwargs)
+
         self.bridge_lock = threading.Lock()
 
     def add_light_state_opt(self):
