@@ -201,11 +201,17 @@ used.'''
             lights = []
             for light in [light for sublist in self.opts.lights
                           for light in sublist]:
-                if light in self.bridge:
-                    lights.append(light)
-                else:
+                try:
+                    light_id = self.bridge[light].light_id
+                except KeyError:
                     print("%s: warning: no such light: %s" %
-                          (sys.argv[0], repr(light)), file=sys.stderr)
+                          (sys.argv[0], light), file=sys.stderr)
+                else:
+                    if light_id in lights:
+                        print("%s: warning: duplicate light: %s" %
+                              (sys.argv[0], light), file=sys.stderr)
+                    else:
+                        lights.append(light_id)
         else:
             lights = [o.light_id for o in self.bridge.get_light_objects()]
         return lights
