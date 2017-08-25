@@ -3,7 +3,7 @@
 from base import (BaseProgram, default_run)
 
 
-class LightCLIControlProgram(BaseProgram):
+class LightControlProgram(BaseProgram):
     """Command-line utility to control Hue lights"""
 
     usage_relative_args = '''Except with the -x/--xy option, numerical arguments may be prefixed
@@ -143,4 +143,4 @@ outside this range are allowed and will be simulated if necessary.'''
 
 
 if __name__ == '__main__':
-    default_run(LightCLIControlProgram)
+    default_run(LightControlProgram)
