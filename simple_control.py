@@ -3,7 +3,7 @@
 import curses
 
 import phue
-from hue_helper import kelvin_to_xy_2
+from phue_helper import kelvin_to_xy
 
 def get_bridge():
     return phue.Bridge()
