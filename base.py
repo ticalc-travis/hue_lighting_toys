@@ -98,6 +98,26 @@ used.'''
         return int_range_validator
 
     @staticmethod
+    def fractional_float():
+        """Return a function that converts a string to a float, raising
+        argparse.ArgumentTypeError on failure or if the resulting value
+        is not from 0.0 to 1.0.
+        """
+        def fractional_float_validator(str_):
+            try:
+                float_ = float(str_)
+            except ValueError:
+                raise argparse.ArgumentTypeError(
+                    'invalid float value: %s' % str_)
+
+            if not 0 <= float_ <= 1:
+                raise argparse.ArgumentTypeError(
+                    'value must be from 0.0 to 1.0: %s' % float_)
+            return float_
+
+        return fractional_float_validator
+
+    @staticmethod
     def positive_float():
         """Return a function that converts a string to a float, raising
         argparse.ArgumentTypeError on failure or if the resulting value
@@ -115,6 +135,31 @@ used.'''
             return float_
 
         return positive_float_validator
+
+    def relative_int(self, min_limit, max_limit):
+        """Return a function that accepts a string representing an int within
+        min_limit and max_limit (works as with self.int_within_range),
+        optionally prefixed with '+' or '-'. Return a tuple of the form
+        (int_, relative), where relative is True if either '+' or '-'
+        prefixes are used. In this case, int_ will be negative if the
+        '-' prefix was given.
+
+        This is intended to be used with arguments that allow the user
+        to specify either an absolute value or a relative one that
+        should be added or subtracted from some existing value.
+        """
+        def relative_int_validator(str_):
+            relative = False
+            prefix = str_[0]
+            if prefix == '+' or prefix == '-':
+                relative = True
+                str_ = str_[1:]
+            int_ = self.int_within_range(min_limit, max_limit)(str_)
+            if prefix == '-':
+                int_ = -int_
+            return (int_, relative)
+
+        return relative_int_validator
 
     def add_bridge_opts(self):
         """Add generic bridge arguments to argument parser"""

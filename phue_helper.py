@@ -9,6 +9,16 @@ from time import sleep
 # https://github.com/studioimaginaire/phue
 from phue import Bridge, is_string
 
+
+MIN = {'bri': 1, 'hue': 0, 'sat': 0, 'xy': 0.0, 'ct': 153, 'ctk': 2000,
+       'incan': 0, 'xct': 1, 'xctk': 1}
+"""Table of minimum allowed values for light parameters"""
+
+MAX = {'bri': 254, 'hue': 65535, 'sat': 254, 'xy': 1.0, 'ct': 500, 'ctk': 6535,
+       'incan': 254, 'xct': 1e6, 'xctk': 1e8}
+"""Table of maximum allowed values for light parameters"""
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -85,10 +95,10 @@ class ExtendedBridge(Bridge):
             params_dict['bri'] = params_dict['incan']
             params_dict['ctk'] = tungsten_cct(params_dict.pop('incan'))
         if 'ct' in params_dict:
-            if params_dict['ct'] < 153 or params_dict['ct'] > 500:
+            if not MIN['ct'] <= params_dict['ct'] <= MAX['ct']:
                 params_dict['ctk'] = int(1e6 / params_dict.pop('ct'))
         if 'ctk' in params_dict:
-            if params_dict['ctk'] >= 2000 and params_dict['ctk'] <= 6535:
+            if MIN['ctk'] <= params_dict['ctk'] <= MAX['ctk']:
                 params_dict['ct'] = int(1e6 / params_dict.pop('ctk'))
             else:
                 params_dict['xy'] = kelvin_to_xy(params_dict.pop('ctk'))

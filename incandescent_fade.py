@@ -4,6 +4,7 @@ from math import copysign
 from time import time, sleep
 
 from base import BaseProgram, default_run
+from phue_helper import MIN, MAX
 
 
 MIN_BRIDGE_CMD_INTERVAL = .3
@@ -20,11 +21,13 @@ class IncandescentFadeProgram(BaseProgram):
         BaseProgram.add_opts(self)
 
         self.opt_parser.add_argument(
-            'start_brightness', type=self.int_within_range(0, 254),
-            help='the starting brightness level (0–254); 0 is off')
+            'start_brightness', type=self.int_within_range(MIN['incan'], MAX['incan']),
+            help='the starting brightness level (%d–%d); 0 is off' % (
+                MIN['incan'], MAX['incan']))
         self.opt_parser.add_argument(
-            'final_brightness', type=self.int_within_range(0, 254),
-            help='the ending brightness level (0–254); 0 is off')
+            'final_brightness', type=self.int_within_range(MIN['incan'], MAX['incan']),
+            help='the ending brightness level (%d–%d); 0 is off' % (
+                MIN['incan'], MAX['incan']))
         self.opt_parser.add_argument(
             'fade_time', type=self.positive_float(),
             help='number of seconds to perform the fade')

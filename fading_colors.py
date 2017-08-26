@@ -4,6 +4,7 @@ import random
 import time
 
 from base import (BaseProgram, default_run)
+from phue_helper import MIN, MAX
 
 
 class FadingColorsProgram(BaseProgram):
@@ -14,19 +15,24 @@ class FadingColorsProgram(BaseProgram):
         self.opt_parser.add_argument(
             '-hr', '--hue-range',
             dest='hue_range', nargs=2,
-            type=self.int_within_range(0, 65535), metavar=('L', 'H'),
-            default=[0, 65535],
-            help='restrict the generated hue range (0 to 65535) from L to H')
+            type=self.int_within_range(MIN['hue'], MAX['hue']), metavar=('L', 'H'),
+            default=[MIN['hue'], MAX['hue']],
+            help='restrict the generated hue range (%d to %d) from L to H' % (
+                MIN['hue'], MAX['hue']))
         self.opt_parser.add_argument(
             '-sr', '--saturation-range',
-            dest='sat_range', nargs=2, type=self.int_within_range(0, 254),
-            metavar=('L', 'H'), default=[0, 254],
-            help='restrict the generated saturation range (0 to 254) from L to H')
+            dest='sat_range', nargs=2,
+            type=self.int_within_range(MIN['sat'], MAX['sat']),
+            metavar=('L', 'H'), default=[MIN['sat'], MAX['sat']],
+            help='restrict the generated saturation range (%d to %d) from L to H' % (
+                MIN['sat'], MAX['sat']))
         self.opt_parser.add_argument(
             '-br', '--brightness-range',
-            dest='bri_range', nargs=2, type=self.int_within_range(1, 254),
-            metavar=('L', 'H'), default=[1, 254],
-            help='restrict the generated saturation range (1 to 254) from L to H')
+            dest='bri_range', nargs=2,
+            type=self.int_within_range(MIN['bri'], MAX['bri']),
+            metavar=('L', 'H'), default=[MIN['bri'], MAX['bri']],
+            help='restrict the generated saturation range (%d to %d) from L to H' % (
+                MIN['bri'], MAX['bri']))
 
     def add_cycle_time_opt(self, default=100):
         """Append cycle time option to parser"""
