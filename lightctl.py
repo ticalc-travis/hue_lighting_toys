@@ -67,7 +67,7 @@ outside this range are allowed and will be simulated if necessary.'''
 
         self.opt_parser.add_argument(
             '-i', '--incandescent',
-            dest='incan', type=self.relative_int(MIN['incan'], MAX['incan']),
+            dest='inc', type=self.relative_int(MIN['inc'], MAX['inc']),
             metavar='BRI',
             help='''set brightness to %(metavar)s and set lamp color to simulate an
                  incandescent bulb dimmed to that brightness level''')
@@ -86,8 +86,8 @@ outside this range are allowed and will be simulated if necessary.'''
         if param == 'ctk':
             new_value = int(1e6 / state['ct']) + value
             new_value = max(min(new_value, MAX['ctk']), MIN['ctk'])
-        elif param == 'incan':
-            new_value = max(min(state['bri'] + value, MAX['incan']), MIN['incan'])
+        elif param == 'inc':
+            new_value = max(min(state['bri'] + value, MAX['inc']), MIN['inc'])
         elif param == 'on':
             new_value = not state['on']
         else:
@@ -99,7 +99,7 @@ outside this range are allowed and will be simulated if necessary.'''
 
         for light in self.lights:
             for param in ('on', 'bri', 'hue', 'sat', 'xy', 'ct', 'ctk',
-                          'incan', 'transitiontime'):
+                          'inc', 'transitiontime'):
                 value = getattr(self.opts, param)
                 if isinstance(value, tuple):
                     value, relative = getattr(self.opts, param)

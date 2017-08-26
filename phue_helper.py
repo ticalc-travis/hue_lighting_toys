@@ -11,11 +11,11 @@ from phue import Bridge, is_string
 
 
 MIN = {'bri': 1, 'hue': 0, 'sat': 0, 'xy': 0.0, 'ct': 153, 'ctk': 2000,
-       'incan': 0, 'xct': 1, 'xctk': 1}
+       'inc': 0, 'xct': 1, 'xctk': 1}
 """Table of minimum allowed values for light parameters"""
 
 MAX = {'bri': 254, 'hue': 65535, 'sat': 254, 'xy': 1.0, 'ct': 500, 'ctk': 6535,
-       'incan': 254, 'xct': 1e6, 'xctk': 1e8}
+       'inc': 254, 'xct': 1e6, 'xctk': 1e8}
 """Table of maximum allowed values for light parameters"""
 
 
@@ -91,9 +91,9 @@ class ExtendedBridge(Bridge):
         """Transform in place any extended light parameters in params_dict into
         those the superclass set_light() call can understand.
         """
-        if 'incan' in params_dict:
-            params_dict['bri'] = params_dict['incan']
-            params_dict['ctk'] = tungsten_cct(params_dict.pop('incan'))
+        if 'inc' in params_dict:
+            params_dict['bri'] = params_dict['inc']
+            params_dict['ctk'] = tungsten_cct(params_dict.pop('inc'))
         if 'ct' in params_dict:
             if not MIN['ct'] <= params_dict['ct'] <= MAX['ct']:
                 params_dict['ctk'] = int(1e6 / params_dict.pop('ct'))
@@ -140,7 +140,7 @@ class ExtendedBridge(Bridge):
           light's colormode to be subsequently reported as 'xy' instead
           of 'ct'.)
 
-        - An 'incan' parameter that accepts an int from 1 to 254 is
+        - An 'inc' parameter that accepts an int from 1 to 254 is
           supported. It sets the 'bri' parameter to this value, then
           sets the light to a color that simulates the appearance of an
           incandescent lamp dimmed to about that brightness level. This

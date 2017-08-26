@@ -21,13 +21,13 @@ class IncandescentFadeProgram(BaseProgram):
         BaseProgram.add_opts(self)
 
         self.opt_parser.add_argument(
-            'start_brightness', type=self.int_within_range(MIN['incan'], MAX['incan']),
+            'start_brightness', type=self.int_within_range(MIN['inc'], MAX['inc']),
             help='the starting brightness level (%d–%d); 0 is off' % (
-                MIN['incan'], MAX['incan']))
+                MIN['inc'], MAX['inc']))
         self.opt_parser.add_argument(
-            'final_brightness', type=self.int_within_range(MIN['incan'], MAX['incan']),
+            'final_brightness', type=self.int_within_range(MIN['inc'], MAX['inc']),
             help='the ending brightness level (%d–%d); 0 is off' % (
-                MIN['incan'], MAX['incan']))
+                MIN['inc'], MAX['inc']))
         self.opt_parser.add_argument(
             'fade_time', type=self.positive_float(),
             help='number of seconds to perform the fade')
@@ -37,7 +37,7 @@ class IncandescentFadeProgram(BaseProgram):
         turn them off if brightness level is 0.
         """
         if level:
-            cmd = {'on': True, 'incan': level}
+            cmd = {'on': True, 'inc': level}
         else:
             cmd = {'on': False}
         self.bridge.set_light_optimized(self.lights, cmd,
