@@ -72,8 +72,8 @@ outside this range are allowed and will be simulated if necessary.'''
             help='set hue (0 to 65535)')
         self.opt_parser.add_argument(
             '-s', '--saturation',
-            dest='sat', type=self.relative_int(1, 254),
-            help='set saturation (1 to 254)')
+            dest='sat', type=self.relative_int(0, 254),
+            help='set saturation (0 to 254)')
         self.opt_parser.add_argument(
             '-x', '--xy',
             dest='xy', nargs=2, type=float, metavar=('X', 'Y'),

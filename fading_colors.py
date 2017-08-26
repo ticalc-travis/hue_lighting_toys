@@ -19,9 +19,9 @@ class FadingColorsProgram(BaseProgram):
             help='restrict the generated hue range (0 to 65535) from L to H')
         self.opt_parser.add_argument(
             '-sr', '--saturation-range',
-            dest='sat_range', nargs=2, type=self.int_within_range(1, 254),
-            metavar=('L', 'H'), default=[1, 254],
-            help='restrict the generated saturation range (1 to 254) from L to H')
+            dest='sat_range', nargs=2, type=self.int_within_range(0, 254),
+            metavar=('L', 'H'), default=[0, 254],
+            help='restrict the generated saturation range (0 to 254) from L to H')
         self.opt_parser.add_argument(
             '-br', '--brightness-range',
             dest='bri_range', nargs=2, type=self.int_within_range(1, 254),
