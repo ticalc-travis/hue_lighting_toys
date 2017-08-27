@@ -11,12 +11,18 @@ from phue import Bridge, is_string
 
 
 MIN = {'bri': 1, 'hue': 0, 'sat': 0, 'xy': 0.0, 'ct': 153, 'ctk': 2000,
-       'inc': 0, 'xct': 1, 'xctk': 1}
+       'inc': 1, 'xct': 1, 'xctk': 1}
 """Table of minimum allowed values for light parameters"""
 
 MAX = {'bri': 254, 'hue': 65535, 'sat': 254, 'xy': 1.0, 'ct': 500, 'ctk': 6535,
-       'inc': 254, 'xct': 1e6, 'xctk': 1e8}
+       'inc': 254, 'xct': int(1e6), 'xctk': int(1e8)}
 """Table of maximum allowed values for light parameters"""
+
+WIDTH = {'bri': (3, 0), 'hue': (5, 0), 'sat': (3, 0), 'xy': (1, 4), 'ct': (3, 0),
+         'ctk': (4, 0), 'inc': (3, 0), 'xct': (7, 0), 'xctk': (9, 0)}
+"""Table of formatting widths for light parameters in format (number of
+integer part digits, number of fractional part digits)
+"""
 
 
 logger = logging.getLogger(__name__)
