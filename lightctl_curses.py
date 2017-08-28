@@ -12,7 +12,10 @@ from phue_helper import MIN, MAX, WIDTH
 
 
 MIN_BRIDGE_CMD_INTERVAL = .3
-"""Minimum allowed time between light commands sent to Hue bridge"""
+"""Minimum allowed time in seconds between light commands sent to Hue bridge"""
+
+AUTO_REFRESH_INTERVAL = 10
+"""Time interval in tenths of a second to update screen during auto-refresh mode"""
 
 
 # Display layout:
@@ -46,6 +49,7 @@ LABELS = [
     ('xy_mode', 8, 1),
     ('ct_mode', 10, 1),
     ('ext_mode', 12, 1),
+    ('auto-refresh', 17, 29),
 ]
 
 HOTKEYS = [
@@ -62,6 +66,8 @@ HOTKEYS = [
     ('main', 'next', '&Next light', 15, 1),
     ('main', 'prev', '&Previous light', 15, 15),
     ('main', 'quit', '&Quit', 15, 37),
+    ('main', 'refresh', '&Refresh', 17, 1),
+    ('main', 'auto-refresh', '&Auto-refresh', 17, 15),
 ]
 
 OTHER_KEYS = [
@@ -407,7 +413,7 @@ class LightControlProgram(BaseProgram):
         self.keys = {}
         self.fields = {}
         self.need_repaint = True
-
+        self._auto_refresh_mode = False
         self._curr_light_idx = None
         self._curr_light = {}
         self._curr_group = None
@@ -519,8 +525,23 @@ class LightControlProgram(BaseProgram):
         if not self.is_group_active(field.group):
             self.curr_group = field.group
 
+    @property
+    def auto_refresh_mode(self):
+        return self._auto_refresh_mode
+
+    @auto_refresh_mode.setter
+    def auto_refresh_mode(self, value):
+        if value:
+            curses.halfdelay(AUTO_REFRESH_INTERVAL)
+        else:
+            curses.cbreak()
+        self.need_repaint = True
+        self._auto_refresh_mode = value
+
     def init_ui(self):
         """Initialize UI and set up widget data structures"""
+
+        self.auto_refresh_mode = False
 
         # Key bindings
         for group, action, label, row, col in HOTKEYS:
@@ -601,6 +622,8 @@ class LightControlProgram(BaseProgram):
                 self._paint_mode_indicator(row, col, 'ct', 'CT')
             elif role == 'ext_mode':
                 self._paint_mode_indicator(row, col, 'ext', 'Ext.')
+            elif role == 'auto-refresh':
+                self._paint_on_indicator(row, col, self.auto_refresh_mode)
             else:
                 assert False, 'Undefined window label role'
 
@@ -704,12 +727,22 @@ class LightControlProgram(BaseProgram):
                     self.do_field_update(field)
         self.need_repaint = True
 
+    def refresh_light(self):
+        """Refetch current light's data, update all fields, and repaint screen"""
+        # Trigger setter for current light, which updates the info
+        self.curr_light_idx = self.curr_light_idx
+
     def get_key_event(self):
         """Wait for a key and return a string representing the action to perform
         for that key
         """
         self.put_cursor()
-        key = self.screen.getkey()
+        try:
+            key = self.screen.getkey()
+        except curses.error:
+            # Refresh light for auto-fresh mode, in which curses
+            # halfdelay mode is set
+            return 'refresh'
         try:
             return self.keys[key]
         except KeyError:
@@ -720,15 +753,19 @@ class LightControlProgram(BaseProgram):
 
         - If action is the name of a field, focus that field
 
-        - If it's 'next' or 'prev', change lights
+        - If it's 'next' or 'prev', change to next/previous light
 
         - If 'next_field', 'prev_field', 'next_char', 'prev_char', move
-          cursor to next/prev field or character in field
+          cursor to next/prev field or next/prev character in field
 
         - If 'incr_digit', 'decr_digit', increment/decrement digit on cursor
 
         - If '0' through '9', enter that digit into field at cursor
           position and advance cursor
+
+        - If 'refresh', refetch light data and repaint screen
+
+        - If 'auto-refresh', toggle auto-refresh mode
         """
         if action in self.fields:
             self.curr_field = self.fields[action]
@@ -758,6 +795,11 @@ class LightControlProgram(BaseProgram):
             self.curr_field.put_digit(int(action.split('_', 1)[1]))
             self.do_field_update(self.curr_field)
             self.handle_action('next_char')
+
+        elif action == 'refresh':
+            self.refresh_light()
+        elif action == 'auto-refresh':
+            self.auto_refresh_mode = not self.auto_refresh_mode
 
     def curses_main(self, screen):
         """The main application method to be called after the curses screen has
