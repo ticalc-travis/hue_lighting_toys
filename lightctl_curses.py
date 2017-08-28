@@ -23,16 +23,11 @@ MIN_BRIDGE_CMD_INTERVAL = .3
 #            Power       [On ]      Brightness:   ###
 #
 # > H/S      Hue:        #####      Saturation:   ###
-#
 #   XY       X:         #.####      Y:         #.####
-#
 #   CT       Mired:    #######      Kelvin: #########
-#
 #   Ext.     Incandescent: ###
 #
-#
 # Next light    Previous light        Quit
-#
 # Refresh now   Auto-refresh [Off]
 
 
@@ -43,10 +38,10 @@ LABELS = [
     ('unreachable', 2, 12),
     ('power', 4, 24),
     ('hs_mode', 6, 1),
-    ('xy_mode', 8, 1),
-    ('ct_mode', 10, 1),
-    ('ext_mode', 12, 1),
-    ('auto-refresh', 17, 29),
+    ('xy_mode', 7, 1),
+    ('ct_mode', 8, 1),
+    ('ext_mode', 9, 1),
+    ('auto-refresh', 12, 29),
 ]
 
 HOTKEYS = [
@@ -55,16 +50,16 @@ HOTKEYS = [
     ('main', 'bri', '&Brightness', 4, 35),
     ('hs', 'hue', '&Hue:', 6, 12),
     ('hs', 'sat', '&Saturation:', 6, 35),
-    ('xy', 'x', '&X:', 8, 12),
-    ('xy', 'y', '&Y:', 8, 35),
-    ('ct', 'ct', '&Mired:', 10, 12),
-    ('ct', 'ctk', '&Kelvin:', 10, 35),
-    ('ext', 'inc', '&Incandescent:', 12, 12),
-    ('main', 'next', '&Next light', 15, 1),
-    ('main', 'prev', '&Previous light', 15, 15),
-    ('main', 'quit', '&Quit', 15, 37),
-    ('main', 'refresh', '&Refresh', 17, 1),
-    ('main', 'toggle-auto-refresh', '&Auto-refresh', 17, 15),
+    ('xy', 'x', '&X:', 7, 12),
+    ('xy', 'y', '&Y:', 7, 35),
+    ('ct', 'ct', '&Mired:', 8, 12),
+    ('ct', 'ctk', '&Kelvin:', 8, 35),
+    ('ext', 'inc', '&Incandescent:', 9, 12),
+    ('main', 'next', '&Next light', 11, 1),
+    ('main', 'prev', '&Previous light', 11, 15),
+    ('main', 'quit', '&Quit', 11, 37),
+    ('main', 'refresh', '&Refresh', 12, 1),
+    ('main', 'toggle-auto-refresh', '&Auto-refresh', 12, 15),
 ]
 
 OTHER_KEYS = [
@@ -103,15 +98,15 @@ INPUT_FIELDS = {
         ('sat', WIDTH['sat'], MIN['sat'], MAX['sat'], 6, 49),
     ],
     'xy': [
-        ('x', WIDTH['xy'], MIN['xy'], MAX['xy'], 8, 23),
-        ('y', WIDTH['xy'], MIN['xy'], MAX['xy'], 8, 46),
+        ('x', WIDTH['xy'], MIN['xy'], MAX['xy'], 7, 23),
+        ('y', WIDTH['xy'], MIN['xy'], MAX['xy'], 7, 46),
     ],
     'ct': [
-        ('ct', WIDTH['xct'], MIN['xct'], MAX['xct'], 10, 22),
-        ('ctk', WIDTH['xctk'], MIN['xctk'], MAX['xctk'], 10, 43),
+        ('ct', WIDTH['xct'], MIN['xct'], MAX['xct'], 8, 22),
+        ('ctk', WIDTH['xctk'], MIN['xctk'], MAX['xctk'], 8, 43),
     ],
     'ext': [
-        ('inc', WIDTH['inc'], MIN['inc'], MAX['inc'], 12, 26),
+        ('inc', WIDTH['inc'], MIN['inc'], MAX['inc'], 9, 26),
     ],
 }
 
