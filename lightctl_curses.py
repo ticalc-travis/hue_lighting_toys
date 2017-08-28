@@ -14,9 +14,6 @@ from phue_helper import MIN, MAX, WIDTH
 MIN_BRIDGE_CMD_INTERVAL = .3
 """Minimum allowed time in seconds between light commands sent to Hue bridge"""
 
-AUTO_REFRESH_INTERVAL = 10
-"""Time interval in tenths of a second to update screen during auto-refresh mode"""
-
 
 # Display layout:
 
@@ -67,7 +64,7 @@ HOTKEYS = [
     ('main', 'prev', '&Previous light', 15, 15),
     ('main', 'quit', '&Quit', 15, 37),
     ('main', 'refresh', '&Refresh', 17, 1),
-    ('main', 'auto-refresh', '&Auto-refresh', 17, 15),
+    ('main', 'toggle-auto-refresh', '&Auto-refresh', 17, 15),
 ]
 
 OTHER_KEYS = [
@@ -425,9 +422,60 @@ class LightControlProgram(BaseProgram):
     def add_verbose_opt(self):
         pass
 
+    def add_opts(self):
+        BaseProgram.add_opts(self)
+
+        self.opt_parser.add_argument(
+            '-a', '--auto-refresh-mode',
+            dest='auto_refresh_mode', action='store_true',
+            help='start in auto-refresh mode')
+        self.opt_parser.add_argument(
+            '-t', '--auto-refresh-interval',
+            dest='auto_refresh_interval', type=self.int_within_range(1, None),
+            metavar='DECISECONDS', default=10,
+            help='time in tenths of a second between auto-refresh updates (default: 10)')
+
     def is_group_active(self, group):
         """Is a widget of group active at the moment?"""
         return group == 'main' or group == self.curr_group
+
+    def refresh_light(self, update_group=True):
+        """Refetch current light's data, update all fields, and repaint the
+        UI. If update_group, also check the colormode and change the
+        active field group (which may move the cursor).
+        """
+        # Retrieve light info
+        light_id = self.lights[self.curr_light_idx]
+        with self.bridge_lock:
+            light_info = self.bridge.get_light(light_id)
+        # Workaround for refresh: if light is currently off, don't
+        # update anything besides on/off state so user-entered fields
+        # don't vanish unless something else turns on the light and
+        # starts manipulating it
+        update_fields_ok = True
+        if light_info['state']['on'] or not self._curr_light:
+            self._curr_light = light_info
+        else:
+            self._curr_light['state']['on'] = light_info['state']['on']
+            update_fields_ok = False
+        self._curr_light['id'] = light_id
+
+        # Update input fields
+        if update_fields_ok:
+            light_state = self.curr_light['state']
+            for field_name in ('bri', 'hue', 'sat', 'ct'):
+                self.fields[field_name].value = light_state[field_name]
+            self.fields['x'].value, self.fields['y'].value = light_state['xy']
+            self.fields['ctk'].value = int(1e6 / light_state['ct'])
+            self.fields['inc'].value = light_state['bri']
+
+        if update_group:
+            # Change current group if new light's colormode is different
+            # from the last one
+            if not self.is_group_active(self._curr_light['state']['colormode']):
+                self.curr_group = self._curr_light['state']['colormode']
+
+        self.need_repaint = True
 
     @property
     def curr_light_idx(self):
@@ -441,30 +489,12 @@ class LightControlProgram(BaseProgram):
         """Change the active light in the UI; retrieve that light's state and
         update the UI and its widgets
         """
-        # Wrap light_id within range
+        # Wrap light_index within range of self.lights and set it
         light_idx %= len(self.lights)
-
-        # Retrieve light info
         self._curr_light_idx = light_idx
-        light_id = self.lights[light_idx]
-        with self.bridge_lock:
-            self._curr_light = self.bridge.get_light(light_id)
-        self._curr_light['id'] = light_id
-        light_state = self.curr_light['state']
 
-        # Update input fields
-        for field_name in ('bri', 'hue', 'sat', 'ct'):
-            self.fields[field_name].value = light_state[field_name]
-        self.fields['x'].value, self.fields['y'].value = light_state['xy']
-        self.fields['ctk'].value = int(1e6 / light_state['ct'])
-        self.fields['inc'].value = light_state['bri']
-
-        # Change current group if new light's colormode is different
-        # from the last one
-        if not self.is_group_active(self._curr_light['state']['colormode']):
-            self.curr_group = self._curr_light['state']['colormode']
-
-        self.need_repaint = True
+        # Update UI
+        self.refresh_light()
 
     @property
     def curr_light(self):
@@ -532,7 +562,7 @@ class LightControlProgram(BaseProgram):
     @auto_refresh_mode.setter
     def auto_refresh_mode(self, value):
         if value:
-            curses.halfdelay(AUTO_REFRESH_INTERVAL)
+            curses.halfdelay(self.opts.auto_refresh_interval)
         else:
             curses.cbreak()
         self.need_repaint = True
@@ -541,7 +571,7 @@ class LightControlProgram(BaseProgram):
     def init_ui(self):
         """Initialize UI and set up widget data structures"""
 
-        self.auto_refresh_mode = False
+        self.auto_refresh_mode = self.opts.auto_refresh_mode
 
         # Key bindings
         for group, action, label, row, col in HOTKEYS:
@@ -727,11 +757,6 @@ class LightControlProgram(BaseProgram):
                     self.do_field_update(field)
         self.need_repaint = True
 
-    def refresh_light(self):
-        """Refetch current light's data, update all fields, and repaint screen"""
-        # Trigger setter for current light, which updates the info
-        self.curr_light_idx = self.curr_light_idx
-
     def get_key_event(self):
         """Wait for a key and return a string representing the action to perform
         for that key
@@ -742,7 +767,7 @@ class LightControlProgram(BaseProgram):
         except curses.error:
             # Refresh light for auto-fresh mode, in which curses
             # halfdelay mode is set
-            return 'refresh'
+            return 'auto-refresh'
         try:
             return self.keys[key]
         except KeyError:
@@ -763,9 +788,11 @@ class LightControlProgram(BaseProgram):
         - If '0' through '9', enter that digit into field at cursor
           position and advance cursor
 
-        - If 'refresh', refetch light data and repaint screen
+        - If 'refresh' or 'auto-refresh', refetch light data and repaint
+          screen (if 'auto-refresh', perform a “soft” refresh that tries
+          to leave the cursor position alone)
 
-        - If 'auto-refresh', toggle auto-refresh mode
+        - If 'toggle-auto-refresh', toggle auto-refresh mode
         """
         if action in self.fields:
             self.curr_field = self.fields[action]
@@ -797,8 +824,10 @@ class LightControlProgram(BaseProgram):
             self.handle_action('next_char')
 
         elif action == 'refresh':
-            self.refresh_light()
+            self.refresh_light(update_group=True)
         elif action == 'auto-refresh':
+            self.refresh_light(update_group=False)
+        elif action == 'toggle-auto-refresh':
             self.auto_refresh_mode = not self.auto_refresh_mode
 
     def curses_main(self, screen):
