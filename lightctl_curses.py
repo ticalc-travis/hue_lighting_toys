@@ -24,8 +24,10 @@ MIN_BRIDGE_CMD_INTERVAL = .3
 #
 # > H/S      Hue:        #####      Saturation:   ###
 #   XY       X:         #.####      Y:         #.####
-#   CT       Mired:    #######      Kelvin: #########
-#   Ext.     Incandescent: ###
+#   CT       Mired:        ###      Kelvin:      ####
+#
+#   Ext.     Mired:    #######      Kelvin: #########
+#            Incandescent: ###
 #
 # Next light    Previous light        Quit
 # Refresh now   Auto-refresh [Off]
@@ -40,8 +42,8 @@ LABELS = [
     ('hs_mode', 6, 1),
     ('xy_mode', 7, 1),
     ('ct_mode', 8, 1),
-    ('ext_mode', 9, 1),
-    ('auto-refresh', 12, 29),
+    ('ext_mode', 10, 1),
+    ('auto-refresh', 15, 29),
 ]
 
 HOTKEYS = [
@@ -54,12 +56,14 @@ HOTKEYS = [
     ('xy', 'y', '&Y:', 7, 35),
     ('ct', 'ct', '&Mired:', 8, 12),
     ('ct', 'ctk', '&Kelvin:', 8, 35),
-    ('ext', 'inc', '&Incandescent:', 9, 12),
-    ('main', 'next', '&Next light', 11, 1),
-    ('main', 'prev', '&Previous light', 11, 15),
-    ('main', 'quit', '&Quit', 11, 37),
-    ('main', 'refresh', '&Refresh', 12, 1),
-    ('main', 'toggle-auto-refresh', '&Auto-refresh', 12, 15),
+    ('ext', 'xct', 'Mir&ed:', 10, 12),
+    ('ext', 'xctk', 'Kel&vin', 10, 35),
+    ('ext', 'inc', '&Incandescent:', 11, 12),
+    ('main', 'next', '&Next light', 14, 1),
+    ('main', 'prev', '&Previous light', 14, 15),
+    ('main', 'quit', '&Quit', 14, 37),
+    ('main', 'refresh', '&Refresh', 15, 1),
+    ('main', 'toggle-auto-refresh', '&Auto-refresh', 15, 15),
 ]
 
 OTHER_KEYS = [
@@ -102,11 +106,13 @@ INPUT_FIELDS = {
         ('y', WIDTH['xy'], MIN['xy'], MAX['xy'], 7, 46),
     ],
     'ct': [
-        ('ct', WIDTH['xct'], MIN['xct'], MAX['xct'], 8, 22),
-        ('ctk', WIDTH['xctk'], MIN['xctk'], MAX['xctk'], 8, 43),
+        ('ct', WIDTH['ct'], MIN['ct'], MAX['ct'], 8, 26),
+        ('ctk', WIDTH['ctk'], MIN['ctk'], MAX['ctk'], 8, 48),
     ],
     'ext': [
-        ('inc', WIDTH['inc'], MIN['inc'], MAX['inc'], 9, 26),
+        ('xct', WIDTH['xct'], MIN['xct'], MAX['xct'], 10, 22),
+        ('xctk', WIDTH['xctk'], MIN['xctk'], MAX['xctk'], 10, 43),
+        ('inc', WIDTH['inc'], MIN['inc'], MAX['inc'], 11, 26),
     ],
 }
 
@@ -434,10 +440,11 @@ class LightControlProgram(BaseProgram):
         """Is a widget of group active at the moment?"""
         return group == 'main' or group == self.curr_group
 
-    def refresh_light(self, update_group=True):
+    def refresh_light(self, soft=False):
         """Refetch current light's data, update all fields, and repaint the
-        UI. If update_group, also check the colormode and change the
-        active field group (which may move the cursor).
+        UI. If soft, also check the colormode and change the active
+        field group (which may move the cursor) as well as repopulate
+        the extended parameters that aren't tracked by the bridge
         """
         # Retrieve light info
         light_id = self.lights[self.curr_light_idx]
@@ -462,9 +469,12 @@ class LightControlProgram(BaseProgram):
                 self.fields[field_name].value = light_state[field_name]
             self.fields['x'].value, self.fields['y'].value = light_state['xy']
             self.fields['ctk'].value = int(1e6 / light_state['ct'])
-            self.fields['inc'].value = light_state['bri']
+            if not soft:
+                self.fields['xctk'].value = self.fields['ctk'].value
+                self.fields['xct'].value = self.fields['ct'].value
+                self.fields['inc'].value = light_state['bri']
 
-        if update_group:
+        if not soft:
             # Change current group if new light's colormode is different
             # from the last one
             if not self.is_group_active(self._curr_light['state']['colormode']):
@@ -591,9 +601,9 @@ class LightControlProgram(BaseProgram):
                 field.nxt = field.prv = None
                 # Define some more appropriate initial cursor locations
                 # for certain “special” fields
-                if name == 'ct':
+                if name == 'xct':
                     field.default_cursor = field.max_cursor - 2
-                elif name == 'ctk':
+                elif name == 'xctk':
                     field.default_cursor = field.max_cursor - 3
                 elif name == 'x' or name == 'y':
                     field.default_cursor = 2
@@ -731,26 +741,46 @@ class LightControlProgram(BaseProgram):
         """
         self.paint_field(field)
 
+        light_id = self.curr_light['id']
+
         if self.curr_light['state']['on']:
-            if field.name in ('bri', 'hue', 'sat', 'ct', 'ctk', 'inc'):
-                self.light_update_queue.put(
-                    (self.curr_light['id'], field.name, field.value))
+            if field.name in ('bri', 'hue', 'sat', 'inc', 'ct'):
+                self.light_update_queue.put((light_id, field.name, field.value))
                 if field.name == 'inc':
                     # The 'inc' parameter modifies 'bri' to match, so
                     # update it, too
                     self.fields['bri'].value = self.fields['inc'].value
                     self.paint_field(self.fields['bri'])
                 elif field.name == 'ct':
-                    # Likewise for mired vs. Kelvin
+                    # Likewise for mired vs. Kelvin…
                     self.fields['ctk'].value = int(1e6 / self.fields['ct'].value)
                     self.paint_field(self.fields['ctk'])
-                elif field.name == 'ctk':
-                    self.fields['ct'].value = int(1e6 / self.fields['ctk'].value)
-                    self.paint_field(self.fields['ct'])
+
             elif field.name in ('x', 'y'):
                 x, y = self.fields['x'].value, self.fields['y'].value
                 self.light_update_queue.put(
                     (self.curr_light['id'], 'xy', [x, y]))
+
+            elif field.name == 'ctk':
+                # Translate to mired in order to use the normal API parameter
+                self.fields['ct'].value = int(1e6 / self.fields['ctk'].value)
+                self.paint_field(self.fields['ct'])
+                self.light_update_queue.put(
+                    (light_id, 'ct', self.fields['ct'].value))
+
+            elif field.name == 'xct':
+                # This time translate to Kelvin and use the extended
+                # 'ctk' parameter in the phue_helper's Bridge.set_light method
+                self.fields['xctk'].value = int(1e6 / self.fields['xct'].value)
+                self.paint_field(self.fields['xctk'])
+                self.light_update_queue.put(
+                    (light_id, 'ctk', self.fields['xctk'].value))
+
+            elif field.name == 'xctk':
+                self.fields['xct'].value = int(1e6 / self.fields['xctk'].value)
+                self.paint_field(self.fields['xct'])
+                self.light_update_queue.put(
+                    (light_id, 'ctk', self.fields['xctk'].value))
 
     def toggle_power(self):
         """Toggle the on/off state of the current light. If light is turned on,
@@ -836,9 +866,9 @@ class LightControlProgram(BaseProgram):
             self.next_char(cursor_out_reset=True)
 
         elif action == 'refresh':
-            self.refresh_light(update_group=True)
+            self.refresh_light()
         elif action == 'auto-refresh':
-            self.refresh_light(update_group=False)
+            self.refresh_light(soft=True)
         elif action == 'toggle-auto-refresh':
             self.auto_refresh_mode = not self.auto_refresh_mode
 

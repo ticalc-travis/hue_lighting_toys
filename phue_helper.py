@@ -104,10 +104,7 @@ class ExtendedBridge(Bridge):
             if not MIN['ct'] <= params_dict['ct'] <= MAX['ct']:
                 params_dict['ctk'] = int(1e6 / params_dict.pop('ct'))
         if 'ctk' in params_dict:
-            if MIN['ctk'] <= params_dict['ctk'] <= MAX['ctk']:
-                params_dict['ct'] = int(1e6 / params_dict.pop('ctk'))
-            else:
-                params_dict['xy'] = kelvin_to_xy(params_dict.pop('ctk'))
+            params_dict['xy'] = kelvin_to_xy(params_dict.pop('ctk'))
 
     def _set_light_convert_args(self, light_id, parameter, value=None):
         """Canonicalize light_id (which may be a str or int representing a
@@ -135,14 +132,15 @@ class ExtendedBridge(Bridge):
         """Extended version of self.set_light with the following enhancements:
 
         - A 'ctk' parameter that accepts a color temperature in Kelvin
-          is supported.
+          is supported. This uses an internal formula and will actually
+          set the 'xy' colormode as far as the bridge is concerned.
 
         - The range of 'ct' and 'ctk' is extended. 'ct' values from 40
           to 250 or 'ctk' values from 1000 to 25,000 will work. Values
           outside this range may work reasonably for some applications
           but may not necessarily yield accurate colors. (Note: As a
-          side effect, setting a value outside the Hue API's officially
-          supported 153–500 mired (2000–≈6536 Kelvin) will cause the
+          side effect, setting a 'ct' value outside the Hue API's
+          officially-supported 153–500 mired range will cause the
           light's colormode to be subsequently reported as 'xy' instead
           of 'ct'.)
 
