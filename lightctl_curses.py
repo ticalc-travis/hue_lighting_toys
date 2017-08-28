@@ -26,11 +26,9 @@ MIN_BRIDGE_CMD_INTERVAL = .3
 #
 #   XY       X:         #.####      Y:         #.####
 #
-#   CT       Mired:        ###      Kelvin:      ####
+#   CT       Mired:    #######      Kelvin: #########
 #
-#   Ext.     Mired:    #######      Kelvin: #########
-#
-#            Incandescent: ###
+#   Ext.     Incandescent: ###
 #
 #
 # Next light    Previous light        Quit
@@ -60,12 +58,10 @@ HOTKEYS = [
     ('xy', 'y', '&Y:', 8, 35),
     ('ct', 'ct', '&Mired:', 10, 12),
     ('ct', 'ctk', '&Kelvin:', 10, 35),
-    ('ext', 'xct', 'Mir&ed:', 12, 12),
-    ('ext', 'xctk', 'Ke&lvin:', 12, 35),
-    ('ext', 'inc', '&Incandescent:', 14, 12),
-    ('main', 'next', '&Next light', 17, 1),
-    ('main', 'prev', '&Previous light', 17, 15),
-    ('main', 'quit', '&Quit', 17, 37),
+    ('ext', 'inc', '&Incandescent:', 12, 12),
+    ('main', 'next', '&Next light', 15, 1),
+    ('main', 'prev', '&Previous light', 15, 15),
+    ('main', 'quit', '&Quit', 15, 37),
 ]
 
 OTHER_KEYS = [
@@ -108,13 +104,11 @@ INPUT_FIELDS = {
         ('y', WIDTH['xy'], MIN['xy'], MAX['xy'], 8, 46),
     ],
     'ct': [
-        ('ct', WIDTH['ct'], MIN['ct'], MAX['ct'], 10, 26),
-        ('ctk', WIDTH['ctk'], MIN['ctk'], MAX['ctk'], 10, 48),
+        ('ct', WIDTH['xct'], MIN['xct'], MAX['xct'], 10, 22),
+        ('ctk', WIDTH['xctk'], MIN['xctk'], MAX['xctk'], 10, 43),
     ],
     'ext': [
-        ('xct', WIDTH['xct'], MIN['xct'], MAX['xct'], 12, 22),
-        ('xctk', WIDTH['xctk'], MIN['xctk'], MAX['xctk'], 12, 43),
-        ('inc', WIDTH['inc'], MIN['inc'], MAX['inc'], 14, 26),
+        ('inc', WIDTH['inc'], MIN['inc'], MAX['inc'], 12, 26),
     ],
 }
 
@@ -457,8 +451,6 @@ class LightControlProgram(BaseProgram):
             self.fields[field_name].value = light_state[field_name]
         self.fields['x'].value, self.fields['y'].value = light_state['xy']
         self.fields['ctk'].value = int(1e6 / light_state['ct'])
-        self.fields['xct'].value = self.fields['ct'].value
-        self.fields['xctk'].value = self.fields['ctk'].value
         self.fields['inc'].value = light_state['bri']
 
         # Change current group if new light's colormode is different
@@ -560,8 +552,8 @@ class LightControlProgram(BaseProgram):
 
         # Set some more appropriate initial cursor locations for certain
         # “special” fields
-        self.fields['xct'].cursor = self.fields['xct'].max_cursor - 2
-        self.fields['xctk'].cursor = self.fields['xctk'].max_cursor - 3
+        self.fields['ct'].cursor = self.fields['ct'].max_cursor - 2
+        self.fields['ctk'].cursor = self.fields['ctk'].max_cursor - 3
         self.fields['x'].cursor = self.fields['y'].cursor = 2
 
     def _paint_on_indicator(self, row, col, is_on):
@@ -690,9 +682,6 @@ class LightControlProgram(BaseProgram):
                     # update it, too
                     self.fields['bri'].value = self.fields['inc'].value
                     self.paint_field(self.fields['bri'])
-            elif field.name in ('xct', 'xctk'):
-                self.light_update_queue.put(
-                    (self.curr_light['id'], field.name[1:], field.value))
             elif field.name in ('x', 'y'):
                 x, y = self.fields['x'].value, self.fields['y'].value
                 self.light_update_queue.put(
