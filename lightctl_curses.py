@@ -740,6 +740,13 @@ class LightControlProgram(BaseProgram):
                     # update it, too
                     self.fields['bri'].value = self.fields['inc'].value
                     self.paint_field(self.fields['bri'])
+                elif field.name == 'ct':
+                    # Likewise for mired vs. Kelvin
+                    self.fields['ctk'].value = int(1e6 / self.fields['ct'].value)
+                    self.paint_field(self.fields['ctk'])
+                elif field.name == 'ctk':
+                    self.fields['ct'].value = int(1e6 / self.fields['ctk'].value)
+                    self.paint_field(self.fields['ct'])
             elif field.name in ('x', 'y'):
                 x, y = self.fields['x'].value, self.fields['y'].value
                 self.light_update_queue.put(
