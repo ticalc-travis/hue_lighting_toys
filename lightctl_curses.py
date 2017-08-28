@@ -589,6 +589,17 @@ class LightControlProgram(BaseProgram):
                 field.row = row
                 field.col = col
                 field.nxt = field.prv = None
+                # Define some more appropriate initial cursor locations
+                # for certain “special” fields
+                if name == 'ct':
+                    field.default_cursor = field.max_cursor - 2
+                elif name == 'ctk':
+                    field.default_cursor = field.max_cursor - 3
+                elif name == 'x' or name == 'y':
+                    field.default_cursor = 2
+                else:
+                    field.default_cursor = 0
+                field.cursor = field.default_cursor
 
         # Set initially focused field
         self.curr_field = self.fields['bri']
@@ -596,11 +607,6 @@ class LightControlProgram(BaseProgram):
         # Set current light to first one listed on command line
         self.curr_light_idx = 0
 
-        # Set some more appropriate initial cursor locations for certain
-        # “special” fields
-        self.fields['ct'].cursor = self.fields['ct'].max_cursor - 2
-        self.fields['ctk'].cursor = self.fields['ctk'].max_cursor - 3
-        self.fields['x'].cursor = self.fields['y'].cursor = 2
 
     def _paint_on_indicator(self, row, col, is_on):
         """Draw an on/off indicator at row, col for status is_on (True if on,
@@ -693,13 +699,17 @@ class LightControlProgram(BaseProgram):
         for field in self.fields.values():
             self.paint_field(field)
 
-    def next_char(self):
-        """Move the cursor forward on the current field, or move it to the
-        beginning of the next field if it moves past the end
+    def next_char(self, cursor_out_reset=False):
+        """Move the cursor forward on the current field, or move focus to the
+        beginning of the next field if it would move past the end. If
+        the latter happens and cursor_out_reset, move the cursor on the
+        previously-focused field back to its default position.
         """
         try:
             self.curr_field.move_cursor(1)
         except CursorOutOfRangeError:
+            if cursor_out_reset:
+                self.curr_field.cursor = self.curr_field.default_cursor
             self.curr_field = self.curr_field.nxt
             self.curr_field.cursor = 0
 
@@ -816,7 +826,7 @@ class LightControlProgram(BaseProgram):
         elif action.startswith('enter_'):
             self.curr_field.put_digit(int(action.split('_', 1)[1]))
             self.do_field_update(self.curr_field)
-            self.handle_action('next_char')
+            self.next_char(cursor_out_reset=True)
 
         elif action == 'refresh':
             self.refresh_light(update_group=True)
