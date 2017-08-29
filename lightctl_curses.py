@@ -450,12 +450,12 @@ class LightControlProgram(BaseProgram):
         light_id = self.lights[self.curr_light_idx]
         with self.bridge_lock:
             light_info = self.bridge.get_light(light_id)
-        # Workaround for refresh: if light is currently off, don't
-        # update anything besides on/off state so user-entered fields
-        # don't vanish unless something else turns on the light and
-        # starts manipulating it
+        # Workaround for soft refresh: if light is currently off, don't
+        # update anything besides on/off state, so that user-entered
+        # fields don't vanish unless something else turns on the light
+        # and starts manipulating it
         update_fields_ok = True
-        if light_info['state']['on'] or not self._curr_light:
+        if light_info['state']['on'] or not soft or not self._curr_light:
             self._curr_light = light_info
         else:
             self._curr_light['state']['on'] = light_info['state']['on']
