@@ -63,6 +63,15 @@ def tungsten_cct(brightness):
     return 5.63925392181 * brightness + 1423.98106079
 
 
+def conv_ct(color_temp):
+    """Convert color_temp from mired to Kelvin or vice-versa."""
+    return 1000000 / color_temp
+
+def iconv_ct(color_temp):
+    """Convert color_temp from mired to Kelvin and truncate to int."""
+    return int(conv_ct(color_temp))
+
+
 class BridgeError(Exception):
     """Base exception for Hue bridge errors"""
     pass
@@ -106,7 +115,7 @@ class ExtendedBridge(Bridge):
             params_dict['ctk'] = tungsten_cct(params_dict.pop('inc'))
         if 'ct' in params_dict:
             if not MIN['ct'] <= params_dict['ct'] <= MAX['ct']:
-                params_dict['ctk'] = int(1e6 / params_dict.pop('ct'))
+                params_dict['ctk'] = iconv_ct(params_dict.pop('ct'))
         if 'ctk' in params_dict:
             params_dict['xy'] = kelvin_to_xy(params_dict.pop('ctk'))
 

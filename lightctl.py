@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from base import (BaseProgram, default_run)
-from phue_helper import MIN, MAX
+from phue_helper import MIN, MAX, iconv_ct
 
 class LightControlProgram(BaseProgram):
     """Command-line utility to control Hue lights"""
@@ -84,7 +84,7 @@ outside this range are allowed and will be simulated if necessary.'''
         """
         state = self.bridge.get_light(light_id)['state']
         if param == 'ctk':
-            new_value = int(1e6 / state['ct']) + value
+            new_value = iconv_ct(state['ct']) + value
             new_value = max(min(new_value, MAX['ctk']), MIN['ctk'])
         elif param == 'inc':
             new_value = max(min(state['bri'] + value, MAX['inc']), MIN['inc'])

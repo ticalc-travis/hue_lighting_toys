@@ -8,7 +8,7 @@ from time import sleep, time
 import queue
 
 from base import BaseProgram, default_run
-from phue_helper import MIN, MAX, WIDTH, tungsten_cct
+from phue_helper import MIN, MAX, WIDTH, tungsten_cct, iconv_ct
 
 
 MIN_BRIDGE_CMD_INTERVAL = .3
@@ -466,7 +466,7 @@ class LightControlProgram(BaseProgram):
             for field_name in ('bri', 'hue', 'sat', 'ct'):
                 self.fields[field_name].value = light_state[field_name]
             self.fields['x'].value, self.fields['y'].value = light_state['xy']
-            self.fields['ctk'].value = int(1e6 / light_state['ct'])
+            self.fields['ctk'].value = iconv_ct(light_state['ct'])
             if not soft:
                 self.fields['xctk'].value = self.fields['ctk'].value
                 self.fields['xct'].value = self.fields['ct'].value
@@ -746,12 +746,12 @@ class LightControlProgram(BaseProgram):
             self.light_update_queue.put((light_id, 'xy', [x, y]))
         elif field.name == 'ctk':
             # Translate to mired in order to use the normal API parameter
-            ct = int(1e6 / field.value)
+            ct = iconv_ct(field.value)
             self.light_update_queue.put((light_id, 'ct', ct))
         elif field.name == 'xct':
             # Translate to Kelvin and use the extended 'ctk' parameter
             # in the phue_helper's Bridge.set_light method
-            ctk = int(1e6 / field.value)
+            ctk = iconv_ct(field.value)
             self.light_update_queue.put((light_id, 'ctk', ctk))
         elif field.name == 'xctk':
             # Send directly to extended 'ctk' parameter
@@ -778,16 +778,16 @@ class LightControlProgram(BaseProgram):
             self.update_field(self.fields['xctk'], send_light_update=False)
         elif field.name == 'ct':
             # Likewise for mired vs. Kelvin…
-            self.fields['ctk'].value = int(1e6 / field.value)
+            self.fields['ctk'].value = iconv_ct(field.value)
             self.paint_field(self.fields['ctk'])
         elif field.name == 'ctk':
-            self.fields['ct'].value = int(1e6 / field.value)
+            self.fields['ct'].value = iconv_ct(field.value)
             self.paint_field(self.fields['ct'])
         elif field.name == 'xct':
-            self.fields['xctk'].value = int(1e6 / field.value)
+            self.fields['xctk'].value = iconv_ct(field.value)
             self.paint_field(self.fields['xctk'])
         elif field.name == 'xctk':
-            self.fields['xct'].value = int(1e6 / field.value)
+            self.fields['xct'].value = iconv_ct(field.value)
             self.paint_field(self.fields['xct'])
 
         if send_light_update:
