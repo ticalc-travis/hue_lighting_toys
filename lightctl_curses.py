@@ -733,63 +733,65 @@ class LightControlProgram(BaseProgram):
             self.curr_field = self.curr_field.prv
             self.curr_field.cursor = self.curr_field.max_cursor
 
-    def do_field_update(self, field):
-        """Repaint the field screen and signal a light bridge update for the
-        field's value. (Note: If field name is 'x' or 'y', the values of
-        the two will be read directly from self.fields in order to
-        generate a complete bridge command.)
+    def send_light_update(self, field):
+        """Translate the given field's value into a Hue bridge command and
+        signal the update thread to send it
         """
-
-        self.paint_field(field)
-
         light_id = self.curr_light['id']
 
         if field.name in ('bri', 'hue', 'sat', 'inc', 'ct'):
             self.light_update_queue.put((light_id, field.name, field.value))
-            if field.name == 'inc':
-                # The 'inc' parameter modifies 'bri' and extended
-                # color temperature parameters to match, so update
-                # them, too
-                self.fields['bri'].value = self.fields['inc'].value
-                self.paint_field(self.fields['bri'])
-                # This calculation is (should be) the same as what
-                # phue_helper.py uses for converting 'inc' to color
-                # temperature
-                self.fields['xctk'].value = int(tungsten_cct(
-                    self.fields['bri'].value))
-                self.paint_field(self.fields['xctk'])
-                self.fields['xct'].value = int(1e6 / self.fields['xctk'].value)
-                self.paint_field(self.fields['xct'])
-            elif field.name == 'ct':
-                # Likewise for mired vs. Kelvin…
-                self.fields['ctk'].value = int(1e6 / self.fields['ct'].value)
-                self.paint_field(self.fields['ctk'])
-
         elif field.name in ('x', 'y'):
             x, y = self.fields['x'].value, self.fields['y'].value
-            self.light_update_queue.put(
-                (self.curr_light['id'], 'xy', [x, y]))
-
+            self.light_update_queue.put((light_id, 'xy', [x, y]))
         elif field.name == 'ctk':
             # Translate to mired in order to use the normal API parameter
-            self.fields['ct'].value = int(1e6 / self.fields['ctk'].value)
-            self.paint_field(self.fields['ct'])
-            self.light_update_queue.put(
-                (light_id, 'ct', self.fields['ct'].value))
-
+            ct = int(1e6 / field.value)
+            self.light_update_queue.put((light_id, 'ct', ct))
         elif field.name == 'xct':
-            # This time translate to Kelvin and use the extended
-            # 'ctk' parameter in the phue_helper's Bridge.set_light method
-            self.fields['xctk'].value = int(1e6 / self.fields['xct'].value)
-            self.paint_field(self.fields['xctk'])
-            self.light_update_queue.put(
-                (light_id, 'ctk', self.fields['xctk'].value))
-
+            # Translate to Kelvin and use the extended 'ctk' parameter
+            # in the phue_helper's Bridge.set_light method
+            ctk = int(1e6 / field.value)
+            self.light_update_queue.put((light_id, 'ctk', ctk))
         elif field.name == 'xctk':
-            self.fields['xct'].value = int(1e6 / self.fields['xctk'].value)
+            # Send directly to extended 'ctk' parameter
+            self.light_update_queue.put((light_id, 'ctk', field.value))
+
+    def update_field(self, field, send_light_update=True):
+        """Repaint the display of the given field and recalculate and redisplay
+        any other fields affected by it. If send_light_update, also call
+        self.send_light_update(field).
+        """
+        self.paint_field(field)
+
+        if field.name == 'inc':
+            # The 'inc' parameter modifies 'bri' and extended
+            # color temperature parameters to match, so update
+            # them, too
+            self.fields['bri'].value = field.value
+            self.paint_field(self.fields['bri'])
+            # This calculation is (should be) the same as what
+            # phue_helper.py uses for converting 'inc' to color
+            # temperature
+            self.fields['xctk'].value = int(tungsten_cct(
+                self.fields['bri'].value))
+            self.update_field(self.fields['xctk'], send_light_update=False)
+        elif field.name == 'ct':
+            # Likewise for mired vs. Kelvin…
+            self.fields['ctk'].value = int(1e6 / field.value)
+            self.paint_field(self.fields['ctk'])
+        elif field.name == 'ctk':
+            self.fields['ct'].value = int(1e6 / field.value)
+            self.paint_field(self.fields['ct'])
+        elif field.name == 'xct':
+            self.fields['xctk'].value = int(1e6 / field.value)
+            self.paint_field(self.fields['xctk'])
+        elif field.name == 'xctk':
+            self.fields['xct'].value = int(1e6 / field.value)
             self.paint_field(self.fields['xct'])
-            self.light_update_queue.put(
-                (light_id, 'ctk', self.fields['xctk'].value))
+
+        if send_light_update:
+            self.send_light_update(field)
 
     def toggle_power(self):
         """Toggle the on/off state of the current light. If light is turned on,
@@ -805,7 +807,7 @@ class LightControlProgram(BaseProgram):
         if not light_was_on:
             for field in self.fields.values():
                 if self.is_group_active(field.group):
-                    self.do_field_update(field)
+                    self.send_light_update(field)
         self.need_repaint = True
 
     def get_key_event(self):
@@ -865,13 +867,13 @@ class LightControlProgram(BaseProgram):
 
         elif action == 'incr_digit':
             self.curr_field.adjust_digit(1)
-            self.do_field_update(self.curr_field)
+            self.update_field(self.curr_field)
         elif action == 'decr_digit':
             self.curr_field.adjust_digit(-1)
-            self.do_field_update(self.curr_field)
+            self.update_field(self.curr_field)
         elif action.startswith('enter_'):
             self.curr_field.put_digit(int(action.split('_', 1)[1]))
-            self.do_field_update(self.curr_field)
+            self.update_field(self.curr_field)
             self.next_char(cursor_out_reset=True)
 
         elif action == 'refresh':
