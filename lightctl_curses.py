@@ -744,48 +744,50 @@ class LightControlProgram(BaseProgram):
         the two will be read directly from self.fields in order to
         generate a complete bridge command.)
         """
+
         self.paint_field(field)
 
         light_id = self.curr_light['id']
 
-        if self.curr_light['state']['on']:
-            if field.name in ('bri', 'hue', 'sat', 'inc', 'ct'):
-                self.light_update_queue.put((light_id, field.name, field.value))
-                if field.name == 'inc':
-                    # The 'inc' parameter modifies 'bri' to match, so
-                    # update it, too
-                    self.fields['bri'].value = self.fields['inc'].value
-                    self.paint_field(self.fields['bri'])
-                elif field.name == 'ct':
-                    # Likewise for mired vs. Kelvin…
-                    self.fields['ctk'].value = int(1e6 / self.fields['ct'].value)
-                    self.paint_field(self.fields['ctk'])
+        if field.name in ('bri', 'hue', 'sat', 'inc', 'ct'):
+            self.light_update_queue.put((light_id, field.name, field.value))
+            if field.name == 'inc':
+                # The 'inc' parameter modifies 'bri' and extended
+                # color temperature parameters to match, so update
+                # them, too
+                self.fields['bri'].value = self.fields['inc'].value
+                self.paint_field(self.fields['bri'])
+                # TODO: Update CT like comment says
+            elif field.name == 'ct':
+                # Likewise for mired vs. Kelvin…
+                self.fields['ctk'].value = int(1e6 / self.fields['ct'].value)
+                self.paint_field(self.fields['ctk'])
 
-            elif field.name in ('x', 'y'):
-                x, y = self.fields['x'].value, self.fields['y'].value
-                self.light_update_queue.put(
-                    (self.curr_light['id'], 'xy', [x, y]))
+        elif field.name in ('x', 'y'):
+            x, y = self.fields['x'].value, self.fields['y'].value
+            self.light_update_queue.put(
+                (self.curr_light['id'], 'xy', [x, y]))
 
-            elif field.name == 'ctk':
-                # Translate to mired in order to use the normal API parameter
-                self.fields['ct'].value = int(1e6 / self.fields['ctk'].value)
-                self.paint_field(self.fields['ct'])
-                self.light_update_queue.put(
-                    (light_id, 'ct', self.fields['ct'].value))
+        elif field.name == 'ctk':
+            # Translate to mired in order to use the normal API parameter
+            self.fields['ct'].value = int(1e6 / self.fields['ctk'].value)
+            self.paint_field(self.fields['ct'])
+            self.light_update_queue.put(
+                (light_id, 'ct', self.fields['ct'].value))
 
-            elif field.name == 'xct':
-                # This time translate to Kelvin and use the extended
-                # 'ctk' parameter in the phue_helper's Bridge.set_light method
-                self.fields['xctk'].value = int(1e6 / self.fields['xct'].value)
-                self.paint_field(self.fields['xctk'])
-                self.light_update_queue.put(
-                    (light_id, 'ctk', self.fields['xctk'].value))
+        elif field.name == 'xct':
+            # This time translate to Kelvin and use the extended
+            # 'ctk' parameter in the phue_helper's Bridge.set_light method
+            self.fields['xctk'].value = int(1e6 / self.fields['xct'].value)
+            self.paint_field(self.fields['xctk'])
+            self.light_update_queue.put(
+                (light_id, 'ctk', self.fields['xctk'].value))
 
-            elif field.name == 'xctk':
-                self.fields['xct'].value = int(1e6 / self.fields['xctk'].value)
-                self.paint_field(self.fields['xct'])
-                self.light_update_queue.put(
-                    (light_id, 'ctk', self.fields['xctk'].value))
+        elif field.name == 'xctk':
+            self.fields['xct'].value = int(1e6 / self.fields['xctk'].value)
+            self.paint_field(self.fields['xct'])
+            self.light_update_queue.put(
+                (light_id, 'ctk', self.fields['xctk'].value))
 
     def toggle_power(self):
         """Toggle the on/off state of the current light. If light is turned on,
