@@ -8,7 +8,7 @@ from time import sleep, time
 import queue
 
 from base import BaseProgram, default_run
-from phue_helper import MIN, MAX, WIDTH
+from phue_helper import MIN, MAX, WIDTH, tungsten_cct
 
 
 MIN_BRIDGE_CMD_INTERVAL = .3
@@ -757,7 +757,14 @@ class LightControlProgram(BaseProgram):
                 # them, too
                 self.fields['bri'].value = self.fields['inc'].value
                 self.paint_field(self.fields['bri'])
-                # TODO: Update CT like comment says
+                # This calculation is (should be) the same as what
+                # phue_helper.py uses for converting 'inc' to color
+                # temperature
+                self.fields['xctk'].value = int(tungsten_cct(
+                    self.fields['bri'].value))
+                self.paint_field(self.fields['xctk'])
+                self.fields['xct'].value = int(1e6 / self.fields['xctk'].value)
+                self.paint_field(self.fields['xct'])
             elif field.name == 'ct':
                 # Likewise for mired vs. Kelvin…
                 self.fields['ctk'].value = int(1e6 / self.fields['ct'].value)

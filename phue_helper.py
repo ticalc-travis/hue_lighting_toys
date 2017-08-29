@@ -99,6 +99,10 @@ class ExtendedBridge(Bridge):
         """
         if 'inc' in params_dict:
             params_dict['bri'] = params_dict['inc']
+            # Warning: If this code somehow changes so that
+            # tungesten_cct is no longer used to calculate ctk, then
+            # lightct_curses.py should be updated as well when it
+            # converts 'inc' to extended CT fields for display
             params_dict['ctk'] = tungsten_cct(params_dict.pop('inc'))
         if 'ct' in params_dict:
             if not MIN['ct'] <= params_dict['ct'] <= MAX['ct']:
