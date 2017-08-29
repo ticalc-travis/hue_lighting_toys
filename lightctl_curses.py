@@ -17,17 +17,17 @@ MIN_BRIDGE_CMD_INTERVAL = .3
 
 # Display layout:
 
-# ID ##      Light name
-#            === Unreachable ===
+# ID ##           Light name
+#                 === Unreachable ===
 #
-#            Power       [On ]      Brightness:   ###
+#                 Power       [On ]      Brightness:   ###
 #
-# > H/S      Hue:        #####      Saturation:   ###
-#   XY       X:         #.####      Y:         #.####
-#   CT       Mired:        ###      Kelvin:      ####
+# > H/S           Hue:        #####      Saturation:   ###
+#   XY            X:         #.####      Y:         #.####
+#   CT            Mired:        ###      Kelvin:      ####
 #
-#   Ext.     Mired:    #######      Kelvin: #########
-#            Incandescent: ###
+#   Ext. CT       Mired:    #######      Kelvin: #########
+#   Ext. inc.     Incandescent: ###
 #
 # Next light    Previous light        Quit
 # Refresh now   Auto-refresh [Off]
@@ -36,29 +36,30 @@ MIN_BRIDGE_CMD_INTERVAL = .3
 LABELS = [
     # role, row, col
     ('light_id', 1, 1),
-    ('light_name', 1, 12),
-    ('unreachable', 2, 12),
-    ('power', 4, 24),
+    ('light_name', 1, 17),
+    ('unreachable', 2, 17),
+    ('power', 4, 29),
     ('hs_mode', 6, 1),
     ('xy_mode', 7, 1),
     ('ct_mode', 8, 1),
-    ('ext_mode', 10, 1),
+    ('ext_ct_mode', 10, 1),
+    ('ext_inc_mode', 11, 1),
     ('auto-refresh', 15, 29),
 ]
 
 HOTKEYS = [
     # group, action, label, row, col
-    ('main', 'power', 'P&ower', 4, 12),
-    ('main', 'bri', '&Brightness', 4, 35),
-    ('hs', 'hue', '&Hue:', 6, 12),
-    ('hs', 'sat', '&Saturation:', 6, 35),
-    ('xy', 'x', '&X:', 7, 12),
-    ('xy', 'y', '&Y:', 7, 35),
-    ('ct', 'ct', '&Mired:', 8, 12),
-    ('ct', 'ctk', '&Kelvin:', 8, 35),
-    ('ext', 'xct', 'Mir&ed:', 10, 12),
-    ('ext', 'xctk', 'Kel&vin', 10, 35),
-    ('ext', 'inc', '&Incandescent:', 11, 12),
+    ('main', 'power', 'P&ower', 4, 17),
+    ('main', 'bri', '&Brightness', 4, 40),
+    ('hs', 'hue', '&Hue:', 6, 17),
+    ('hs', 'sat', '&Saturation:', 6, 40),
+    ('xy', 'x', '&X:', 7, 17),
+    ('xy', 'y', '&Y:', 7, 40),
+    ('ct', 'ct', '&Mired:', 8, 17),
+    ('ct', 'ctk', '&Kelvin:', 8, 40),
+    ('ext_ct', 'xct', 'Mir&ed:', 10, 17),
+    ('ext_ct', 'xctk', 'Kel&vin', 10, 40),
+    ('ext_inc', 'inc', '&Incandescent:', 11, 17),
     ('main', 'next', '&Next light', 14, 1),
     ('main', 'prev', '&Previous light', 14, 15),
     ('main', 'quit', '&Quit', 14, 37),
@@ -95,24 +96,26 @@ OTHER_KEYS = [
 INPUT_FIELDS = {
     'main': [
         # name, width, min value, max value, row, col
-        ('bri', WIDTH['bri'], MIN['bri'], MAX['bri'], 4, 49),
+        ('bri', WIDTH['bri'], MIN['bri'], MAX['bri'], 4, 54),
     ],
     'hs': [
-        ('hue', WIDTH['hue'], MIN['hue'], MAX['hue'], 6, 24),
-        ('sat', WIDTH['sat'], MIN['sat'], MAX['sat'], 6, 49),
+        ('hue', WIDTH['hue'], MIN['hue'], MAX['hue'], 6, 29),
+        ('sat', WIDTH['sat'], MIN['sat'], MAX['sat'], 6, 54),
     ],
     'xy': [
-        ('x', WIDTH['xy'], MIN['xy'], MAX['xy'], 7, 23),
-        ('y', WIDTH['xy'], MIN['xy'], MAX['xy'], 7, 46),
+        ('x', WIDTH['xy'], MIN['xy'], MAX['xy'], 7, 28),
+        ('y', WIDTH['xy'], MIN['xy'], MAX['xy'], 7, 51),
     ],
     'ct': [
-        ('ct', WIDTH['ct'], MIN['ct'], MAX['ct'], 8, 26),
-        ('ctk', WIDTH['ctk'], MIN['ctk'], MAX['ctk'], 8, 48),
+        ('ct', WIDTH['ct'], MIN['ct'], MAX['ct'], 8, 31),
+        ('ctk', WIDTH['ctk'], MIN['ctk'], MAX['ctk'], 8, 53),
     ],
-    'ext': [
-        ('xct', WIDTH['xct'], MIN['xct'], MAX['xct'], 10, 22),
-        ('xctk', WIDTH['xctk'], MIN['xctk'], MAX['xctk'], 10, 43),
-        ('inc', WIDTH['inc'], MIN['inc'], MAX['inc'], 11, 26),
+    'ext_ct': [
+        ('xct', WIDTH['xct'], MIN['xct'], MAX['xct'], 10, 27),
+        ('xctk', WIDTH['xctk'], MIN['xctk'], MAX['xctk'], 10, 48),
+    ],
+    'ext_inc': [
+        ('inc', WIDTH['inc'], MIN['inc'], MAX['inc'], 11, 31),
     ],
 }
 
@@ -661,8 +664,10 @@ class LightControlProgram(BaseProgram):
                 self._paint_mode_indicator(row, col, 'xy', 'X,Y')
             elif role == 'ct_mode':
                 self._paint_mode_indicator(row, col, 'ct', 'CT')
-            elif role == 'ext_mode':
-                self._paint_mode_indicator(row, col, 'ext', 'Ext.')
+            elif role == 'ext_ct_mode':
+                self._paint_mode_indicator(row, col, 'ext_ct', 'Ext. CT')
+            elif role == 'ext_inc_mode':
+                self._paint_mode_indicator(row, col, 'ext_inc', 'Ext. Inc.')
             elif role == 'auto-refresh':
                 self._paint_on_indicator(row, col, self.auto_refresh_mode)
             else:
