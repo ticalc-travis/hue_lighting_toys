@@ -134,12 +134,7 @@ class CursorBadPositionError(ValueError):
     pass
 
 
-class InputField():
-    """Abstract class for handling input in UI data fields"""
-    pass
-
-
-class UnsignedIntField(InputField):
+class UnsignedIntField():
     """Positive integer input field class
 
     Attributes:
