@@ -21,22 +21,25 @@ class IncandescentFadeProgram(BaseProgram):
         BaseProgram.add_opts(self)
 
         self.opt_parser.add_argument(
-            'start_brightness', type=self.int_within_range(MIN['inc'], MAX['inc']),
-            help='the starting brightness level (%d–%d); 0 is off' % (
-                MIN['inc'], MAX['inc']))
+            'start_brightness',
+            type=self.int_within_range(MIN['inc']-1, MAX['inc']),
+            help='the starting brightness level (%d–%d); %d is off' % (
+                MIN['inc'], MAX['inc'], MIN['inc']-1))
         self.opt_parser.add_argument(
-            'final_brightness', type=self.int_within_range(MIN['inc'], MAX['inc']),
-            help='the ending brightness level (%d–%d); 0 is off' % (
-                MIN['inc'], MAX['inc']))
+            'final_brightness',
+            type=self.int_within_range(MIN['inc']-1, MAX['inc']),
+            help='the ending brightness level (%d–%d); %d is off' % (
+                MIN['inc'], MAX['inc'], MIN['inc']-1))
         self.opt_parser.add_argument(
             'fade_time', type=self.positive_float(),
             help='number of seconds to perform the fade')
 
     def _set_light_incan(self, level, transitiontime):
         """Set lights to the given brightness of “incandescent bulb” color, or
-        turn them off if brightness level is 0.
+        turn them off if brightness level is one less than the minimum
+        value normally considered valid on the Hue bridge.
         """
-        if level:
+        if level >= MIN['inc']:
             cmd = {'on': True, 'inc': level}
         else:
             cmd = {'on': False}
