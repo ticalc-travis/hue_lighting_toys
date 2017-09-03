@@ -902,11 +902,12 @@ class LightControlProgram(BaseProgram):
                 break
             self.handle_action(action)
 
-        # Signal bridge update thread to terminate
-        self.light_update_queue.put(None)
-
     def main(self):
-        curses.wrapper(self.curses_main)
+        try:
+            curses.wrapper(self.curses_main)
+        finally:
+            # Signal bridge update thread to terminate
+            self.light_update_queue.put(None)
 
 
 if __name__ == '__main__':
