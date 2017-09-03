@@ -31,10 +31,19 @@ all lights as a group when they all are in initial power-up state''')
 
     def run(self):
         states = None
+        just_restored = set()   # Keep track of restored lights for one cycle
 
         while True:
+            # Only record state of lights we haven't restored this
+            # cycle, since sometimes the bridge doesn't update
+            # immediately and we may write bad state data over the old
+            if just_restored:
+                self.log.info('Skipping state save for newly restored lights: %s',
+                              just_restored)
             states = self.bridge.collect_light_states(
-                self.lights, states, include_default_state=False)
+                just_restored.symmetric_difference(self.lights),
+                states, include_default_state=False)
+            just_restored.clear()
             time.sleep(self.opts.monitor_time)
 
             if self.opts.individual:
@@ -42,6 +51,7 @@ all lights as a group when they all are in initial power-up state''')
                     if self.bridge.light_is_in_default_state(light):
                         self.log.info('Restoring light %d', light)
                         self.bridge.restore_light_states([light], states)
+                        just_restored.add(light)
             else:
                 for light in self.lights:
                     if not self.bridge.light_is_in_default_state(light):
@@ -51,6 +61,7 @@ all lights as a group when they all are in initial power-up state''')
                     # have been reset
                     self.log.info('All lights in default state, restoring original state')
                     self.bridge.restore_light_states(self.lights, states)
+                    just_restored.update(self.lights)
 
 
 if __name__ == '__main__':
