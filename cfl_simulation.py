@@ -37,31 +37,31 @@ class CFLSimulationProgram(BaseProgram):
     def simulate_20w_2700k(self, light_id):
         """Run the simulation for one light given by light_id"""
         stages = [{'on': True, 'transitiontime': 0}]
-        have_pink_stage = randint(0, 1)
-        if have_pink_stage:
-            init_sat = 130
-            init_bri = randint(1, 50)
-            init_hue = randint(1000, 5000)
-            stages.append({'bri': init_bri,
-                           'sat': init_sat,
-                           'hue': init_hue,
+        deep_warmup = randint(0, 1)
+        if deep_warmup:
+            stages.append({'bri': randint(1, 40),
+                           'hue': randint(57500, 61500),
+                           'sat': 130,
                            'transitiontime': 0})
-            settle_sat = randint(90, 130)
-            settle_bri = randint(1, 10)
-            stages.append({'bri': settle_bri,
-                           'sat': settle_sat,
-                           'transitiontime': randint(50, 150)})
+
+            stages.append({'bri': randint(1, 20),
+                           'sat': randint(90, 130),
+                           'transitiontime': randint(5, 100)})
+
             stages.append({'bri': randint(40, 70),
                            'hue': randint(7500, 8500),
                            'sat': 132,
                            'transitiontime': randint(150, 350)})
+
             stages.append({'bri': 254,
                            'transitiontime': randint(1200, 3200)})
+
         else:
             stages.append({'bri': randint(20, 60),
                            'hue': randint(7500, 8500),
                            'sat': 132,
                            'transitiontime': 0})
+
             stages.append({'bri': 254,
                            'transitiontime': randint(1000, 2000)})
 
@@ -73,28 +73,33 @@ class CFLSimulationProgram(BaseProgram):
     def simulate_15w_3500k(self, light_id):
         """Run the simulation for one light given by light_id"""
         stages = [{'on': True, 'transitiontime': 0}]
-        have_pink_stage = randint(0, 1)
-        if have_pink_stage:
-            init_sat = randint(25, 90)
+        deep_warmup = randint(0, 1)
+        if deep_warmup:
             init_bri = randint(1, 40)
+            init_sat = randint(25, 90)
             stages.append({'bri': init_bri,
                            'sat': init_sat,
                            'hue': 60000,
                            'transitiontime': 0})
-            settle_sat = randint(init_sat, 90)
+
             settle_bri = randint(1, init_bri)
+            settle_sat = randint(init_sat, 90)
             stages.append({'bri': settle_bri,
                            'sat': settle_sat,
-                           'transitiontime': randint(50, 150)})
+                           'transitiontime': randint(1, 100)})
+
             stages.append({'bri': randint(50, 70),
                            'ct': 286,
                            'transitiontime': randint(50, 350)})
+
             stages.append({'bri': 254,
                            'transitiontime': randint(600, 1200)})
+
         else:
             stages.append({'bri': randint(1, 40),
                            'ct': randint(286, 315),
                            'transitiontime': 0})
+
             stages.append({'bri': 254,
                            'transitiontime': randint(800, 1600)})
 
