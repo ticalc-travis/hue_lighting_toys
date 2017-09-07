@@ -51,7 +51,7 @@ class LampSimulationProgram(BaseProgram):
 
             stages.append({'bri': randint(40, 70),
                            'hue': randint(7500, 8500),
-                           'sat': 132,
+                           'sat': 160,
                            'transitiontime': randint(150, 350)})
 
             stages.append({'bri': 254,
@@ -60,7 +60,7 @@ class LampSimulationProgram(BaseProgram):
         else:
             stages.append({'bri': randint(20, 60),
                            'hue': randint(7500, 8500),
-                           'sat': 132,
+                           'sat': 160,
                            'transitiontime': 0})
 
             stages.append({'bri': 254,
