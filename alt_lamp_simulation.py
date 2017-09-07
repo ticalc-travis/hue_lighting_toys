@@ -39,6 +39,24 @@ class LampSimulationProgram(BaseProgram):
             dest='warmup_type', choices=('deep', 'shallow', 'random'),
             default='random',
             help='variation of warmup to simulate; only applies to CFL simulation models (default: random)')
+        self.opt_parser.add_argument(
+            '-t', '--time-rate',
+            dest='time_rate', type=self.positive_float(), default=1.0,
+            help='time rate of simulation (e.g., 2 = double speed, 0.5 = half speed) (default: 1.0)')
+
+    def run_stages(self, stages, light_id):
+        """Send a sequence of light commands (parameter dicts to send to
+        phue[_helper].Bridge.set_light()), waiting for each transition
+        to complete before sending the next one
+        """
+        for stage in stages:
+            stage = stage.copy()
+            real_trans_time = round(
+                stage.get('transitiontime', 40) * (1 / self.opts.time_rate))
+            stage['transitiontime'] = real_trans_time
+            with self.bridge_lock:
+                self.bridge.set_light(light_id, stage)
+            time.sleep(real_trans_time / 10)
 
     def simulate_2700k(self, light_id):
         """Run a 2700K CFL simulation using the given light_id"""
@@ -74,10 +92,7 @@ class LampSimulationProgram(BaseProgram):
             stages.append({'bri': 254,
                            'transitiontime': randint(1000, 2000)})
 
-        for stage in stages:
-            with self.bridge_lock:
-                self.bridge.set_light(light_id, stage)
-            time.sleep(stage.get('transitiontime', 40) / 10 + .1)
+        self.run_stages(stages, light_id)
 
     def simulate_3500k(self, light_id):
         """Run a 3500K CFL simulation using the given light_id"""
@@ -115,10 +130,7 @@ class LampSimulationProgram(BaseProgram):
             stages.append({'bri': 254,
                            'transitiontime': randint(800, 1600)})
 
-        for stage in stages:
-            with self.bridge_lock:
-                self.bridge.set_light(light_id, stage)
-            time.sleep(stage.get('transitiontime', 40) / 10 + .1)
+        self.run_stages(stages, light_id)
 
     def simulate_sbm(self, light_id):
         """Run a self-ballasted mercury lamp simulation using the given light_id"""
@@ -145,10 +157,7 @@ class LampSimulationProgram(BaseProgram):
                        'sat': 29,
                        'transitiontime': randint(500, 800)})
 
-        for stage in stages:
-            with self.bridge_lock:
-                self.bridge.set_light(light_id, stage)
-            time.sleep(stage.get('transitiontime', 40) / 10 + .1)
+        self.run_stages(stages, light_id)
 
     def main(self):
         model_method = self.models[self.opts.model]
