@@ -7,17 +7,17 @@ import time
 from base import (BaseProgram, default_run)
 
 
-class CFLSimulationProgram(BaseProgram):
-    """Simulate certain types of compact fluorescent lamps with their
-    power-on warm-up behaviors
+class LampSimulationProgram(BaseProgram):
+    """Simulate certain types of non-LED lamps with their power-on warm-up
+    behaviors
     """
 
     def __init__(self, *args, **kwargs):
-        self.models = {'15w_3500k': self.simulate_15w_3500k,
-                       '20w_2700k': self.simulate_20w_2700k,
+        self.models = {'cfl_3500k': self.simulate_3500k,
+                       'cfl_2700k': self.simulate_2700k,
                        'sbm': self.simulate_sbm,
         }
-        self.default_model = '15w_3500k'
+        self.default_model = 'cfl_3500k'
 
         BaseProgram.__init__(self, *args, **kwargs)
 
@@ -35,8 +35,8 @@ class CFLSimulationProgram(BaseProgram):
             default=self.default_model,
             help='light model to simulate')
 
-    def simulate_20w_2700k(self, light_id):
-        """Run a 20-watt 2700K CFL simulation using the given light_id"""
+    def simulate_2700k(self, light_id):
+        """Run a 2700K CFL simulation using the given light_id"""
         stages = [{'on': True, 'transitiontime': 0}]
         deep_warmup = randint(0, 1)
         if deep_warmup:
@@ -71,8 +71,8 @@ class CFLSimulationProgram(BaseProgram):
                 self.bridge.set_light(light_id, stage)
             time.sleep(stage.get('transitiontime', 40) / 10 + .1)
 
-    def simulate_15w_3500k(self, light_id):
-        """Run a 15-watt 3500K CFL simulation using the given light_id"""
+    def simulate_3500k(self, light_id):
+        """Run a 3500K CFL simulation using the given light_id"""
         stages = [{'on': True, 'transitiontime': 0}]
         deep_warmup = randint(0, 1)
         if deep_warmup:
@@ -153,4 +153,4 @@ class CFLSimulationProgram(BaseProgram):
 
 
 if __name__ == '__main__':
-    default_run(CFLSimulationProgram)
+    default_run(LampSimulationProgram)
