@@ -34,11 +34,19 @@ class LampSimulationProgram(BaseProgram):
             dest='model', choices=sorted(self.models.keys()),
             default=self.default_model,
             help='light model to simulate')
+        self.opt_parser.add_argument(
+            '-w', '--warmup-type',
+            dest='warmup_type', choices=('deep', 'shallow', 'random'),
+            default='random',
+            help='variation of warmup to simulate; only applies to CFL simulation models (default: random)')
 
     def simulate_2700k(self, light_id):
         """Run a 2700K CFL simulation using the given light_id"""
         stages = [{'on': True, 'transitiontime': 0}]
-        deep_warmup = randint(0, 1)
+        if self.opts.warmup_type == 'random':
+            deep_warmup = randint(0, 1)
+        else:
+            deep_warmup = True if self.opts.warmup_type == 'deep' else False
         if deep_warmup:
             stages.append({'bri': randint(1, 40),
                            'hue': randint(57500, 61500),
@@ -74,7 +82,10 @@ class LampSimulationProgram(BaseProgram):
     def simulate_3500k(self, light_id):
         """Run a 3500K CFL simulation using the given light_id"""
         stages = [{'on': True, 'transitiontime': 0}]
-        deep_warmup = randint(0, 1)
+        if self.opts.warmup_type == 'random':
+            deep_warmup = randint(0, 1)
+        else:
+            deep_warmup = True if self.opts.warmup_type == 'deep' else False
         if deep_warmup:
             init_bri = randint(1, 40)
             init_sat = randint(25, 90)
