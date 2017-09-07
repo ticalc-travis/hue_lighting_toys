@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from random import randint
+from random import randint, normalvariate
 import threading
 import time
 
@@ -15,6 +15,7 @@ class CFLSimulationProgram(BaseProgram):
     def __init__(self, *args, **kwargs):
         self.models = {'15w_3500k': self.simulate_15w_3500k,
                        '20w_2700k': self.simulate_20w_2700k,
+                       'sbm': self.simulate_sbm,
         }
         self.default_model = '15w_3500k'
 
@@ -35,7 +36,7 @@ class CFLSimulationProgram(BaseProgram):
             help='light model to simulate')
 
     def simulate_20w_2700k(self, light_id):
-        """Run the simulation for one light given by light_id"""
+        """Run a 20-watt 2700K CFL simulation using the given light_id"""
         stages = [{'on': True, 'transitiontime': 0}]
         deep_warmup = randint(0, 1)
         if deep_warmup:
@@ -71,7 +72,7 @@ class CFLSimulationProgram(BaseProgram):
             time.sleep(stage.get('transitiontime', 40) / 10 + .1)
 
     def simulate_15w_3500k(self, light_id):
-        """Run the simulation for one light given by light_id"""
+        """Run a 15-watt 3500K CFL simulation using the given light_id"""
         stages = [{'on': True, 'transitiontime': 0}]
         deep_warmup = randint(0, 1)
         if deep_warmup:
@@ -102,6 +103,36 @@ class CFLSimulationProgram(BaseProgram):
 
             stages.append({'bri': 254,
                            'transitiontime': randint(800, 1600)})
+
+        for stage in stages:
+            with self.bridge_lock:
+                self.bridge.set_light(light_id, stage)
+            time.sleep(stage.get('transitiontime', 40) / 10 + .1)
+
+    def simulate_sbm(self, light_id):
+        """Run a self-ballasted mercury lamp simulation using the given light_id"""
+        stages = []
+
+        stages.append({'on': True,
+                       'bri': 254,
+                       'ctk': 2600,
+                       'transitiontime': 0})
+
+        stages.append({'transitiontime': randint(175, 225)})
+
+        stages.append({'bri': int(min(254, normalvariate(224, 30))),
+                       'transitiontime': randint(0, 5)})
+
+        stages.append({'bri': 254,
+                       'ctk': randint(2600, 2800),
+                       'transitiontime': 0})
+
+        stages.append({'ctk': 3500,
+                       'transitiontime': randint(400, 700)})
+
+        stages.append({'hue': 6000,
+                       'sat': 29,
+                       'transitiontime': randint(500, 800)})
 
         for stage in stages:
             with self.bridge_lock:
