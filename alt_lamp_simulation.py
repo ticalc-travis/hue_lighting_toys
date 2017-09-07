@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from random import randint, normalvariate
+from random import choice, randint, normalvariate
 import threading
 import time
 
@@ -17,7 +17,7 @@ class LampSimulationProgram(BaseProgram):
                        'cfl_2700k': self.simulate_2700k,
                        'sbm': self.simulate_sbm,
         }
-        self.default_model = 'cfl_3500k'
+        self.default_model_seq = ['cfl_3500k']
 
         BaseProgram.__init__(self, *args, **kwargs)
 
@@ -31,9 +31,9 @@ class LampSimulationProgram(BaseProgram):
 
         self.opt_parser.add_argument(
             '-m', '--model',
-            dest='model', choices=sorted(self.models.keys()),
-            default=self.default_model,
-            help='light model to simulate')
+            dest='models', action='append', default=None,
+            choices=sorted(self.models.keys()),
+            help='light model to simulate; if specified multiple times, a randomly-chosen model out of the ones specified will be selected for each light')
         self.opt_parser.add_argument(
             '-w', '--warmup-type',
             dest='warmup_type', choices=('deep', 'shallow', 'random'),
@@ -160,11 +160,14 @@ class LampSimulationProgram(BaseProgram):
         self.run_stages(stages, light_id)
 
     def main(self):
-        model_method = self.models[self.opts.model]
         threads = []
+        if self.opts.models is not None:
+            models = self.opts.models
+        else:
+            models = self.default_model_seq
         for light in self.lights:
             thread = threading.Thread(
-                target=model_method, args=(light,), daemon=True)
+                target=self.models[choice(models)], args=(light,), daemon=True)
             threads.append(thread)
             thread.start()
 
