@@ -143,18 +143,19 @@ class LampSimulationProgram(BaseProgram):
 
         stages.append({'transitiontime': randint(175, 225)})
 
-        stages.append({'bri': int(min(254, normalvariate(224, 30))),
-                       'transitiontime': randint(0, 5)})
+        stages.append({'bri': int(min(254, normalvariate(234, 20))),
+                       'transitiontime': randint(0, 4)})
 
         stages.append({'bri': 254,
                        'ctk': randint(2600, 2800),
                        'transitiontime': 0})
 
-        stages.append({'ctk': 3500,
+        stages.append({'bri': 190,
+                       'ctk': 3500,
                        'transitiontime': randint(400, 700)})
 
-        stages.append({'hue': 6000,
-                       'sat': 29,
+        stages.append({'hue': 8000,
+                       'sat': 34,
                        'transitiontime': randint(500, 800)})
 
         self.run_stages(stages, light_id)
