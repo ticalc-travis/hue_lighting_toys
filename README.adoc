@@ -1,0 +1,544 @@
+= Travis's assorted Philips Hue lighting toys
+
+This is a collection of little scripts and tools that I have developed while tinkering around with the http://www2.meethue.com/en-us[Philips Hue] smart lighting system. Many are just for fun, some are rather esoteric, and others may even be useful; your mileage may vary.
+
+“Hue Personal Wireless Lighting” is a trademark of Philips Lighting Holding B.V.
+The author(s) of this software are in no way affiliated with Philips.
+
+
+== Requirements
+
+Currently, everything here assumes the use of white and color ambiance lamps, and may outright fail on anything else.
+I don't even have anything other than the full-color lamps at the moment, so I have no ability to even test compatibility with ambiance- or white-only lights.
+
+This project requires the https://github.com/studioimaginaire/phue[phue Python library].
+
+== The programs
+
+This collection includes the following:
+
+=== fading_colors.py
+
+Slowly fades selected lights through randomly-chosen color shades
+
+----
+usage: fading_colors.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                        [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                        [-ln LIGHT-NAME [LIGHT-NAME ...]]
+                        [--no-restore-lights] [-t DECISECONDS] [-gh] [-gs]
+                        [-gb] [-hr L H] [-sr L H] [-br L H]
+
+Produce a Philips Hue lighting random color fade effect.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         output extra informational messages (and debug
+                        messages if specified more than once)
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  --no-restore-lights   do not return lights to their original state on exit
+  -t DECISECONDS, --cycle-time DECISECONDS
+                        cycle time in tenths of a second (default: 100)
+  -gh, --group-hue      match the same hue among all lights
+  -gs, --group-saturation
+                        match the same saturation among all lights
+  -gb, --group-brightness
+                        match the same brightness among all lights
+  -hr L H, --hue-range L H
+                        restrict the generated hue range (0 to 65535) from L
+                        to H
+  -sr L H, --saturation-range L H
+                        restrict the generated saturation range (0 to 254)
+                        from L to H
+  -br L H, --brightness-range L H
+                        restrict the generated saturation range (1 to 254)
+                        from L to H
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
+=== chasing_colors.py
+
+Flashes randomly-chosen colors across selected lights in a “chasing” effect
+
+----
+usage: chasing_colors.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                         [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                         [-ln LIGHT-NAME [LIGHT-NAME ...]]
+                         [--no-restore-lights] [-t DECISECONDS] [-hr L H]
+                         [-sr L H] [-br L H]
+
+Produce a Philips Hue lighting random color chasing effect
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         output extra informational messages (and debug
+                        messages if specified more than once)
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  --no-restore-lights   do not return lights to their original state on exit
+  -t DECISECONDS, --cycle-time DECISECONDS
+                        cycle time in tenths of a second (default: 10)
+  -hr L H, --hue-range L H
+                        restrict the generated hue range (0 to 65535) from L
+                        to H
+  -sr L H, --saturation-range L H
+                        restrict the generated saturation range (0 to 254)
+                        from L to H
+  -br L H, --brightness-range L H
+                        restrict the generated saturation range (1 to 254)
+                        from L to H
+
+Lights will be sequenced in the order specified.
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
+=== coded_digits.py
+
+Encodes an arbitrary sequence of numeric digits as colored light flashes
+
+----
+usage: coded_digits.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                       [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                       [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
+                       [-t DECISECONDS] [-s DECISECONDS] [-fs] [-p] [-np]
+                       [-c {dim,bright}]
+                       digits
+
+Blink out a series of digits encoded using colors.
+
+positional arguments:
+  digits                the sequence of digits to flash
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         output extra informational messages (and debug
+                        messages if specified more than once)
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  --no-restore-lights   do not return lights to their original state on exit
+  -t DECISECONDS, --cycle-time DECISECONDS
+                        cycle time in tenths of a second (default: 10)
+  -s DECISECONDS, --switch-time DECISECONDS
+                        If there are more digits to transmit than lights,
+                        display the "blank" color on all lights for
+                        DECISECONDS tenths of a second before each digit flash
+                        (default: 2 . 0 makes it as short as possible; -1
+                        disables it entirely.
+  -fs, --force-switch-time
+                        always use a switch time after the digit flash, even
+                        if there are enough lights to display all digits at
+                        once
+  -p, --pad             always reset all lights to the "blank" color when the
+                        sequence finishes, instead of only when there are more
+                        digits than lights to transmit
+  -np, --no-pad         never reset lights to the "blank" color when the
+                        sequence finishes
+  -c {dim,bright}, --scheme {dim,bright}
+                        use the chosen color scheme
+
+Lights will be sequenced in the order specified.
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
+=== coded_clock.py
+
+Encodes the time of day as colored light flashes
+
+----
+usage: coded_clock.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                      [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                      [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
+                      [-t DECISECONDS] [-s DECISECONDS] [-fs] [-p] [-np]
+                      [-c {bright,dim}]
+
+Blink out a series of color-coded digits representing the time of
+day.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         output extra informational messages (and debug
+                        messages if specified more than once)
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  --no-restore-lights   do not return lights to their original state on exit
+  -t DECISECONDS, --cycle-time DECISECONDS
+                        cycle time in tenths of a second (default: 10)
+  -s DECISECONDS, --switch-time DECISECONDS
+                        If there are more digits to transmit than lights,
+                        display the "blank" color on all lights for
+                        DECISECONDS tenths of a second before each digit flash
+                        (default: 2 . 0 makes it as short as possible; -1
+                        disables it entirely.
+  -fs, --force-switch-time
+                        always use a switch time after the digit flash, even
+                        if there are enough lights to display all digits at
+                        once
+  -p, --pad             always reset all lights to the "blank" color when the
+                        sequence finishes, instead of only when there are more
+                        digits than lights to transmit
+  -np, --no-pad         never reset lights to the "blank" color when the
+                        sequence finishes
+  -c {bright,dim}, --scheme {bright,dim}
+                        use the chosen color scheme
+
+Lights will be sequenced in the order specified.
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
+=== coded_stopwatch.py
+
+Encodes elapsed time as colored light flashes
+
+----
+usage: coded_stopwatch.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                          [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                          [-ln LIGHT-NAME [LIGHT-NAME ...]]
+                          [--no-restore-lights] [-t DECISECONDS]
+                          [-s DECISECONDS] [-fs] [-p] [-np] [-c {dim,bright}]
+
+Blink out a series of color-coded digits representing elapsed time.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         output extra informational messages (and debug
+                        messages if specified more than once)
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  --no-restore-lights   do not return lights to their original state on exit
+  -t DECISECONDS, --cycle-time DECISECONDS
+                        cycle time in tenths of a second (default: 10)
+  -s DECISECONDS, --switch-time DECISECONDS
+                        If there are more digits to transmit than lights,
+                        display the "blank" color on all lights for
+                        DECISECONDS tenths of a second before each digit flash
+                        (default: 2 . 0 makes it as short as possible; -1
+                        disables it entirely.
+  -fs, --force-switch-time
+                        always use a switch time after the digit flash, even
+                        if there are enough lights to display all digits at
+                        once
+  -p, --pad             always reset all lights to the "blank" color when the
+                        sequence finishes, instead of only when there are more
+                        digits than lights to transmit
+  -np, --no-pad         never reset lights to the "blank" color when the
+                        sequence finishes
+  -c {dim,bright}, --scheme {dim,bright}
+                        use the chosen color scheme
+
+Lights will be sequenced in the order specified.
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
+=== lightctl.py
+
+A simple command-line tool for controlling lights
+
+----
+usage: lightctl.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                   [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                   [-ln LIGHT-NAME [LIGHT-NAME ...]] [-n] [-f] [-o] [-b BRI]
+                   [-u HUE] [-s SAT] [-x X Y] [-c MIREDS] [-k KELVIN] [-i BRI]
+                   [-t DECISECONDS]
+
+Command-line utility to control Hue lights
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         output extra informational messages (and debug
+                        messages if specified more than once)
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  -n, --on              turn lights on
+  -f, --off             turn lights off
+  -o, --toggle          toggle lights on or off
+  -b BRI, --brightness BRI
+                        set brightness (1 to 254)
+  -u HUE, --hue HUE     set hue (0 to 65535)
+  -s SAT, --saturation SAT
+                        set saturation (0 to 254)
+  -x X Y, --xy X Y      set X, Y color coordinates (fractional value from 0.0
+                        to 1.0)
+  -c MIREDS, --ct MIREDS, --color-temp MIREDS
+                        set color temperature in mireds/mireks
+  -k KELVIN, --kelvin KELVIN
+                        set color temperature in Kelvin
+  -i BRI, --incandescent BRI
+                        set brightness to BRI and set lamp color to simulate
+                        an incandescent bulb dimmed to that brightness level
+  -t DECISECONDS, --transition-time DECISECONDS
+                        use a transition time of DECISECONDS tenths of a
+                        second
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+Except with the -x/--xy option, numerical arguments may be prefixed
+with a + or - to add or subtract the value from the light's current
+setting instead of setting it directly to that value. Color temperature
+will be limited to Hue's supported range of 153–500 mired or 2000–6535
+Kelvin if such relative inputs are used, though setting absolute values
+outside this range are allowed and will be simulated if necessary.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
+=== lightctl_curses.py
+
+A simple curses-based terminal tool for controlling lights
+
+----
+usage: lightctl_curses.py [-h] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                          [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                          [-ln LIGHT-NAME [LIGHT-NAME ...]] [-a]
+                          [-t DECISECONDS]
+
+A simple curses utility to control Hue lights
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  -a, --auto-refresh-mode
+                        start in auto-refresh mode
+  -t DECISECONDS, --auto-refresh-interval DECISECONDS
+                        time in tenths of a second between auto-refresh
+                        updates (default: 10)
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
+=== power_fail_restore.py
+
+A monitor program that tries to restore the state of lights after they lose power
+
+----
+usage: power_fail_restore.py [-h] [-v] [-B BRIDGE_ADDRESS]
+                             [-Bu BRIDGE_USERNAME] [-Bc BRIDGE_CONFIG]
+                             [-l LIGHT-NUM [LIGHT-NUM ...]]
+                             [-ln LIGHT-NAME [LIGHT-NAME ...]]
+                             [-t MONITOR_TIME] [-i]
+
+A program that tries to keep track of light state and automatically
+restore it when lights return to their default power-on state due to
+power interruption
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         output extra informational messages (and debug
+                        messages if specified more than once)
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  -t MONITOR_TIME, --monitor-time MONITOR_TIME
+                        interval to poll for light state in seconds (default:
+                        60)
+  -i, --individual-mode
+                        restore lights individually when reset, rather than
+                        restoring only all lights as a group when they all are
+                        in initial power-up state
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
+=== incandescent_fade.py
+
+A program that fades lights up or down with a tungsten-like appearance, simulating the color shift of a dimmed incandescent bulb
+
+----
+usage: incandescent_fade.py [-h] [-v] [-B BRIDGE_ADDRESS]
+                            [-Bu BRIDGE_USERNAME] [-Bc BRIDGE_CONFIG]
+                            [-l LIGHT-NUM [LIGHT-NUM ...]]
+                            [-ln LIGHT-NAME [LIGHT-NAME ...]]
+                            [--restore-lights]
+                            start_brightness final_brightness fade_time
+
+Simulate an incandescent dimmer fade
+
+positional arguments:
+  start_brightness      the starting brightness level (1–254); 0 is off
+  final_brightness      the ending brightness level (1–254); 0 is off
+  fade_time             number of seconds to perform the fade
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         output extra informational messages (and debug
+                        messages if specified more than once)
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  --restore-lights      return lights to their original state on exit
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
+=== alt_lamp_simulation.py
+
+Roughly simulates the power-on behavior of certain non-LED lights.
+
+----
+usage: alt_lamp_simulation.py [-h] [-v] [-B BRIDGE_ADDRESS]
+                              [-Bu BRIDGE_USERNAME] [-Bc BRIDGE_CONFIG]
+                              [-l LIGHT-NUM [LIGHT-NUM ...]]
+                              [-ln LIGHT-NAME [LIGHT-NAME ...]]
+                              [--restore-lights]
+                              [-m {cfl_2700k,cfl_3500k,sbm}]
+                              [-w {deep,shallow,random}] [-t TIME_RATE]
+
+Simulate certain types of non-LED lamps with their power-on warm-up
+behaviors
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         output extra informational messages (and debug
+                        messages if specified more than once)
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  --restore-lights      return lights to their original state on exit
+  -m {cfl_2700k,cfl_3500k,sbm}, --model {cfl_2700k,cfl_3500k,sbm}
+                        light model to simulate; if specified multiple times,
+                        a randomly-chosen model out of the ones specified will
+                        be selected for each light
+  -w {deep,shallow,random}, --warmup-type {deep,shallow,random}
+                        variation of warmup to simulate; only applies to CFL
+                        simulation models (default: random)
+  -t TIME_RATE, --time-rate TIME_RATE
+                        time rate of simulation (e.g., 2 = double speed, 0.5 =
+                        half speed) (default: 1.0)
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
+== License and disclaimer
+
+The programs in this repository are released under the terms of the GNU General Public License; see the LICENSE.txt file for details and author information.
+This software comes with ABSOLUTELY NO WARRANTY, express or implied.
