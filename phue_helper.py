@@ -265,7 +265,7 @@ class ExtendedBridge(Bridge):
         return result
 
     @staticmethod
-    def normalize_light_state(state):
+    def normalized_light_state(state):
         """Return a canonocalized copy of a light state dictionary (e.g., from
         phue.Bridge.get_light()) so that it can be safely passed to
         phue.Bridge.set_light()'s parameter list to restore the light to its
@@ -352,7 +352,7 @@ class ExtendedBridge(Bridge):
                             " light's state was not known", light)
             else:
                 results = self.set_light(
-                    light, self.normalize_light_state(light_state),
+                    light, self.normalized_light_state(light_state),
                     transitiontime=transitiontime)
                 for result in results[0]:
                     if ('error' in result and

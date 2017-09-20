@@ -51,7 +51,7 @@ class ChasingColorsProgram(FadingColorsProgram):
             for light in self.lights:
                 orig_state = light_state[light]
                 self.bridge.set_light_optimized(
-                    light, self.bridge.normalize_light_state(new_state),
+                    light, self.bridge.normalized_light_state(new_state),
                     transitiontime=0)
                 light_state[light] = new_state
                 new_state = orig_state
