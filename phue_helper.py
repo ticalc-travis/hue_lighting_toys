@@ -293,6 +293,21 @@ class ExtendedBridge(Bridge):
         return new_state
 
     @staticmethod
+    def sanitized_light_state(state):
+        """Return a version of light state 'state' (e.g., from self.get_light())
+        that has parameters normalized to values within valid ranges
+        """
+        state = state.copy()
+        for key in MIN:
+            if key in state:
+                value = state[key]
+                if key == 'xy':
+                    state[key] = [min(max(MIN[key], x), MAX[key]) for x in state[key]]
+                else:
+                    state[key] = min(max(MIN[key], value), MAX[key])
+        return state
+
+    @staticmethod
     def light_state_is_default(state):
         """Return whether the given light state dictionary contains parameters
         that match the Hue lamps' power-on defaults.

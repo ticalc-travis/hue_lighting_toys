@@ -491,7 +491,10 @@ class LightControlProgram(BaseProgram):
 
         # Update input fields
         if update_fields_ok:
-            light_state = self.curr_light['state']
+            # Sanitize input from bridge in case it happens to be insane
+            # (it happened to me once!)
+            light_state = self.bridge.sanitized_light_state(self.curr_light['state'])
+
             for field_name in ('bri', 'hue', 'sat', 'ct'):
                 self.fields[field_name].value = light_state[field_name]
             self.fields['x'].value, self.fields['y'].value = light_state['xy']
