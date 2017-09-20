@@ -49,6 +49,9 @@ MIN_BRIDGE_CMD_INTERVAL = .3
 #13
 #14 Next light    Previous light        Quit
 #15 Refresh now   Auto-refresh [Off]
+#16
+#17 Left, Right, Tab, Backtab:  Move cursor
+#18 Up, Down, 0-9:  Change value
 #  012345678901234567890123456789012345678901234567890123456790
 #  0         1         2         3         4         5        6
 
@@ -65,6 +68,8 @@ LABELS = [
     ('ext_ct_mode', 10, 1),
     ('ext_inc_mode', 11, 1),
     ('auto-refresh', 15, 29),
+    ('key_help_1', 17, 1),
+    ('key_help_2', 18, 1),
 ]
 
 HOTKEYS = [
@@ -83,9 +88,12 @@ HOTKEYS = [
     ('main', 'next', '&Next light', 14, 1),
     ('main', 'prev', '&Previous light', 14, 15),
     ('main', 'quit', '&Quit', 14, 37),
-    ('main', 'refresh', '&Refresh', 15, 1),
+    ('main', 'refresh', '&Refresh now', 15, 1),
     ('main', 'toggle-auto-refresh', '&Auto-refresh', 15, 15),
 ]
+
+KEY_HELP_1 = 'Left, Right, Tab, Backtab:  Move cursor'
+KEY_HELP_2 = 'Up, Down, 0-9:  Change value'
 
 OTHER_KEYS = [
     # key, action
@@ -686,6 +694,10 @@ class LightControlProgram(BaseProgram):
                 self._paint_mode_indicator(row, col, 'ext_inc', 'Ext. Inc.')
             elif role == 'auto-refresh':
                 self._paint_on_indicator(row, col, self.auto_refresh_mode)
+            elif role == 'key_help_1':
+                self.screen.addstr(row, col, KEY_HELP_1)
+            elif role == 'key_help_2':
+                self.screen.addstr(row, col, KEY_HELP_2)
             else:
                 assert False, 'Undefined window label role'
 
