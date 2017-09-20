@@ -31,21 +31,26 @@ MIN_BRIDGE_CMD_INTERVAL = .3
 
 
 # Display layout:
-
-# ID ##           Light name
-#                 === Unreachable ===
-#
-#                 Power       [On ]      Brightness:   ###
-#
-# > H/S           Hue:        #####      Saturation:   ###
-#   XY            X:         #.####      Y:         #.####
-#   CT            Mired:        ###      Kelvin:      ####
-#
-#   Ext. CT       Mired:    #######      Kelvin: #########
-#   Ext. inc.     Incandescent: ###
-#
-# Next light    Previous light        Quit
-# Refresh now   Auto-refresh [Off]
+#  0         1         2         3         4         5        6
+#  012345678901234567890123456789012345678901234567890123456790
+# 0
+# 1 ID ##           Light name
+# 2                 === Unreachable ===
+# 3
+# 4                 Power       [On ]      Brightness:   ###
+# 5
+# 6 > H/S           Hue:        #####      Saturation:   ###
+# 7   XY            X:         #.####      Y:         #.####
+# 8   CT            Mired:        ###      Kelvin:      ####
+# 9
+#10   Ext. CT       Mired:    #######      Kelvin: #########
+#11   Ext. inc.     Incandescent: ###
+#12
+#13
+#14 Next light    Previous light        Quit
+#15 Refresh now   Auto-refresh [Off]
+#  012345678901234567890123456789012345678901234567890123456790
+#  0         1         2         3         4         5        6
 
 
 LABELS = [
