@@ -123,10 +123,10 @@ outside this range are allowed and will be simulated if necessary.'''
                 if value is not None:
                     cmd[param] = value
 
-            if cmd:
-                self.bridge.set_light(light, cmd)
-            else:
+            if not cmd or cmd.keys() == {'transitiontime'}:
                 self.opt_parser.error('no action specified')
+            else:
+                self.bridge.set_light(light, cmd)
 
 
 if __name__ == '__main__':
