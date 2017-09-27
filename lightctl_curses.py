@@ -26,7 +26,7 @@ from base import BaseProgram, default_run
 from phue_helper import MIN, MAX, WIDTH, tungsten_cct, iconv_ct
 
 
-MIN_BRIDGE_CMD_INTERVAL = .3
+MIN_BRIDGE_CMD_INTERVAL = .4
 """Minimum allowed time in seconds between light commands sent to Hue bridge"""
 
 
@@ -384,8 +384,7 @@ class BridgeUpdateThread(threading.Thread):
             return False
         else:
             with self.bridge_lock:
-                self.bridge.set_light(
-                    light_id, cmd, transitiontime=int(MIN_BRIDGE_CMD_INTERVAL*10))
+                self.bridge.set_light(light_id, cmd)
             return True
 
     def run(self):
