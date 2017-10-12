@@ -18,8 +18,8 @@
 import random
 import time
 
-from base import (BaseProgram, default_run)
-from fading_colors import FadingColorsProgram
+from hue_toys.base import (BaseProgram, default_run)
+from hue_toys.fading_colors import FadingColorsProgram
 
 
 class ChasingColorsProgram(FadingColorsProgram):
@@ -58,5 +58,5 @@ class ChasingColorsProgram(FadingColorsProgram):
             time.sleep(self.opts.cycle_time / 10)
 
 
-if __name__ == '__main__':
+def main():
     default_run(ChasingColorsProgram)

@@ -18,8 +18,8 @@
 import random
 import time
 
-from base import (BaseProgram, default_run)
-from phue_helper import MIN, MAX
+from hue_toys.base import (BaseProgram, default_run)
+from hue_toys.phue_helper import MIN, MAX
 
 
 class FadingColorsProgram(BaseProgram):
@@ -97,5 +97,5 @@ class FadingColorsProgram(BaseProgram):
             time.sleep(self.opts.cycle_time / 10)
 
 
-if __name__ == '__main__':
+def main():
     default_run(FadingColorsProgram)

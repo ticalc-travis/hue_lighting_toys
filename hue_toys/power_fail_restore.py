@@ -17,7 +17,7 @@
 
 import time
 
-from base import BaseProgram, default_run
+from hue_toys.base import BaseProgram, default_run
 
 
 class PowerLossRestoreProgram(BaseProgram):
@@ -79,5 +79,5 @@ all lights as a group when they all are in initial power-up state''')
                     just_restored.update(self.lights)
 
 
-if __name__ == '__main__':
+def main():
     default_run(PowerLossRestoreProgram)

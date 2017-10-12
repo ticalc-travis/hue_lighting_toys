@@ -18,8 +18,8 @@
 import math
 import time
 
-from base import (BaseProgram, default_run)
-from chasing_colors import ChasingColorsProgram
+from hue_toys.base import (BaseProgram, default_run)
+from hue_toys.chasing_colors import ChasingColorsProgram
 
 
 ## Light parameters used to encode each character/digit ##
@@ -166,5 +166,5 @@ transmit''')
         self.flash_digits(self.opts.digits)
 
 
-if __name__ == '__main__':
+def main():
     default_run(CodedDigitsProgram)

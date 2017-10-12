@@ -17,8 +17,8 @@
 
 from time import time
 
-from base import default_run
-from coded_digits import CodedDigitsProgram
+from hue_toys.base import default_run
+from hue_toys.coded_digits import CodedDigitsProgram
 
 
 class CodedStopwatchProgram(CodedDigitsProgram):
@@ -44,5 +44,5 @@ class CodedStopwatchProgram(CodedDigitsProgram):
             CodedDigitsProgram.flash_digits(self, digits)
 
 
-if __name__ == '__main__':
+def main():
     default_run(CodedStopwatchProgram)

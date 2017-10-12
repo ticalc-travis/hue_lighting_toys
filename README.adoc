@@ -5,7 +5,6 @@ This is a collection of little scripts and tools that I have developed while tin
 “Hue Personal Wireless Lighting” is a trademark of Philips Lighting Holding B.V.
 The author(s) of this software are in no way affiliated with Philips.
 
-
 == Requirements
 
 Currently, everything here assumes the use of white and color ambiance lamps, and may outright fail on anything else.
@@ -13,20 +12,31 @@ I don't even have anything other than the full-color lamps at the moment, so I h
 
 This project requires the https://github.com/studioimaginaire/phue[phue Python library].
 
+== Installation
+
+The package can be installed with pip.
+For instance, with the contents of this repo (where setup.py is located) located at <path/to/package>:
+
+pip install <path/to/package>
+
+Or, for a user-local installation:
+
+pip install --user <path/to/package>
+
 == The programs
 
 This collection includes the following:
 
-=== fading_colors.py
+=== fading_colors
 
 Slowly fades selected lights through randomly-chosen color shades
 
 ----
-usage: fading_colors.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
-                        [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
-                        [-ln LIGHT-NAME [LIGHT-NAME ...]]
-                        [--no-restore-lights] [-t DECISECONDS] [-gh] [-gs]
-                        [-gb] [-hr L H] [-sr L H] [-br L H]
+usage: fading_colors [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                     [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                     [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
+                     [-t DECISECONDS] [-gh] [-gs] [-gb] [-hr L H] [-sr L H]
+                     [-br L H]
 
 Produce a Philips Hue lighting random color fade effect.
 
@@ -70,16 +80,15 @@ press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.
 ----
 
-=== chasing_colors.py
+=== chasing_colors
 
 Flashes randomly-chosen colors across selected lights in a “chasing” effect
 
 ----
-usage: chasing_colors.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
-                         [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
-                         [-ln LIGHT-NAME [LIGHT-NAME ...]]
-                         [--no-restore-lights] [-t DECISECONDS] [-hr L H]
-                         [-sr L H] [-br L H]
+usage: chasing_colors [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                      [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                      [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
+                      [-t DECISECONDS] [-hr L H] [-sr L H] [-br L H]
 
 Produce a Philips Hue lighting random color chasing effect
 
@@ -120,17 +129,17 @@ press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.
 ----
 
-=== coded_digits.py
+=== coded_digits
 
 Encodes an arbitrary sequence of numeric digits as colored light flashes
 
 ----
-usage: coded_digits.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
-                       [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
-                       [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
-                       [-t DECISECONDS] [-s DECISECONDS] [-fs] [-p] [-np]
-                       [-c {dim,bright}]
-                       digits
+usage: coded_digits [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                    [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                    [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
+                    [-t DECISECONDS] [-s DECISECONDS] [-fs] [-p] [-np]
+                    [-c {bright,dim}]
+                    digits
 
 Blink out a series of digits encoded using colors.
 
@@ -169,7 +178,7 @@ optional arguments:
                         digits than lights to transmit
   -np, --no-pad         never reset lights to the "blank" color when the
                         sequence finishes
-  -c {dim,bright}, --scheme {dim,bright}
+  -c {bright,dim}, --scheme {bright,dim}
                         use the chosen color scheme
 
 Lights will be sequenced in the order specified.
@@ -182,16 +191,16 @@ press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.
 ----
 
-=== coded_clock.py
+=== coded_clock
 
 Encodes the time of day as colored light flashes
 
 ----
-usage: coded_clock.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
-                      [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
-                      [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
-                      [-t DECISECONDS] [-s DECISECONDS] [-fs] [-p] [-np]
-                      [-c {bright,dim}]
+usage: coded_clock [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                   [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                   [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
+                   [-t DECISECONDS] [-s DECISECONDS] [-fs] [-p] [-np]
+                   [-c {bright,dim}]
 
 Blink out a series of color-coded digits representing the time of
 day.
@@ -241,16 +250,16 @@ press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.
 ----
 
-=== coded_stopwatch.py
+=== coded_stopwatch
 
 Encodes elapsed time as colored light flashes
 
 ----
-usage: coded_stopwatch.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
-                          [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
-                          [-ln LIGHT-NAME [LIGHT-NAME ...]]
-                          [--no-restore-lights] [-t DECISECONDS]
-                          [-s DECISECONDS] [-fs] [-p] [-np] [-c {dim,bright}]
+usage: coded_stopwatch [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                       [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                       [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
+                       [-t DECISECONDS] [-s DECISECONDS] [-fs] [-p] [-np]
+                       [-c {dim,bright}]
 
 Blink out a series of color-coded digits representing elapsed time.
 
@@ -299,16 +308,16 @@ press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.
 ----
 
-=== lightctl.py
+=== lightctl
 
 A simple command-line tool for controlling lights
 
 ----
-usage: lightctl.py [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
-                   [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
-                   [-ln LIGHT-NAME [LIGHT-NAME ...]] [-n] [-f] [-o] [-b BRI]
-                   [-u HUE] [-s SAT] [-x X Y] [-c MIREDS] [-k KELVIN] [-i BRI]
-                   [-t DECISECONDS]
+usage: lightctl [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                [-ln LIGHT-NAME [LIGHT-NAME ...]] [-n] [-f] [-o] [-b BRI]
+                [-u HUE] [-s SAT] [-x X Y] [-c MIREDS] [-k KELVIN] [-i BRI]
+                [-t DECISECONDS]
 
 Command-line utility to control Hue lights
 
@@ -362,15 +371,14 @@ press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.
 ----
 
-=== lightctl_curses.py
+=== lightctl_curses
 
 A simple curses-based terminal tool for controlling lights
 
 ----
-usage: lightctl_curses.py [-h] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
-                          [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
-                          [-ln LIGHT-NAME [LIGHT-NAME ...]] [-a]
-                          [-t DECISECONDS]
+usage: lightctl_curses [-h] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                       [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                       [-ln LIGHT-NAME [LIGHT-NAME ...]] [-a] [-t DECISECONDS]
 
 A simple curses utility to control Hue lights
 
@@ -400,16 +408,15 @@ press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.
 ----
 
-=== power_fail_restore.py
+=== power_fail_restore
 
 A monitor program that tries to restore the state of lights after they lose power
 
 ----
-usage: power_fail_restore.py [-h] [-v] [-B BRIDGE_ADDRESS]
-                             [-Bu BRIDGE_USERNAME] [-Bc BRIDGE_CONFIG]
-                             [-l LIGHT-NUM [LIGHT-NUM ...]]
-                             [-ln LIGHT-NAME [LIGHT-NAME ...]]
-                             [-t MONITOR_TIME] [-i]
+usage: power_fail_restore [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                          [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                          [-ln LIGHT-NAME [LIGHT-NAME ...]] [-t MONITOR_TIME]
+                          [-i]
 
 A program that tries to keep track of light state and automatically
 restore it when lights return to their default power-on state due to
@@ -445,17 +452,15 @@ press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.
 ----
 
-=== incandescent_fade.py
+=== incandescent_fade
 
 A program that fades lights up or down with a tungsten-like appearance, simulating the color shift of a dimmed incandescent bulb
 
 ----
-usage: incandescent_fade.py [-h] [-v] [-B BRIDGE_ADDRESS]
-                            [-Bu BRIDGE_USERNAME] [-Bc BRIDGE_CONFIG]
-                            [-l LIGHT-NUM [LIGHT-NUM ...]]
-                            [-ln LIGHT-NAME [LIGHT-NAME ...]]
-                            [--restore-lights]
-                            start_brightness final_brightness fade_time
+usage: incandescent_fade [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                         [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                         [-ln LIGHT-NAME [LIGHT-NAME ...]] [--restore-lights]
+                         start_brightness final_brightness fade_time
 
 Simulate an incandescent dimmer fade
 
@@ -488,18 +493,16 @@ press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.
 ----
 
-=== alt_lamp_simulation.py
+=== alt_lamp_simulation
 
 Roughly simulates the power-on behavior of certain non-LED lights.
 
 ----
-usage: alt_lamp_simulation.py [-h] [-v] [-B BRIDGE_ADDRESS]
-                              [-Bu BRIDGE_USERNAME] [-Bc BRIDGE_CONFIG]
-                              [-l LIGHT-NUM [LIGHT-NUM ...]]
-                              [-ln LIGHT-NAME [LIGHT-NAME ...]]
-                              [--restore-lights]
-                              [-m {cfl_2700k,cfl_3500k,sbm}]
-                              [-w {deep,shallow,random}] [-t TIME_RATE]
+usage: alt_lamp_simulation [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                           [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                           [-ln LIGHT-NAME [LIGHT-NAME ...]]
+                           [--restore-lights] [-m {cfl_2700k,cfl_3500k,sbm}]
+                           [-w {deep,shallow,random}] [-t TIME_RATE]
 
 Simulate certain types of non-LED lamps with their power-on warm-up
 behaviors

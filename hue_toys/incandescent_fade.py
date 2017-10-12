@@ -18,8 +18,8 @@
 from math import copysign
 from time import time, sleep
 
-from base import BaseProgram, default_run
-from phue_helper import MIN, MAX
+from hue_toys.base import BaseProgram, default_run
+from hue_toys.phue_helper import MIN, MAX
 
 
 MIN_BRIDGE_CMD_INTERVAL = .3
@@ -93,5 +93,5 @@ class IncandescentFadeProgram(BaseProgram):
                   self.opts.fade_time)
 
 
-if __name__ == '__main__':
+def main():
     default_run(IncandescentFadeProgram)

@@ -26,7 +26,7 @@ import sys
 import textwrap
 from time import sleep
 
-from phue_helper import ExtendedBridge
+from hue_toys.phue_helper import ExtendedBridge
 
 LOG_FORMAT = '%(asctime)s [%(module)s] %(message)s'
 
@@ -333,5 +333,5 @@ def default_run(prog_class):
         sys.exit(signal.SIGINT + 128)    # Terminate quietly on ^C
 
 
-if __name__ == '__main__':
+def main():
     default_run(BaseProgram)

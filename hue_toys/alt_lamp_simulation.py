@@ -19,7 +19,7 @@ from random import choice, randint, normalvariate
 import threading
 import time
 
-from base import (BaseProgram, default_run)
+from hue_toys.base import (BaseProgram, default_run)
 
 
 class LampSimulationProgram(BaseProgram):
@@ -191,5 +191,5 @@ class LampSimulationProgram(BaseProgram):
             thread.join()
 
 
-if __name__ == '__main__':
+def main():
     default_run(LampSimulationProgram)

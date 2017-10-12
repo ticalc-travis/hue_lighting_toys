@@ -22,8 +22,8 @@ import threading
 from time import sleep, time
 import queue
 
-from base import BaseProgram, default_run
-from phue_helper import MIN, MAX, WIDTH, tungsten_cct, iconv_ct
+from hue_toys.base import BaseProgram, default_run
+from hue_toys.phue_helper import MIN, MAX, WIDTH, tungsten_cct, iconv_ct
 
 
 MIN_BRIDGE_CMD_INTERVAL = .4
@@ -944,5 +944,5 @@ class LightControlProgram(BaseProgram):
             self.light_update_queue.put(None)
 
 
-if __name__ == '__main__':
+def main():
     default_run(LightControlProgram)

@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from base import (BaseProgram, default_run)
-from phue_helper import MIN, MAX, iconv_ct
+from hue_toys.base import (BaseProgram, default_run)
+from hue_toys.phue_helper import MIN, MAX, iconv_ct
 
 class LightControlProgram(BaseProgram):
     """Command-line utility to control Hue lights"""
@@ -129,5 +129,5 @@ outside this range are allowed and will be simulated if necessary.'''
                 self.bridge.set_light(light, cmd)
 
 
-if __name__ == '__main__':
+def main():
     default_run(LightControlProgram)
