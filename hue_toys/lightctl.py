@@ -15,8 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 from hue_toys.base import (BaseProgram, default_run)
-from hue_toys.phue_helper import MIN, MAX, iconv_ct
+from hue_toys.phue_helper import DEFAULT_TRANSITION_TIME, MIN, MAX, iconv_ct
+
+
+TRANSITION_OVERHEAD = .4
+"""An extra delay to add when waiting for transition time to complete in
+order to roughly compensate for light command execution delays
+"""
+
 
 class LightControlProgram(BaseProgram):
     """Command-line utility to control Hue lights"""
@@ -92,6 +101,11 @@ outside this range are allowed and will be simulated if necessary.'''
             dest='transitiontime', type=int, metavar='DECISECONDS',
             help='use a transition time of %(metavar)s tenths of a second')
 
+        self.opt_parser.add_argument(
+            '-w', '--wait',
+            action='store_true',
+            help='wait for the transition time to elapse before exiting')
+
     def handle_relative(self, light_id, param, value):
         """Take a relative value to change light parameter param by and return
         the effective absolute value that that parameter should be set
@@ -127,6 +141,13 @@ outside this range are allowed and will be simulated if necessary.'''
                 self.opt_parser.error('no action specified')
             else:
                 self.bridge.set_light(light, cmd)
+
+        if self.opts.wait:
+            if self.opts.transitiontime is None:
+                transition_time = DEFAULT_TRANSITION_TIME
+            else:
+                transition_time = self.opts.transitiontime
+            time.sleep(transition_time/10 + TRANSITION_OVERHEAD)
 
 
 def main():

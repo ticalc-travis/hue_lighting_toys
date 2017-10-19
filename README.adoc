@@ -317,7 +317,7 @@ usage: lightctl [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
                 [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
                 [-ln LIGHT-NAME [LIGHT-NAME ...]] [-n] [-f] [-o] [-b BRI]
                 [-u HUE] [-s SAT] [-x X Y] [-c MIREDS] [-k KELVIN] [-i BRI]
-                [-t DECISECONDS]
+                [-t DECISECONDS] [-w]
 
 Command-line utility to control Hue lights
 
@@ -355,6 +355,7 @@ optional arguments:
   -t DECISECONDS, --transition-time DECISECONDS
                         use a transition time of DECISECONDS tenths of a
                         second
+  -w, --wait            wait for the transition time to elapse before exiting
 
 If no lights are specified, all lights found on the bridge will be
 used.

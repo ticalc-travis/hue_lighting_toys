@@ -39,6 +39,9 @@ WIDTH = {'bri': (3, 0), 'hue': (5, 0), 'sat': (3, 0), 'xy': (1, 4), 'ct': (3, 0)
 integer part digits, number of fractional part digits)
 """
 
+DEFAULT_TRANSITION_TIME = 4
+"""Transition time used by bridge for lights if one is not specified"""
+
 
 logger = logging.getLogger(__name__)
 
