@@ -259,7 +259,7 @@ usage: coded_stopwatch [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
                        [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
                        [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
                        [-t DECISECONDS] [-s DECISECONDS] [-fs] [-p] [-np]
-                       [-c {dim,bright}]
+                       [-c {bright,dim}]
 
 Blink out a series of color-coded digits representing elapsed time.
 
@@ -295,7 +295,7 @@ optional arguments:
                         digits than lights to transmit
   -np, --no-pad         never reset lights to the "blank" color when the
                         sequence finishes
-  -c {dim,bright}, --scheme {dim,bright}
+  -c {bright,dim}, --scheme {bright,dim}
                         use the chosen color scheme
 
 Lights will be sequenced in the order specified.

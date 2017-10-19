@@ -103,7 +103,7 @@ transmit''')
             help='never reset lights to the "blank" color when the sequence finishes')
         self.opt_parser.add_argument(
             '-c', '--scheme',
-            dest='scheme', type=str, choices=DIGITS.keys(), default=DIGITS_DEFAULT,
+            dest='scheme', type=str, choices=sorted(DIGITS.keys()), default=DIGITS_DEFAULT,
             help='use the chosen color scheme')
 
     def add_opts(self):
