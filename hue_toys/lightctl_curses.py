@@ -467,7 +467,7 @@ class LightControlProgram(BaseProgram):
 
     def refresh_light(self, soft=False):
         """Refetch current light's data, update all fields, and repaint the
-        UI. If soft, also check the colormode and change the active
+        UI. If not soft, also check the colormode and change the active
         field group (which may move the cursor) as well as repopulate
         the extended parameters that aren't tracked by the bridge
         """
