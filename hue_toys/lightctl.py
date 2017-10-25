@@ -18,12 +18,14 @@
 import time
 
 from hue_toys.base import (BaseProgram, default_run)
-from hue_toys.phue_helper import DEFAULT_TRANSITION_TIME, MIN, MAX, iconv_ct
+from hue_toys.phue_helper import (
+    DEFAULT_TRANSITION_TIME, MIN, MAX, iconv_ct, decisleep)
 
 
-TRANSITION_OVERHEAD = .4
-"""An extra delay to add when waiting for transition time to complete in
-order to roughly compensate for light command execution delays
+TRANSITION_OVERHEAD = 4
+"""An extra delay, in deciseconds, to add when waiting for transition
+time to complete in order to roughly compensate for light command
+execution delays
 """
 
 
@@ -147,7 +149,7 @@ outside this range are allowed and will be simulated if necessary.'''
                 transition_time = DEFAULT_TRANSITION_TIME
             else:
                 transition_time = self.opts.transitiontime
-            time.sleep(transition_time/10 + TRANSITION_OVERHEAD)
+            decisleep(transition_time + TRANSITION_OVERHEAD)
 
 
 def main():

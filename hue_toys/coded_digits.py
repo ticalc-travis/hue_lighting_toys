@@ -20,6 +20,7 @@ import time
 
 from hue_toys.base import (BaseProgram, default_run)
 from hue_toys.chasing_colors import ChasingColorsProgram
+from hue_toys.phue_helper import decisleep
 
 
 ## Light parameters used to encode each character/digit ##
@@ -145,7 +146,7 @@ transmit''')
                     digit_group == last_digit_group):
                 self.bridge.set_light_optimized(
                     self.lights, digit_cmds[None], transitiontime=0)
-                time.sleep(self.opts.switch_time / 10)
+                decisleep(self.opts.switch_time)
 
             # Now flash the actual digits
             for digit, light in zip(digit_group, self.lights):
@@ -153,13 +154,13 @@ transmit''')
                 self.bridge.set_light_optimized(
                     light, cmd, transitiontime=0)
             last_digit_group = digit_group
-            time.sleep(self.opts.cycle_time / 10)
+            decisleep(self.opts.cycle_time)
 
         # Now, handle the final pad flash if this is turned on
         if use_padding:
             self.bridge.set_light_optimized(
                 self.lights, digit_cmds[None], transitiontime=0)
-            time.sleep(self.opts.cycle_time / 10)
+            decisleep(self.opts.cycle_time)
 
     def main(self):
         """Call self.flash_digits with digit string given on command line"""

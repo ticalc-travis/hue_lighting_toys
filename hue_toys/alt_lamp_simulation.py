@@ -20,6 +20,7 @@ import threading
 import time
 
 from hue_toys.base import (BaseProgram, default_run)
+from hue_toys.phue_helper import decisleep
 
 
 class LampSimulationProgram(BaseProgram):
@@ -71,7 +72,7 @@ class LampSimulationProgram(BaseProgram):
             stage['transitiontime'] = real_trans_time
             with self.bridge_lock:
                 self.bridge.set_light(light_id, stage)
-            time.sleep(real_trans_time / 10)
+            decisleep(real_trans_time)
 
     def simulate_2700k(self, light_id):
         """Run a 2700K CFL simulation using the given light_id"""

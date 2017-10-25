@@ -19,7 +19,7 @@ import random
 import time
 
 from hue_toys.base import (BaseProgram, default_run)
-from hue_toys.phue_helper import MIN, MAX
+from hue_toys.phue_helper import MIN, MAX, decisleep
 
 
 class FadingColorsProgram(BaseProgram):
@@ -94,7 +94,7 @@ class FadingColorsProgram(BaseProgram):
                     sat = random.randint(*self.opts.sat_range)
                 if not self.opts.group_bri:
                     bri = random.randint(*self.opts.bri_range)
-            time.sleep(self.opts.cycle_time / 10)
+            decisleep(self.opts.cycle_time)
 
 
 def main():

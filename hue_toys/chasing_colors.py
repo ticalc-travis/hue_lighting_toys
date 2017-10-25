@@ -20,6 +20,7 @@ import time
 
 from hue_toys.base import (BaseProgram, default_run)
 from hue_toys.fading_colors import FadingColorsProgram
+from hue_toys.phue_helper import decisleep
 
 
 class ChasingColorsProgram(FadingColorsProgram):
@@ -55,7 +56,7 @@ class ChasingColorsProgram(FadingColorsProgram):
                     transitiontime=0)
                 light_state[light] = new_state
                 new_state = orig_state
-            time.sleep(self.opts.cycle_time / 10)
+            decisleep(self.opts.cycle_time)
 
 
 def main():

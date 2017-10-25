@@ -19,7 +19,7 @@ from https://github.com/studioimaginaire/phue
 
 from collections import defaultdict
 import logging
-from time import sleep
+import time
 
 # https://github.com/studioimaginaire/phue
 from phue import Bridge, is_string
@@ -40,7 +40,9 @@ integer part digits, number of fractional part digits)
 """
 
 DEFAULT_TRANSITION_TIME = 4
-"""Transition time used by bridge for lights if one is not specified"""
+"""Transition time, in deciseconds, used by bridge for lights if one is
+not specified
+"""
 
 
 logger = logging.getLogger(__name__)
@@ -85,9 +87,27 @@ def conv_ct(color_temp):
     """Convert color_temp from mired to Kelvin or vice-versa."""
     return 1000000 / color_temp
 
+
 def iconv_ct(color_temp):
     """Convert color_temp from mired to Kelvin and truncate to int."""
     return int(conv_ct(color_temp))
+
+
+def decisleep(deciseconds):
+    """Sleep for the given number of deciseconds (seconds/10) using a
+    monotonic clock source unaffected by process suspension (e.g.,
+    SIGSTOP). time.sleep() would sleep for the given time *plus* the
+    total time the process spendt suspended. This routine instead counts
+    the time suspended toward the sleep interval, so that if the process
+    is suspended briefly and then resumed, it will still sleep for close
+    to the expected real time (or resume immediately upon receiving
+    SIGCONT, if it remained suspended past the time the sleep call was
+    due to end). Sleep precision is within 0.1 second.
+    """
+    start_time = time.monotonic()
+    end_time = start_time + deciseconds/10
+    while time.monotonic() < end_time:
+        time.sleep(.05)
 
 
 class BridgeError(Exception):
@@ -391,7 +411,7 @@ class ExtendedBridge(Bridge):
                 self.restore_light_states(light_ids, state, transitiontime)
             except BridgeInternalError:
                 logger.warning('Bridge command failure; retrying light state restore…')
-                sleep(retry_wait)
+                time.sleep(retry_wait)
             else:
                 break
         else:
