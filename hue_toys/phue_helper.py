@@ -96,13 +96,14 @@ def iconv_ct(color_temp):
 def decisleep(deciseconds):
     """Sleep for the given number of deciseconds (seconds/10) using a
     monotonic clock source unaffected by process suspension (e.g.,
-    SIGSTOP). time.sleep() would sleep for the given time *plus* the
-    total time the process spendt suspended. This routine instead counts
-    the time suspended toward the sleep interval, so that if the process
-    is suspended briefly and then resumed, it will still sleep for close
-    to the expected real time (or resume immediately upon receiving
-    SIGCONT, if it remained suspended past the time the sleep call was
-    due to end). Sleep precision is within 0.1 second.
+    SIGSTOP). time.sleep() (in CPython, at least) would sleep for the
+    given time *plus* the total time the process spent suspended. This
+    routine instead counts the time suspended toward the sleep interval,
+    so that if the process is suspended briefly and then resumed, it
+    will still sleep for close to the expected real time (or resume
+    immediately upon receiving SIGCONT, if it remained suspended past
+    the time the sleep was due to end). Sleep precision is within 0.1
+    second.
     """
     start_time = time.monotonic()
     end_time = start_time + deciseconds/10
