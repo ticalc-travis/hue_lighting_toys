@@ -129,6 +129,64 @@ press the button on the bridge before running the script so that it can
 be registered to access the bridge and lighting system.
 ----
 
+=== flashing_colors
+
+Flashes randomly-chosen colors across selected lights with random time intervals
+
+----
+usage: flashing_colors [-h] [-v] [-B BRIDGE_ADDRESS] [-Bu BRIDGE_USERNAME]
+                       [-Bc BRIDGE_CONFIG] [-l LIGHT-NUM [LIGHT-NUM ...]]
+                       [-ln LIGHT-NAME [LIGHT-NAME ...]] [--no-restore-lights]
+                       [-hr L H] [-sr L H] [-br L H] [-na DECISECONDS]
+                       [-ns DECISECONDS] [-fa DECISECONDS] [-fs DECISECONDS]
+
+Flash lights on and off with different colors
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         output extra informational messages (and debug
+                        messages if specified more than once)
+  -B BRIDGE_ADDRESS, --bridge BRIDGE_ADDRESS
+                        Hue bridge IP or hostname
+  -Bu BRIDGE_USERNAME, --bridge-username BRIDGE_USERNAME
+                        Hue bridge username
+  -Bc BRIDGE_CONFIG, --bridge-config BRIDGE_CONFIG
+                        path of config file for bridge connection parameters
+  -l LIGHT-NUM [LIGHT-NUM ...], --light-id LIGHT-NUM [LIGHT-NUM ...]
+                        use light(s) with ID number LIGHT-NUM
+  -ln LIGHT-NAME [LIGHT-NAME ...], --light-name LIGHT-NAME [LIGHT-NAME ...]
+                        use light(s) named LIGHT-NAME
+  --no-restore-lights   do not return lights to their original state on exit
+  -hr L H, --hue-range L H
+                        restrict the generated hue range (0 to 65535) from L
+                        to H
+  -sr L H, --saturation-range L H
+                        restrict the generated saturation range (0 to 254)
+                        from L to H
+  -br L H, --brightness-range L H
+                        restrict the generated saturation range (1 to 254)
+                        from L to H
+  -na DECISECONDS, --on-time-avg DECISECONDS
+                        average “on” time per flash in tenths of a second
+                        (default: 8)
+  -ns DECISECONDS, --on-time-sd DECISECONDS
+                        standard deviation of “on” time per flash in tenths of
+                        a second (default: 3)
+  -fa DECISECONDS, --off-time-avg DECISECONDS
+                        average “off” time per flash in tenths of a second
+                        (default: 13)
+  -fs DECISECONDS, --off-time-sd DECISECONDS
+                        standard deviation of “off” time per flash in tenths
+                        of a second (default: 6)
+
+If no lights are specified, all lights found on the bridge will be
+used.
+
+The first time this script is run on a system, it may be necessary to
+press the button on the bridge before running the script so that it can
+be registered to access the bridge and lighting system.
+----
+
 === coded_digits
 
 Encodes an arbitrary sequence of numeric digits as colored light flashes

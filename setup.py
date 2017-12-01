@@ -51,6 +51,7 @@ setup(
             'coded_digits=hue_toys.coded_digits:main',
             'coded_stopwatch=hue_toys.coded_stopwatch:main',
             'fading_colors=hue_toys.fading_colors:main',
+            'flashing_colors=hue_toys.flashing_colors:main',
             'incandescent_fade=hue_toys.incandescent_fade:main',
             'lightctl=hue_toys.lightctl:main',
             'lightctl_curses=hue_toys.lightctl_curses:main',
