@@ -22,7 +22,7 @@ import logging
 import time
 
 # https://github.com/studioimaginaire/phue
-from phue import Bridge, is_string
+from phue import Bridge, is_string, PhueRequestTimeout
 
 
 MIN = {'bri': 1, 'hue': 0, 'sat': 0, 'xy': 0.0, 'ct': 153, 'ctk': 2000,
@@ -44,6 +44,10 @@ DEFAULT_TRANSITION_TIME = 4
 not specified
 """
 
+DEFAULT_BRIDGE_RETRIES = 18
+DEFAULT_BRIDGE_RETRY_WAIT = 10
+"""Default values of 'retries' and 'retry_wait' arguments to
+ExtendedBridge.__init__"""
 
 logger = logging.getLogger(__name__)
 
@@ -126,9 +130,20 @@ class BridgeInternalError(BridgeError):
 class ExtendedBridge(Bridge):
     """A phue Bridge object with some extra enhancements and bug
     workarounds
+
+    Additional keyword arguments:
+
+    retries: Number of times to retry if bridge connection error
+    occurs (0 means do not retry)
+
+    retry_wait: Number of seconds to wait between retries if bridge
+    connection error occurs
     """
     def __init__(self, *args, **kwargs):
+        self.retries = kwargs.pop('retries', DEFAULT_BRIDGE_RETRIES)
+        self.retry_wait = kwargs.pop('retry_wait', DEFAULT_BRIDGE_RETRY_WAIT)
         Bridge.__init__(self, *args, **kwargs)
+
         self._cached_light_state = defaultdict(dict)
 
     def __contains__(self, key):
@@ -178,6 +193,26 @@ class ExtendedBridge(Bridge):
         self._set_light_translate_extensions(params)
 
         return (light_id_seq, params)
+
+    def request(self, *args, **kwargs):
+        """A wrapper around phue.Bridge().request that automatically retries
+        operations in case of bridge communication failure, instead of
+        immediately throwing an exception.
+        """
+        curr_retries = 0
+        while True:
+            try:
+                return Bridge.request(self, *args, **kwargs)
+            except (ConnectionError, PhueRequestTimeout) as e:
+                logger.warning('Bridge connection error: %s', e)
+                if curr_retries >= self.retries:
+                    logger.error('Retry limit exceeded; giving up')
+                    raise e
+                else:
+                    logger.warning('Retry %d/%d in %ss', curr_retries + 1,
+                                   self.retries, self.retry_wait)
+                    time.sleep(self.retry_wait)
+                    curr_retries += 1
 
     def set_light(self, light_id, parameter, value=None,
                   transitiontime=None):
@@ -376,8 +411,7 @@ class ExtendedBridge(Bridge):
                                 light)
         return state
 
-    def restore_light_states(self, light_ids, state,
-                             transitiontime=4):
+    def restore_light_states(self, light_ids, state, transitiontime=4):
         """Set the state of all lights represented in the sequence of light IDs
         to that specified in the state dict (such as that returned by
         self.collect_light_states). transitiontime is the light state
@@ -397,26 +431,6 @@ class ExtendedBridge(Bridge):
                     if ('error' in result and
                             result['error']['type'] == 901):
                         raise BridgeInternalError
-
-    def restore_light_states_retry(
-            self, max_retries, retry_wait, light_ids, state,
-            transitiontime=4):
-        """Try to call restore_light_states; if bridge returns a temporary
-        error, try again up to max_retries times, waiting retry_wait
-        seconds between each try
-        """
-
-        # Make at least one attempt (retries + 1)
-        for _ in range(max(max_retries + 1, 1)):
-            try:
-                self.restore_light_states(light_ids, state, transitiontime)
-            except BridgeInternalError:
-                logger.warning('Bridge command failure; retrying light state restore…')
-                time.sleep(retry_wait)
-            else:
-                break
-        else:
-            logger.warning('Retry limit exceeded; giving up')
 
     def light_is_in_default_state(self, light_id):
         """Return whether the given light with ID or name light_id is currently

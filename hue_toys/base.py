@@ -316,8 +316,7 @@ used.'''
             self.main()
         finally:
             if do_restore:
-                self.bridge.restore_light_states_retry(
-                    self.bridge_retries, self.bridge_retry_wait,
+                self.bridge.restore_light_states(
                     self.lights, light_state, transitiontime=0)
 
 
