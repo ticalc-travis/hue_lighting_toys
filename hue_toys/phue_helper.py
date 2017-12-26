@@ -335,6 +335,11 @@ class ExtendedBridge(Bridge):
         """
         new_state = state.copy()
 
+        # Apparently a new and undocumented attribute 'mode' recently
+        # appeared which the bridge doesn't like to modify. So ignore it
+        # for now (at least until it's known what it's for)
+        new_state.pop('mode', None)
+
         if 'colormode' in state:
             if state['colormode'] == 'hs':
                 for k in ('ct', 'xy'):
