@@ -19,6 +19,7 @@ from https://github.com/studioimaginaire/phue
 
 from collections import defaultdict
 import logging
+import random
 import time
 
 # https://github.com/studioimaginaire/phue
@@ -113,6 +114,20 @@ def decisleep(deciseconds):
     end_time = start_time + deciseconds/10
     while time.monotonic() < end_time:
         time.sleep(.05)
+
+
+def random_hue():
+    """Generate a random light hue parameter value (0-65535), roughly
+    weighted so that the result has an equal probability of being chosen
+    within a particular named spectral color: red, orange, yellow,
+    green, cyan, blue, purple, or magenta
+    """
+    hue_buckets = [62000-65536, 2000, 6000, 11000, 34000, 44000, 48000, 50000, 62000]
+    bucket_idx = random.randint(1, len(hue_buckets) - 1) - 1
+    low = hue_buckets[bucket_idx]
+    high = hue_buckets[bucket_idx + 1] - 1
+    hue_value = random.randint(low, high) % 65536
+    return hue_value
 
 
 class BridgeError(Exception):
