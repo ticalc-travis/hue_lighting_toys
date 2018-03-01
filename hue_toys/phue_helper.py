@@ -44,7 +44,7 @@ DEFAULT_TRANSITION_TIME = 4
 not specified
 """
 
-DEFAULT_BRIDGE_RETRIES = 18
+DEFAULT_BRIDGE_RETRIES = 8640
 DEFAULT_BRIDGE_RETRY_WAIT = 10
 """Default values of 'retries' and 'retry_wait' arguments to
 ExtendedBridge.__init__"""
@@ -203,7 +203,7 @@ class ExtendedBridge(Bridge):
         while True:
             try:
                 return Bridge.request(self, *args, **kwargs)
-            except (ConnectionError, PhueRequestTimeout) as e:
+            except (ConnectionError, OSError, PhueRequestTimeout) as e:
                 logger.warning('Bridge connection error: %s', e)
                 if curr_retries >= self.retries:
                     logger.error('Retry limit exceeded; giving up')
