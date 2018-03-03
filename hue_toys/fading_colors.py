@@ -19,7 +19,7 @@ import random
 import time
 
 from hue_toys.base import (BaseProgram, default_run)
-from hue_toys.phue_helper import MIN, MAX, decisleep
+from hue_toys.phue_helper import MIN, MAX, decisleep, random_hue
 
 
 class FadingColorsProgram(BaseProgram):
@@ -27,7 +27,11 @@ class FadingColorsProgram(BaseProgram):
 
     def add_range_parse_opts(self):
         """Append hue/saturation/brightness range options to parser"""
-        self.opt_parser.add_argument(
+        hue_group = self.opt_parser.add_mutually_exclusive_group()
+        hue_group.add_argument(
+            '-r', '--normalized-random-hue', action='store_true',
+            help='use alternate algorithm for selecting random hues more "evenly"')
+        hue_group.add_argument(
             '-hr', '--hue-range',
             dest='hue_range', nargs=2,
             type=self.int_within_range(MIN['hue'], MAX['hue']), metavar=('L', 'H'),
@@ -57,6 +61,12 @@ class FadingColorsProgram(BaseProgram):
             metavar='DECISECONDS', default=default,
             help='cycle time in tenths of a second (default: %(default)s)')
 
+    def get_random_hue(self):
+        """Generate and return a random hue value according to passed command arguments"""
+        if self.opts.normalized_random_hue:
+            return random_hue()
+        return random.randint(*self.opts.hue_range)
+
     def add_opts(self):
         BaseProgram.add_opts(self)
 
@@ -81,7 +91,7 @@ class FadingColorsProgram(BaseProgram):
         self.turn_on_lights()
 
         while True:
-            hue = random.randint(*self.opts.hue_range)
+            hue = self.get_random_hue()
             sat = random.randint(*self.opts.sat_range)
             bri = random.randint(*self.opts.bri_range)
             for light in self.lights:
