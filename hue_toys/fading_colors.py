@@ -38,20 +38,36 @@ class FadingColorsProgram(BaseProgram):
             default=[MIN['hue'], MAX['hue']],
             help='restrict the generated hue range (%d to %d) from L to H' % (
                 MIN['hue'], MAX['hue']))
-        self.opt_parser.add_argument(
+        hue_group.add_argument(
+            '-nh', '--no-hue',
+            dest='no_hue', action='store_true',
+            help="don't set hue during run")
+
+        sat_group = self.opt_parser.add_mutually_exclusive_group()
+        sat_group.add_argument(
             '-sr', '--saturation-range',
             dest='sat_range', nargs=2,
             type=self.int_within_range(MIN['sat'], MAX['sat']),
             metavar=('L', 'H'), default=[MIN['sat'], MAX['sat']],
             help='restrict the generated saturation range (%d to %d) from L to H' % (
                 MIN['sat'], MAX['sat']))
-        self.opt_parser.add_argument(
+        sat_group.add_argument(
+            '-ns', '--no-sat',
+            dest='no_sat', action='store_true',
+            help="don't set saturation during run")
+
+        bri_group = self.opt_parser.add_mutually_exclusive_group()
+        bri_group.add_argument(
             '-br', '--brightness-range',
             dest='bri_range', nargs=2,
             type=self.int_within_range(MIN['bri'], MAX['bri']),
             metavar=('L', 'H'), default=[MIN['bri'], MAX['bri']],
             help='restrict the generated saturation range (%d to %d) from L to H' % (
                 MIN['bri'], MAX['bri']))
+        bri_group.add_argument(
+            '-nb', '--no-bri',
+            dest='no_bri', action='store_true',
+            help="don't set brightness during run")
 
     def add_cycle_time_opt(self, default=100):
         """Append cycle time option to parser"""
@@ -62,10 +78,28 @@ class FadingColorsProgram(BaseProgram):
             help='cycle time in tenths of a second (default: %(default)s)')
 
     def get_random_hue(self):
-        """Generate and return a random hue value according to passed command arguments"""
+        """Generate and return a random hue value according to passed program arguments"""
         if self.opts.normalized_random_hue:
             return random_hue()
         return random.randint(*self.opts.hue_range)
+
+    def get_random_parms(self, last_parms=None):
+        """Generate and return a randomized light parameter dict according to
+        passed program arguments, based on last_parms if specified
+        (relevant with hue/saturation/brightness grouping)
+        """
+        is_update = last_parms is not None
+        parms = {} if not is_update else last_parms.copy()
+        # Update the parameter if it's not disabled (-nh/-ns/-nb) and if
+        # last_parms was not given (meaning generate a new parm dict
+        # with all paramters) or the parameter is not “grouped” across lamps
+        if not self.opts.no_hue and not (is_update and self.opts.group_hue):
+            parms['hue'] = self.get_random_hue()
+        if not self.opts.no_sat and not (is_update and self.opts.group_sat):
+            parms['sat'] = random.randint(*self.opts.sat_range)
+        if not self.opts.no_bri and not (is_update and self.opts.group_bri):
+            parms['bri'] = random.randint(*self.opts.bri_range)
+        return parms
 
     def add_opts(self):
         BaseProgram.add_opts(self)
@@ -91,19 +125,12 @@ class FadingColorsProgram(BaseProgram):
         self.turn_on_lights()
 
         while True:
-            hue = self.get_random_hue()
-            sat = random.randint(*self.opts.sat_range)
-            bri = random.randint(*self.opts.bri_range)
+            parms = self.get_random_parms()
             for light in self.lights:
                 self.bridge.set_light(
-                    light, {'hue': hue, 'sat': sat, 'bri': bri},
+                    light, parms,
                     transitiontime=self.opts.cycle_time)
-                if not self.opts.group_hue:
-                    hue = random.randint(*self.opts.hue_range)
-                if not self.opts.group_sat:
-                    sat = random.randint(*self.opts.sat_range)
-                if not self.opts.group_bri:
-                    bri = random.randint(*self.opts.bri_range)
+                parms = self.get_random_parms(parms)
             decisleep(self.opts.cycle_time)
 
 
