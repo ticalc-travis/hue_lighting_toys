@@ -46,9 +46,7 @@ class ChasingColorsProgram(FadingColorsProgram):
         light_state = self.bridge.collect_light_states(self.lights)
 
         while True:
-            new_state = {'hue': self.get_random_hue(),
-                         'sat': random.randint(*self.opts.sat_range),
-                         'bri': random.randint(*self.opts.bri_range)}
+            new_state = self.get_random_parms()
             for light in self.lights:
                 orig_state = light_state[light]
                 self.bridge.set_light_optimized(
