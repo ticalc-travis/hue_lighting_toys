@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import math
 from random import choice, randint, normalvariate
 import threading
 import time
@@ -32,6 +33,9 @@ class LampSimulationProgram(BaseProgram):
         self.models = {'cfl_3500k': self.simulate_3500k,
                        'cfl_2700k': self.simulate_2700k,
                        'sbm': self.simulate_sbm,
+                       'lps-like': self.simulate_lps_like,
+                       'lps-like_sat': self.simulate_lps_like_sat,
+                       'mh-like_warm': self.simulate_mh_like_warm,
         }
         self.default_model_seq = ['cfl_3500k']
 
@@ -173,6 +177,65 @@ class LampSimulationProgram(BaseProgram):
         stages.append({'hue': 8000,
                        'sat': 34,
                        'transitiontime': randint(500, 800)})
+
+        self.run_stages(stages, light_id)
+
+    def simulate_lps_like(self, light_id):
+        """Run a low-pressure-sodium-light warmup simulation using given light_id"""
+        stages = []
+
+        stages.append({'on': True,
+                       'bri': 1,
+                       'hue': 0,
+                       'sat': 254,
+                       'transitiontime': 0})
+
+        stages.append({'bri': 254,
+                       'ctk': 1600,
+                       'transitiontime': randint(4800, 9000)})
+
+        self.run_stages(stages, light_id)
+
+    def simulate_lps_like_sat(self, light_id):
+        """Run a low-pressure-sodium-like warmup simulation using given light_id"""
+        stages = []
+        total_warmup_time = randint(4800, 9000)
+
+        stages.append({'on': True,
+                       'bri': 1,
+                       'hue': 0,
+                       'sat': 254,
+                       'transitiontime': 0})
+
+        stages.append({'bri': 254,
+                       'ctk': 1600,
+                       'transitiontime': math.ceil(total_warmup_time / 2)})
+
+        stages.append({'bri': 254,
+                       'ctk': 4000,
+                       'transitiontime': math.ceil(total_warmup_time / 2)})
+
+        self.run_stages(stages, light_id)
+
+    def simulate_mh_like_warm(self, light_id):
+        """Run a warm-CCT (~2800–3000K) metal-halide-like warmup simulation
+        using given light_id
+        """
+        stages = []
+
+        stages.append({'on': True,
+                       'bri': 1,
+                       'ctk': 20000,
+                       'transitiontime': 0})
+
+        stages.append({'bri': 200,
+                       'ctk': 5000,
+                       'transitiontime': randint(600, 800)})
+
+        stages.append({'bri': 254,
+                       'hue': 5000,
+                       'sat': 80,
+                       'transitiontime': randint(125, 250)})
 
         self.run_stages(stages, light_id)
 
