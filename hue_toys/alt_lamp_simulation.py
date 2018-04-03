@@ -72,7 +72,7 @@ class LampSimulationProgram(BaseProgram):
             stage['transitiontime'] = real_trans_time
             with self.bridge_lock:
                 self.bridge.set_light(light_id, stage)
-            decisleep(real_trans_time)
+            decisleep(real_trans_time + 1)
 
     def simulate_2700k(self, light_id):
         """Run a 2700K CFL simulation using the given light_id"""
