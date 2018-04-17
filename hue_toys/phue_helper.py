@@ -130,6 +130,156 @@ def random_hue():
     return hue_value
 
 
+class UnsupportedLightModel(Exception):
+    pass
+
+
+class PowerCalculator:
+    """Object for calculating power consumption of supported models of Hue
+    lights, based on information published at
+    <https://developers.meethue.com/energyconsumption>
+    """
+    def __init__(self):
+        self.constants = {
+            'LWB014': {
+                'type': 'Dimmable light',
+                'min_dimlevel': .05,
+                'standby_power': .4,
+                'max_power': 9,
+                'c': -.1484,
+                'd': 1.0845,
+                'e': .0607,
+            },
+            'LTW004': {
+                'type': 'Color temperature light',
+                'min_dimlevel': .01,
+                'standby_power': .2,
+                'max_power': 10,
+                'a': .000164,
+                'b': .352,
+                'c': -.1484,
+                'd': 1.0845,
+                'e': .0607,
+                'f': -.000115,
+                'g': 1.459,
+            },
+            'LTW011': {
+                'type': 'Color temperature light',
+                'min_dimlevel': .01,
+                'standby_power': .2,
+                'max_power': 9,
+                'a': .000164,
+                'b': .352,
+                'c': -.1484,
+                'd': 1.0845,
+                'e': .0607,
+                'f': -.000115,
+                'g': 1.459,
+            },
+            'LCT014': {
+                'type': 'Extended color light',
+                'min_dimlevel': .01,
+                'standby_power': .2,
+                'max_power': 10,
+                'c': -.1484,
+                'd': 1.0845,
+                'e': .0607,
+                'k0': 1.9738027,
+                'k1': .00080357,
+                'k2': -.02507075,
+                'k3': -.0002499,
+                'k4': 8.6021e-05,
+                'k5': .00018992,
+                'k6': 2.3183e-06,
+                'k7': -7.983e-07,
+                'k8': -1.786e-08,
+                'k9': -7.1209e-07,
+                'k10': -5.2436e-09,
+                'k11': 1.404e-09,
+                'k12': 3.8962e-10,
+                'k13': 0,
+                'k14': 9.4761e-10,
+                'l0': 1,
+                'l1': -.00424132,
+                'l2': .000528623,
+                'l3': .000111131,
+                'l4': -6.1015e-05,
+                'l5': 1.92599e-05,
+                'l6': -8.2638e-07,
+                'l7': 5.62658e-08,
+                'l8': 1.62112e-07,
+                'l9': -1.3746e-07,
+                'l10': 1.821e-09,
+                'l11': 5.21514e-10,
+                'l12': -3.0929e-10,
+                'l13': 0,
+                'l14': 1.07363e-10,
+            },
+        }
+
+    def get_constants(self, modelid):
+        """Retrieve a dict of light-model-specific constants for calculations"""
+        try:
+            return self.constants[modelid]
+        except KeyError:
+            raise UnsupportedLightModel(modelid)
+
+    def dim_level(self, modelid, bri):
+        """Return the dimming level (as a percentage) given the brightness
+        setting 'bri' for the given light 'modelid' returned from the
+        Hue API
+        """
+        cons = self.get_constants(modelid)
+        return cons['min_dimlevel'] + ((1 - cons['min_dimlevel']) * (bri - 1) ** 2) / 253 ** 2
+
+    def power(self, modelid, state):
+        """Return the calculated power consumption in watts of light model
+        'modelid' given light state mapping 'state' for that light
+        """
+        cons = self.get_constants(modelid)
+        dim_level = self.dim_level(modelid, state['bri'])
+
+        if state['on']:
+
+            if cons['type'] == 'Dimmable light':
+                power = (cons['max_power'] *
+                         (cons['c'] * dim_level ** 2 + cons['d'] * dim_level + cons['e']))
+
+            elif cons['type'] == 'Color temperature light':
+                cct = conv_ct(state['ct'])
+                if cct <= 4000:
+                    power = cons['max_power'] * (cons['a'] * cct + cons['b']) * (
+                        cons['c'] * dim_level ** 2 + cons['d'] * dim_level + cons['e'])
+                else:
+                    power = cons['max_power'] * (cons['f'] * cct + cons['g']) * (
+                        cons['c'] * dim_level ** 2 + cons['d'] * dim_level + cons['e'])
+
+            elif cons['type'] == 'Extended color light':
+                hue, sat = state['hue'] / 256, state['sat']
+                p_dim = cons['c'] * dim_level ** 2 + cons['d'] * dim_level + cons['e']
+                p_flux = (cons['k0'] + cons['k1'] * hue + cons['k2'] * sat + cons['k3'] * hue ** 2 +
+                          cons['k4'] * hue * sat + cons['k5'] * sat ** 2 + cons['k6'] * hue ** 3 +
+                          cons['k7'] * hue ** 2 * sat + cons['k8'] * hue * sat ** 2 + cons['k9'] *
+                          sat ** 3 + cons['k10'] * hue ** 4 + cons['k11'] * hue ** 3 * sat +
+                          cons['k12'] * hue ** 2 * sat ** 2 + cons['k13'] * hue * sat ** 3 +
+                          cons['k14'] * sat ** 4)
+                p_bri = (cons['l0'] + cons['l1'] * hue + cons['l2'] * sat + cons['l3'] * hue ** 2 +
+                         cons['l4'] * hue * sat + cons['l5'] * sat ** 2 + cons['l6'] * hue ** 3 +
+                         cons['l7'] * hue ** 2 * sat + cons['l8'] * hue * sat ** 2 + cons['l9'] *
+                         sat ** 3 + cons['l10'] * hue ** 4 + cons['l11'] * hue ** 3 * sat +
+                         cons['l12'] * hue ** 2 * sat ** 2 + cons['l13'] * hue * sat ** 3 +
+                         cons['l14'] * sat ** 4)
+                power = cons['max_power'] * p_dim * min(p_flux, p_bri)
+
+            else:
+                raise AssertionError('Unsupported light type: %s' % cons['type'])
+
+            return power
+
+        else:
+            return cons['standby_power']
+
+
 class BridgeError(Exception):
     """Base exception for Hue bridge errors"""
     pass
@@ -160,6 +310,7 @@ class ExtendedBridge(Bridge):
         Bridge.__init__(self, *args, **kwargs)
 
         self._cached_light_state = defaultdict(dict)
+        self.power_calculator = PowerCalculator()
 
     def __contains__(self, key):
         """Make syntax like "light_id in bridge" work properly"""
@@ -458,3 +609,10 @@ class ExtendedBridge(Bridge):
         """
         state = self.get_light(light_id)['state']
         return self.light_state_is_default(state)
+
+    def get_light_power(self, light_id):
+        """Retrieve calculated power consumption of light in watts if model is
+        supported, else raise UnsupportedLightModel
+        """
+        light_data = self.get_light(light_id)
+        return self.power_calculator.power(light_data['modelid'], light_data['state'])
