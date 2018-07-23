@@ -544,9 +544,10 @@ class ExtendedBridge(Bridge):
         """
         return (state['reachable']
                 and state['on']
-                and state['colormode'] == 'ct'
-                and state['bri'] == 254
-                and state['ct'] == 366)
+                and state.get('colormode', 'ct') == 'ct'
+                and state.get('ct', 366) == 366
+                and state.get('bri', None) == 254
+        )
 
     def collect_light_states(self, light_ids, state=None,
                              include_default_state=True):
