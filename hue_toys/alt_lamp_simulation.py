@@ -36,6 +36,7 @@ class LampSimulationProgram(BaseProgram):
                        'lps-like': self.simulate_lps_like,
                        'lps-like_sat': self.simulate_lps_like_sat,
                        'mh-like_warm': self.simulate_mh_like_warm,
+                       'cfl_4100k': self.simulate_4100k,
         }
         self.default_model_seq = ['cfl_3500k']
 
@@ -145,6 +146,44 @@ class LampSimulationProgram(BaseProgram):
         else:
             stages.append({'bri': randint(1, 40),
                            'ct': randint(286, 315),
+                           'transitiontime': 0})
+
+            stages.append({'bri': 254,
+                           'transitiontime': randint(800, 1600)})
+
+        self.run_stages(stages, light_id)
+
+    def simulate_4100k(self, light_id):
+        """Run a 4100K CFL simulation using the given light_id"""
+        stages = [{'on': True, 'transitiontime': 0}]
+        if self.opts.warmup_type == 'random':
+            deep_warmup = randint(0, 1)
+        else:
+            deep_warmup = True if self.opts.warmup_type == 'deep' else False
+        if deep_warmup:
+            init_bri = randint(1, 40)
+            init_sat = randint(25, 90)
+            stages.append({'bri': init_bri,
+                           'sat': init_sat,
+                           'hue': 60000,
+                           'transitiontime': 0})
+
+            settle_bri = randint(1, init_bri)
+            settle_sat = randint(init_sat, 90)
+            stages.append({'bri': settle_bri,
+                           'sat': settle_sat,
+                           'transitiontime': randint(1, 100)})
+
+            stages.append({'bri': randint(50, 70),
+                           'ct': 244,
+                           'transitiontime': randint(50, 350)})
+
+            stages.append({'bri': 254,
+                           'transitiontime': randint(600, 1200)})
+
+        else:
+            stages.append({'bri': randint(1, 40),
+                           'ct': randint(227, 263),
                            'transitiontime': 0})
 
             stages.append({'bri': 254,
