@@ -29,6 +29,7 @@ from time import sleep
 from hue_toys.phue_helper import ExtendedBridge
 
 LOG_FORMAT = '%(asctime)s [%(module)s] %(message)s'
+SHUTDOWN_EXIT_CODE = 99
 
 
 class BaseProgram():
@@ -320,16 +321,28 @@ used.'''
                     self.lights, light_state, transitiontime=0)
 
 
+class Shutdown(Exception):
+    """Exception to signal immediate clean up and shutdown"""
+    pass
+
+
+def _start_shutdown(signum, frame):
+    raise Shutdown()
+
+
 def default_run(prog_class):
     """Create an instance of prog_class, displaying command argument errors
     if they occur, and supply a return code for this condition or keyboard
     interrupts.
     """
+    signal.signal(signal.SIGTERM, _start_shutdown)
     prog = prog_class()
     try:
         prog.run()
     except KeyboardInterrupt:
         sys.exit(signal.SIGINT + 128)    # Terminate quietly on ^C
+    except Shutdown:
+        sys.exit(SHUTDOWN_EXIT_CODE)
 
 
 def main():
