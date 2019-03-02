@@ -44,22 +44,22 @@ class FlashingColorsProgram(ChasingColorsProgram):
         self.add_range_parse_opts()
 
         self.opt_parser.add_argument(
-            '-na', '--on-time-avg',
+            '-navg', '--on-time-avg',
             type=self.int_within_range(0, None),
             metavar='DECISECONDS', default=DEFAULT_ON_TIME_AVG,
             help='average “on” time per flash in tenths of a second (default: %(default)s)')
         self.opt_parser.add_argument(
-            '-ns', '--on-time-sd',
+            '-nsd', '--on-time-sd',
             type=self.int_within_range(0, None),
             metavar='DECISECONDS', default=DEFAULT_ON_TIME_SD,
             help='standard deviation of “on” time per flash in tenths of a second (default: %(default)s)')
         self.opt_parser.add_argument(
-            '-fa', '--off-time-avg',
+            '-favg', '--off-time-avg',
             type=self.int_within_range(0, None),
             metavar='DECISECONDS', default=DEFAULT_OFF_TIME_AVG,
             help='average “off” time per flash in tenths of a second (default: %(default)s)')
         self.opt_parser.add_argument(
-            '-fs', '--off-time-sd',
+            '-fsd', '--off-time-sd',
             type=self.int_within_range(0, None),
             metavar='DECISECONDS', default=DEFAULT_OFF_TIME_SD,
             help='standard deviation of “off” time per flash in tenths of a second (default: %(default)s)')
