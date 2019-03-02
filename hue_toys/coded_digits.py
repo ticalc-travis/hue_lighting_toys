@@ -70,6 +70,10 @@ class CodedDigitsProgram(ChasingColorsProgram):
 
     default_scheme = DIGITS_DEFAULT
 
+    @property
+    def _powerfail_brightness(self):
+        return self.schemes[self.opts.scheme]['0']['bri']
+
     def add_main_opts(self):
         """Add all program options to command parser except for the digits
         parameter
@@ -106,6 +110,8 @@ transmit''')
             '-c', '--scheme',
             dest='scheme', type=str, choices=sorted(DIGITS.keys()), default=DIGITS_DEFAULT,
             help='use the chosen color scheme')
+
+        self.add_power_fail_opt()
 
     def add_opts(self):
         self.add_main_opts()

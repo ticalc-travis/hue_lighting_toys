@@ -55,6 +55,13 @@ used.'''
         raw_arguments: List of CLI args to arg parser
         bridge_retries: Max number of retries if bridge command fails
         bridge_retry_wait: Seconds to wait between bridge retries
+
+        Other class attributes:
+        bridge: Hue bridge object
+        lights: List of lights to be handled by the program
+        startup_brightness: Brightness that lamps should revert to on
+            power loss when the power-failure restoration mode is
+            temporarily disabled
         """
         self.init_arg_parser()
         self.opts = self.opt_parser.parse_args(raw_arguments)
@@ -65,6 +72,8 @@ used.'''
             self.opt_parser.error('no lights available')
         self.bridge_retries = bridge_retries
         self.bridge_retry_wait = bridge_retry_wait
+
+        self.light_startup_mode = {}
 
         # Set up verbose output if specified
         verbose = getattr(self.opts, 'verbose', 0)
@@ -233,6 +242,13 @@ used.'''
         """
         self.add_no_restore_opt()
 
+    def add_power_fail_opt(self):
+        """Add option to temporarily disable power-failure restore behavior"""
+        self.opt_parser.add_argument(
+            '-f', '--disable-power-fail-mode',
+            action='store_true',
+            help="temporarily disable power-failure restoration of light state while the effect runs (for Hue lights which support it)")
+
     def add_opts(self):
         """Add program's command arguments to argument parser"""
         self.add_verbose_opt()
@@ -304,21 +320,68 @@ used.'''
         termination if it should be done.
         """
 
-        # Do not assume self.opts has restore_light_state, as this method
-        # may be called by subclasses that did not install it as a
-        # command option. If it isn't an option, don't restore, but let
-        # the child class handle things.
+        # Do not assume self.opts has these options, as this method
+        # may be called by subclasses that did not install them as
+        # command options.
         do_restore = getattr(self.opts, 'restore_light_state', False)
+        disable_power_fail = getattr(self.opts, 'disable_power_fail_mode', False)
 
         if do_restore:
             light_state = self.bridge.collect_light_states(self.lights)
+        if disable_power_fail:
+            self.disable_power_fail()
 
         try:
             self.main()
         finally:
+            if disable_power_fail:
+                self.enable_power_fail()
             if do_restore:
                 self.bridge.restore_light_states(
                     self.lights, light_state, transitiontime=0)
+
+    @property
+    def _powerfail_brightness(self):
+        return 254
+
+    def disable_power_fail(self):
+        """Set power-on mode of all supported lights in the used sequence to a
+        fixed default based on self._powerfail_brightness. Remember the
+        original power-on mode so it can be restored when
+        enable_power_fail is called.
+        """
+        for light in self.lights:
+            try:
+                startup_config = self.bridge.api('lights/%s' % light)['config']['startup']
+            except KeyError:
+                self.log.info('Startup config not supported for light %s', light)
+            else:
+                startup_mode = startup_config['mode']
+                if startup_mode in ['powerfail', 'lastonstate']:
+                    self.log.info('Disabling light %s power-fail recovery mode', light)
+                    self.light_startup_mode[light] = startup_mode
+                    self.bridge.api('lights/%s/config' % light, {
+                        'startup': {
+                            'mode': 'custom',
+                            'customsettings': {
+                                'ct': 366,
+                                'bri': self._powerfail_brightness,
+                            }
+                        }
+                    })
+                else:
+                    self.log.info('Light %s startup mode not powerfail or lastonstate; leaving alone',
+                                  light)
+
+    def enable_power_fail(self):
+        """Restore power-on mode of lights to the value it was when
+        self.disable_power_fail was called
+        """
+        for light, mode in self.light_startup_mode.items():
+            self.log.info('Restoring startup mode for light %s to "%s"',
+                          light, mode)
+            self.bridge.api('lights/%s/config' % light,
+                            {'startup': {'mode': mode}})
 
 
 class Shutdown(Exception):

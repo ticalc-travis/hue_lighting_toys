@@ -36,6 +36,7 @@ class ChasingColorsProgram(FadingColorsProgram):
 
         self.add_cycle_time_opt(default=10)
         self.add_range_parse_opts()
+        self.add_power_fail_opt()
 
     def main(self):
         self.turn_on_lights()

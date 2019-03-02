@@ -380,6 +380,18 @@ class ExtendedBridge(Bridge):
                     time.sleep(self.retry_wait)
                     curr_retries += 1
 
+    def api(self, address, body=None, method=None):
+        """Make a direct call to the Hue API at given address starting with
+        resource name (i.e., without the initial "/api/<username>/" part)
+        with optional body (a dict that will be translated to JSON) and
+        given HTTP method. The default method is "GET" if body is None,
+        else "PUT".
+        """
+        req_address = '/api/%s/%s' % (self.username, address)
+        if method is None:
+            method = 'GET' if body is None else 'PUT'
+        return self.request(method, req_address, body)
+
     def set_light(self, light_id, parameter, value=None,
                   transitiontime=None):
         """Extended version of self.set_light with the following enhancements:

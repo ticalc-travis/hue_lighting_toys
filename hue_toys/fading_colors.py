@@ -121,6 +121,12 @@ class FadingColorsProgram(BaseProgram):
 
         self.add_range_parse_opts()
 
+        self.add_power_fail_opt()
+
+    @property
+    def _powerfail_brightness(self):
+        return (self.opts.bri_range[0] + self.opts.bri_range[1]) // 2
+
     def main(self):
         self.turn_on_lights()
 
