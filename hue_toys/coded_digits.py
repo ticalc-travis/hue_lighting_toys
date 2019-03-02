@@ -109,7 +109,7 @@ transmit''')
         self.opt_parser.add_argument(
             '-c', '--scheme',
             dest='scheme', type=str, choices=sorted(DIGITS.keys()), default=DIGITS_DEFAULT,
-            help='use the chosen color scheme')
+            help='use the chosen color scheme (default: %(default)s)')
 
         self.add_power_fail_opt()
 
