@@ -64,6 +64,8 @@ class FlashingColorsProgram(ChasingColorsProgram):
             metavar='DECISECONDS', default=DEFAULT_OFF_TIME_SD,
             help='standard deviation of “off” time per flash in tenths of a second (default: %(default)s)')
 
+        self.add_power_fail_opt()
+
     def get_usage_epilog(self):
         # Use generic epilog; don't display info about sequencing order
         # like chasing_colors does since it's not applicable to this
