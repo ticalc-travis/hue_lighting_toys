@@ -80,12 +80,9 @@ class FlashingColorsProgram(ChasingColorsProgram):
     def do_light_flash(self, light_id):
         """Flash the light with id “light_id” different colors"""
         while True:
-            hue = randint(*self.opts.hue_range)
-            sat = randint(*self.opts.sat_range)
-            bri = randint(*self.opts.bri_range)
-            self.set_light(light_id,
-                           {'on': True, 'hue': hue, 'sat': sat, 'bri': bri},
-                           transitiontime=0)
+            params = self.get_random_parms()
+            params['on'] = True
+            self.set_light(light_id, params, transitiontime=0)
             decisleep(normalvariate(self.opts.on_time_avg, self.opts.on_time_sd))
             self.set_light(light_id, 'on', False, transitiontime=0)
             decisleep(normalvariate(self.opts.off_time_avg, self.opts.off_time_sd))
