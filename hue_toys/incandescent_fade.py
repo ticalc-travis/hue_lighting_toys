@@ -60,8 +60,8 @@ class IncandescentFadeProgram(BaseProgram):
             cmd = {'on': True, 'inc': level}
         else:
             cmd = {'on': False}
-        self.bridge.set_light_optimized(self.lights, cmd,
-                                        transitiontime=transitiontime)
+        self.bridge.set_light(self.lights, cmd,
+                              transitiontime=transitiontime)
 
     def fade(self, start_bri, final_bri, fade_time):
         """Perform an incandescent-like dimmer fade from brightness level
