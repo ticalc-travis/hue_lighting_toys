@@ -49,6 +49,8 @@ class IncandescentFadeProgram(BaseProgram):
             'fade_time', type=self.positive_float(),
             help='number of seconds to perform the fade')
 
+        self.add_power_fail_opt()
+
     def _set_light_incan(self, level, transitiontime):
         """Set lights to the given brightness of “incandescent bulb” color, or
         turn them off if brightness level is one less than the minimum

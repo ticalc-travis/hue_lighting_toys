@@ -65,6 +65,8 @@ class LampSimulationProgram(BaseProgram):
             dest='time_rate', type=self.positive_float(), default=1.0,
             help='time rate of simulation (e.g., 2 = double speed, 0.5 = half speed) (default: 1.0)')
 
+        self.add_power_fail_opt()
+
     def run_stages(self, stages, light_id):
         """Send a sequence of light commands (parameter dicts to send to
         phue[_helper].Bridge.set_light()), waiting for each transition
