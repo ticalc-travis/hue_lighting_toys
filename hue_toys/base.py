@@ -369,6 +369,8 @@ used.'''
                             }
                         }
                     })
+                    # Delay a bit to avoid overloading Zigbee bandwidth
+                    sleep(.1)
                 else:
                     self.log.info('Light %s startup mode not powerfail or lastonstate; leaving alone',
                                   light)
@@ -382,6 +384,8 @@ used.'''
                           light, mode)
             self.bridge.api('lights/%s/config' % light,
                             {'startup': {'mode': mode}})
+            # Delay a bit to avoid overloading Zigbee bandwidth
+            sleep(.1)
 
 
 class Shutdown(Exception):
