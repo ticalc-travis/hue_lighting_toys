@@ -216,6 +216,8 @@ class PowerCalculator:
                 'l14': 1.07363e-10,
             },
         }
+        self.constants['LCT011'] = self.constants['LCT014']
+        self.constants['LCT016'] = self.constants['LCT014']
 
     def get_constants(self, modelid):
         """Retrieve a dict of light-model-specific constants for calculations"""
